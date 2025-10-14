@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestão de Pacientes - ASSANDEF</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="fixed-top">
+      <nav id="navbar" class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/index.html">
+            <img
+              src="/assets/img/assandef-logo.png"
+              alt="Logo da ASSANDEF"
+              class="d-inline-block align-text-top"
+            />
+          </a>
+          <div class="navbar-title d-none d-lg-block">
+            <span class="fw-bold fs-4">ASSANDEF</span>
+          </div>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNav"
+            aria-controls="navbarNav"
+            aria-expanded="false"
+            aria-label="Alternar navegação"
+          >
+            <span class="navbar-toggler-icon">
+              <span class="bar bar1"></span><span class="bar bar2"></span
+              ><span class="bar bar3"></span>
+            </span>
+          </button>
+          <div
+            class="collapse navbar-collapse justify-content-end"
+            id="navbarNav"
+          >
+            <ul class="navbar-nav">
+              <li class="nav-item">
+                <a class="nav-link" href="index.html">Início</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="almoxarifado.html">Almoxarifado</a>
+              </li>
+              <li class="nav-item">
+                <a
+                  class="nav-link active"
+                  aria-current="page"
+                  href="atendimento.html"
+                  >Atendimento</a
+                >
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Saúde</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Gestão de Acesso</a>
+              </li>
+            </ul>
+            <hr class="d-lg-none text-muted" />
+            <div class="navbar-nav">
+              <div class="nav-item dropdown">
+                <a
+                  class="nav-link d-flex align-items-center"
+                  href="/pages/login.html"
+                  id="loginDropdown"
+                  role="button"
+                  aria-expanded="false"
+                >
+                  <i class="bi bi-person-circle fs-4 me-2"></i>
+                  Acesso
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main class="main-page">
+      <div class="container-fluid">
+        <div class="page-header">
+          <h1 class="page-title">Gestão de Pacientes e Triagem</h1>
+          <div class="page-actions">
+            <button
+              class="btn btn-outline-secondary"
+              data-bs-toggle="modal"
+              data-bs-target="#modalExportarRegistros"
+            >
+              <i class="bi bi-file-earmark-arrow-down me-2"></i>Exportar
+              Registros
+            </button>
+            <button
+              class="btn btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#modalNovoPaciente"
+            >
+              <i class="bi bi-person-plus-fill me-2"></i>Cadastrar Novo Paciente
+            </button>
+          </div>
+        </div>
+
+        <ul class="nav nav-tabs mt-4" id="pacientesTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="lista-pacientes-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#lista-pacientes-pane"
+              type="button"
+              role="tab"
+              aria-controls="lista-pacientes-pane"
+              aria-selected="true"
+            >
+              <i class="bi bi-people-fill me-2"></i>Lista de Pacientes
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="fila-atendimento-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#fila-atendimento-pane"
+              type="button"
+              role="tab"
+              aria-controls="fila-atendimento-pane"
+              aria-selected="false"
+            >
+              <i class="bi bi-clock-history me-2"></i>Fila de Atendimento
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="historico-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#historico-pane"
+              type="button"
+              role="tab"
+              aria-controls="historico-pane"
+              aria-selected="false"
+            >
+              <i class="bi bi-journal-text me-2"></i>Histórico de Atendimentos
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content card" id="pacientesTabsContent">
+          <div
+            class="tab-pane fade show active"
+            id="lista-pacientes-pane"
+            role="tabpanel"
+            aria-labelledby="lista-pacientes-tab"
+            tabindex="0"
+          >
+            <div class="card-body">
+              <div class="row g-3 mb-4">
+                <div class="col-md-8">
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      class="form-control"
+                      placeholder="Buscar por nome ou CPF do paciente..."
+                    />
+                    <button class="btn btn-outline-primary" type="button">
+                      <i class="bi bi-search"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">ID</th>
+                      <th scope="col">Nome Completo</th>
+                      <th scope="col">CPF</th>
+                      <th scope="col">Data de Nasc.</th>
+                      <th scope="col">Status</th>
+                      <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>Carlos Alberto de Souza</td>
+                      <td>123.456.789-00</td>
+                      <td>15/05/1980</td>
+                      <td><span class="badge bg-info">Em Atendimento</span></td>
+                      <td class="text-end">
+                        <button
+                          class="btn btn-sm btn-secondary"
+                          title="Iniciar Triagem"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalTriagem"
+                        >
+                          <i class="bi bi-clipboard2-pulse-fill me-1"></i>
+                          Triagem
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Maria Eduarda Gonçalves</td>
+                      <td>987.654.321-00</td>
+                      <td>20/11/1992</td>
+                      <td>
+                        <span class="badge bg-warning">Aguardando Triagem</span>
+                      </td>
+                      <td class="text-end">
+                        <button
+                          class="btn btn-sm btn-secondary"
+                          title="Iniciar Triagem"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalTriagem"
+                        >
+                          <i class="bi bi-clipboard2-pulse-fill me-1"></i>
+                          Triagem
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td>João Pereira Lima</td>
+                      <td>111.222.333-44</td>
+                      <td>01/02/2005</td>
+                      <td><span class="badge bg-success">Alta</span></td>
+                      <td class="text-end">
+                        <button
+                          class="btn btn-sm btn-secondary"
+                          title="Iniciar Triagem"
+                          data-bs-toggle="modal"
+                          data-bs-target="#modalTriagem"
+                        >
+                          <i class="bi bi-clipboard2-pulse-fill me-1"></i>
+                          Triagem
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="fila-atendimento-pane"
+            role="tabpanel"
+            aria-labelledby="fila-atendimento-tab"
+            tabindex="0"
+          >
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Ordem</th>
+                      <th scope="col">Paciente</th>
+                      <th scope="col">Chegada</th>
+                      <th scope="col">Prioridade</th>
+                      <th scope="col" class="text-end">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">1</th>
+                      <td>Ana Clara Fogaça</td>
+                      <td>10:15</td>
+                      <td>
+                        <span class="badge-prioridade alta"
+                          ><i class="bi bi-exclamation-triangle-fill"></i>
+                          Urgente</span
+                        >
+                      </td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-success">Chamar</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">2</th>
+                      <td>Ricardo Martins</td>
+                      <td>10:22</td>
+                      <td>
+                        <span class="badge-prioridade media"
+                          ><i class="bi bi-exclamation-circle-fill"></i>
+                          Prioritário</span
+                        >
+                      </td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-success">Chamar</button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">3</th>
+                      <td>Maria Eduarda Gonçalves</td>
+                      <td>10:28</td>
+                      <td>
+                        <span class="badge-prioridade baixa"
+                          ><i class="bi bi-info-circle-fill"></i> Normal</span
+                        >
+                      </td>
+                      <td class="text-end">
+                        <button class="btn btn-sm btn-success">Chamar</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="historico-pane"
+            role="tabpanel"
+            aria-labelledby="historico-tab"
+            tabindex="0"
+          >
+            <div class="card-body">
+              <div class="row g-3 mb-4">
+                <div class="col-md-5">
+                  <select class="form-select">
+                    <option selected>Filtrar por profissional...</option>
+                    <option value="1">Dr. House</option>
+                    <option value="2">Dra. Grey</option>
+                  </select>
+                </div>
+                <div class="col-md-5">
+                  <input type="date" class="form-control" />
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">Data/Hora</th>
+                      <th scope="col">Paciente</th>
+                      <th scope="col">Profissional</th>
+                      <th scope="col">Tipo de Atendimento</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>22/09/2025 10:00</td>
+                      <td>Carlos Alberto de Souza</td>
+                      <td>Dr. House</td>
+                      <td>Fisioterapia</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="pt-5 pb-4 mt-5"></footer>
+
+    <div
+      class="modal fade"
+      id="modalNovoPaciente"
+      tabindex="-1"
+      aria-labelledby="modalNovoPacienteLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalNovoPacienteLabel">
+              Cadastrar Novo Paciente
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form class="row g-3">
+              <div class="col-md-12">
+                <label class="form-label">Nome Completo</label
+                ><input type="text" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">CPF</label
+                ><input type="text" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Data de Nascimento</label
+                ><input type="date" class="form-control" />
+              </div>
+              <div class="col-12">
+                <label class="form-label">Endereço</label
+                ><input type="text" class="form-control" />
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Telefone</label
+                ><input type="text" class="form-control" />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary">
+              Salvar Cadastro
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalTriagem"
+      tabindex="-1"
+      aria-labelledby="modalTriagemLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalTriagemLabel">
+              Realizar Triagem
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form class="row g-3">
+              <div class="col-md-12">
+                <h5>
+                  Paciente:
+                  <span class="fw-normal">Maria Eduarda Gonçalves</span>
+                </h5>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label"
+                  >Queixa Principal / Motivo da Visita</label
+                >
+                <textarea class="form-control" rows="3"></textarea>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label fw-bold">Definir Prioridade</label>
+                <div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="prioridade"
+                    /><label class="form-check-label">Normal</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="prioridade"
+                    /><label class="form-check-label">Prioritário</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input
+                      class="form-check-input"
+                      type="radio"
+                      name="prioridade"
+                    /><label class="form-check-label">Urgente</label>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-12">
+                <label class="form-label fw-bold">Encaminhar Para</label>
+                <div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" /><label
+                      class="form-check-label"
+                      >Fisioterapeuta</label
+                    >
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" /><label
+                      class="form-check-label"
+                      >Psicólogo</label
+                    >
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" /><label
+                      class="form-check-label"
+                      >Assistente Social</label
+                    >
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary">
+              Finalizar e Encaminhar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalNovoPaciente"
+      tabindex="-1"
+      aria-labelledby="modalNovoPacienteLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalNovoPacienteLabel">
+              Cadastrar Novo Paciente
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form class="row g-3">
+              <div class="col-12">
+                <label for="pacienteNome" class="form-label"
+                  >Nome Completo</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pacienteNome"
+                  placeholder="Digite o nome completo"
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="pacienteCpf" class="form-label">CPF</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pacienteCpf"
+                  placeholder="000.000.000-00"
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="pacienteRg" class="form-label">RG</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pacienteRg"
+                  placeholder="0000000000"
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="pacienteNascimento" class="form-label"
+                  >Data de Nascimento</label
+                >
+                <input
+                  type="date"
+                  class="form-control"
+                  id="pacienteNascimento"
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="pacienteSexo" class="form-label">Sexo</label>
+                <select id="pacienteSexo" class="form-select">
+                  <option selected>Selecione...</option>
+                  <option>Masculino</option>
+                  <option>Feminino</option>
+                  <option>Outro</option>
+                </select>
+              </div>
+              <div class="col-md-6">
+                <label for="pacienteSus" class="form-label"
+                  >Nº Cartão do SUS</label
+                >
+                <input type="text" class="form-control" id="pacienteSus" />
+              </div>
+              <div class="col-md-6">
+                <label for="pacienteTelefone" class="form-label"
+                  >Telefone</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pacienteTelefone"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+              <div class="col-12">
+                <label for="pacienteEndereco" class="form-label"
+                  >Endereço</label
+                >
+                <input
+                  type="text"
+                  class="form-control"
+                  id="pacienteEndereco"
+                  placeholder="Rua, Nº, Bairro"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary">
+              Salvar Cadastro
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="modalExportarRegistros"
+      tabindex="-1"
+      aria-labelledby="modalExportarRegistrosLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="modalExportarRegistrosLabel">
+              Exportar Registros de Atendimento
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="exportProfissional" class="form-label"
+                    >Filtrar por Profissional (Opcional)</label
+                  >
+                  <select id="exportProfissional" class="form-select">
+                    <option selected>Todos os profissionais</option>
+                    <option>Dr. House</option>
+                    <option>Dra. Grey</option>
+                  </select>
+                </div>
+                <div class="col-sm-6">
+                  <label for="exportDataInicio" class="form-label"
+                    >Data de Início</label
+                  >
+                  <input
+                    type="date"
+                    class="form-control"
+                    id="exportDataInicio"
+                  />
+                </div>
+                <div class="col-sm-6">
+                  <label for="exportDataFim" class="form-label"
+                    >Data de Fim</label
+                  >
+                  <input type="date" class="form-control" id="exportDataFim" />
+                </div>
+                <div class="col-12">
+                  <label class="form-label">Formato do Arquivo</label>
+                  <div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="fileFormatExport"
+                        id="formatPDFExport"
+                        value="pdf"
+                        checked
+                      />
+                      <label class="form-check-label" for="formatPDFExport"
+                        >PDF</label
+                      >
+                    </div>
+                    <div class="form-check form-check-inline">
+                      <input
+                        class="form-check-input"
+                        type="radio"
+                        name="fileFormatExport"
+                        id="formatCSVExport"
+                        value="csv"
+                      />
+                      <label class="form-check-label" for="formatCSVExport"
+                        >CSV</label
+                      >
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-primary">
+              <i class="bi bi-download me-2"></i>Gerar e Baixar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
