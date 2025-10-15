@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASSANDEF - Gestão de Materiais</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-success">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">ASSANDEF - Gestão de Materiais (Almoxarifado)</a>
+            <a href="/pacientes" class="btn btn-light btn-sm">Pacientes</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <!-- Gerenciamento de Categorias -->
+        <div class="row mb-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-secondary text-white">
+                        <h5>Categorias</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <form id="categoriaForm">
+                                    <input type="hidden" id="categoriaId">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="nomeCategoria" placeholder="Nome da categoria" required>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="bi bi-save"></i> Salvar
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-md-8">
+                                <div id="listaCategorias" class="d-flex flex-wrap gap-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Gerenciamento de Materiais -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><span id="formTitle">Cadastrar</span> Material</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="materialForm">
+                            <input type="hidden" id="materialId">
+                            <div class="mb-3">
+                                <label for="nomeMaterial" class="form-label">Nome *</label>
+                                <input type="text" class="form-control" id="nomeMaterial" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="categoriaSelect" class="form-label">Categoria *</label>
+                                <select class="form-control" id="categoriaSelect" required>
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="quantidadeAtual" class="form-label">Quantidade *</label>
+                                <input type="number" class="form-control" id="quantidadeAtual" value="0" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fornecedor" class="form-label">Fornecedor</label>
+                                <input type="text" class="form-control" id="fornecedor">
+                            </div>
+                            <div class="mb-3">
+                                <label for="dataValidade" class="form-label">Data de Validade</label>
+                                <input type="date" class="form-control" id="dataValidade">
+                            </div>
+                            <button type="submit" class="btn btn-success w-100">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                            <button type="button" class="btn btn-secondary w-100 mt-2" id="btnCancelarMaterial" style="display:none;">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Estatísticas -->
+                <div class="card mt-3">
+                    <div class="card-header bg-warning">
+                        <h6>Estoque Baixo</h6>
+                    </div>
+                    <div class="card-body">
+                        <div id="estoqueBaixo"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Lista de Materiais</h5>
+                        <button class="btn btn-sm btn-success" onclick="carregarMateriais()">
+                            <i class="bi bi-arrow-clockwise"></i> Atualizar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="buscarMaterial" placeholder="Buscar por nome...">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>Categoria</th>
+                                        <th>Qtd.</th>
+                                        <th>Fornecedor</th>
+                                        <th>Validade</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaMateriais">
+                                    <tr>
+                                        <td colspan="7" class="text-center">Carregando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ajustar estoque -->
+    <div class="modal fade" id="modalEstoque" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajustar Estoque</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Material:</strong> <span id="modalMaterialNome"></span></p>
+                    <p><strong>Quantidade Atual:</strong> <span id="modalQtdAtual"></span></p>
+                    <div class="mb-3">
+                        <label for="ajusteQuantidade" class="form-label">Adicionar/Remover (use - para remover)</label>
+                        <input type="number" class="form-control" id="ajusteQuantidade" placeholder="Ex: 10 ou -5">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" onclick="salvarAjusteEstoque()">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_MATERIAIS = '/api/materiais';
+        const API_CATEGORIAS = '/api/categorias';
+        let materialIdEstoque = null;
+        const modalEstoque = new bootstrap.Modal(document.getElementById('modalEstoque'));
+
+        // ========== CATEGORIAS ==========
+        async function carregarCategorias() {
+            try {
+                const response = await fetch(API_CATEGORIAS);
+                const categorias = await response.json();
+                
+                // Atualizar lista de badges
+                const lista = document.getElementById('listaCategorias');
+                lista.innerHTML = categorias.map(c => `
+                    <span class="badge bg-secondary">
+                        ${c.nome}
+                        <i class="bi bi-x-circle" onclick="deletarCategoria(${c.id})" style="cursor:pointer;"></i>
+                    </span>
+                `).join('');
+
+                // Atualizar select
+                const select = document.getElementById('categoriaSelect');
+                select.innerHTML = '<option value="">Selecione...</option>' + 
+                    categorias.map(c => `<option value="${c.id}">${c.nome}</option>`).join('');
+            } catch (error) {
+                console.error('Erro ao carregar categorias:', error);
+            }
+        }
+
+        document.getElementById('categoriaForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const categoria = { nome: document.getElementById('nomeCategoria').value };
+            
+            try {
+                const response = await fetch(API_CATEGORIAS, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(categoria)
+                });
+                
+                if (response.ok) {
+                    document.getElementById('nomeCategoria').value = '';
+                    carregarCategorias();
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        });
+
+        async function deletarCategoria(id) {
+            if (!confirm('Deseja excluir esta categoria?')) return;
+            
+            try {
+                const response = await fetch(`${API_CATEGORIAS}/${id}`, { method: 'DELETE' });
+                if (response.ok) carregarCategorias();
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // ========== MATERIAIS ==========
+        async function carregarMateriais() {
+            try {
+                const response = await fetch(API_MATERIAIS);
+                const materiais = await response.json();
+                exibirMateriais(materiais);
+                carregarEstoqueBaixo();
+            } catch (error) {
+                console.error('Erro ao carregar materiais:', error);
+            }
+        }
+
+        function exibirMateriais(materiais) {
+            const tbody = document.getElementById('tabelaMateriais');
+            if (materiais.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center">Nenhum material cadastrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = materiais.map(m => `
+                <tr class="${m.quantidadeAtual < 10 ? 'table-warning' : ''}">
+                    <td>${m.id}</td>
+                    <td>${m.nome}</td>
+                    <td>${m.categoria ? m.categoria.nome : '-'}</td>
+                    <td>
+                        ${m.quantidadeAtual}
+                        <button class="btn btn-sm btn-outline-primary" onclick="abrirModalEstoque(${m.id}, '${m.nome}', ${m.quantidadeAtual})">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                    <td>${m.fornecedor || '-'}</td>
+                    <td>${m.dataValidade || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editarMaterial(${m.id})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deletarMaterial(${m.id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function carregarEstoqueBaixo() {
+            try {
+                const response = await fetch(`${API_MATERIAIS}/estoque-baixo?quantidade=10`);
+                const materiais = await response.json();
+                const div = document.getElementById('estoqueBaixo');
+                
+                if (materiais.length === 0) {
+                    div.innerHTML = '<small class="text-muted">Nenhum material com estoque baixo</small>';
+                } else {
+                    div.innerHTML = materiais.map(m => 
+                        `<div class="alert alert-warning p-2 mb-2">
+                            <strong>${m.nome}</strong><br>
+                            <small>Qtd: ${m.quantidadeAtual}</small>
+                        </div>`
+                    ).join('');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        document.getElementById('buscarMaterial').addEventListener('input', async (e) => {
+            const nome = e.target.value;
+            if (nome.length > 2) {
+                try {
+                    const response = await fetch(`${API_MATERIAIS}/buscar?nome=${nome}`);
+                    const materiais = await response.json();
+                    exibirMateriais(materiais);
+                } catch (error) {
+                    console.error('Erro:', error);
+                }
+            } else if (nome.length === 0) {
+                carregarMateriais();
+            }
+        });
+
+        document.getElementById('materialForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const material = {
+                nome: document.getElementById('nomeMaterial').value,
+                categoria: { id: parseInt(document.getElementById('categoriaSelect').value) },
+                quantidadeAtual: parseInt(document.getElementById('quantidadeAtual').value),
+                fornecedor: document.getElementById('fornecedor').value || null,
+                dataValidade: document.getElementById('dataValidade').value || null
+            };
+
+            const id = document.getElementById('materialId').value;
+            const url = id ? `${API_MATERIAIS}/${id}` : API_MATERIAIS;
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(material)
+                });
+
+                if (response.ok) {
+                    alert(id ? 'Material atualizado!' : 'Material cadastrado!');
+                    limparFormularioMaterial();
+                    carregarMateriais();
+                } else {
+                    alert('Erro ao salvar material!');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar material!');
+            }
+        });
+
+        async function editarMaterial(id) {
+            try {
+                const response = await fetch(`${API_MATERIAIS}/${id}`);
+                const material = await response.json();
+
+                document.getElementById('materialId').value = material.id;
+                document.getElementById('nomeMaterial').value = material.nome;
+                document.getElementById('categoriaSelect').value = material.categoria ? material.categoria.id : '';
+                document.getElementById('quantidadeAtual').value = material.quantidadeAtual;
+                document.getElementById('fornecedor').value = material.fornecedor || '';
+                document.getElementById('dataValidade').value = material.dataValidade || '';
+
+                document.getElementById('formTitle').textContent = 'Editar';
+                document.getElementById('btnCancelarMaterial').style.display = 'block';
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        async function deletarMaterial(id) {
+            if (!confirm('Deseja excluir este material?')) return;
+
+            try {
+                const response = await fetch(`${API_MATERIAIS}/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('Material excluído!');
+                    carregarMateriais();
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        function limparFormularioMaterial() {
+            document.getElementById('materialForm').reset();
+            document.getElementById('materialId').value = '';
+            document.getElementById('formTitle').textContent = 'Cadastrar';
+            document.getElementById('btnCancelarMaterial').style.display = 'none';
+        }
+
+        document.getElementById('btnCancelarMaterial').addEventListener('click', limparFormularioMaterial);
+
+        // ========== AJUSTE DE ESTOQUE ==========
+        function abrirModalEstoque(id, nome, qtdAtual) {
+            materialIdEstoque = id;
+            document.getElementById('modalMaterialNome').textContent = nome;
+            document.getElementById('modalQtdAtual').textContent = qtdAtual;
+            document.getElementById('ajusteQuantidade').value = '';
+            modalEstoque.show();
+        }
+
+        async function salvarAjusteEstoque() {
+            const quantidade = parseInt(document.getElementById('ajusteQuantidade').value);
+            
+            if (isNaN(quantidade) || quantidade === 0) {
+                alert('Digite uma quantidade válida!');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_MATERIAIS}/${materialIdEstoque}/estoque`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantidade: quantidade })
+                });
+
+                if (response.ok) {
+                    alert('Estoque atualizado!');
+                    modalEstoque.hide();
+                    carregarMateriais();
+                } else {
+                    alert('Erro ao atualizar estoque!');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao atualizar estoque!');
+            }
+        }
+
+        // Inicializar
+        carregarCategorias();
+        carregarMateriais();
+    </script>
+</body>
+</html>

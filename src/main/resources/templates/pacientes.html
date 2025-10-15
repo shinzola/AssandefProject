@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASSANDEF - Gestão de Pacientes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/">ASSANDEF - Gestão de Pacientes</a>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5><span id="formTitle">Cadastrar</span> Paciente</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="pacienteForm">
+                            <input type="hidden" id="pacienteId">
+                            <div class="mb-3">
+                                <label for="nomeCompleto" class="form-label">Nome Completo *</label>
+                                <input type="text" class="form-control" id="nomeCompleto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="cpf" class="form-label">CPF</label>
+                                <input type="text" class="form-control" id="cpf" maxlength="11">
+                            </div>
+                            <div class="mb-3">
+                                <label for="rg" class="form-label">RG</label>
+                                <input type="text" class="form-control" id="rg">
+                            </div>
+                            <div class="mb-3">
+                                <label for="nSus" class="form-label">Nº SUS</label>
+                                <input type="text" class="form-control" id="nSus">
+                            </div>
+                            <div class="mb-3">
+                                <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+                                <input type="date" class="form-control" id="dataNascimento">
+                            </div>
+                            <div class="mb-3">
+                                <label for="sexo" class="form-label">Sexo</label>
+                                <select class="form-control" id="sexo">
+                                    <option value="">Selecione...</option>
+                                    <option value="Masculino">Masculino</option>
+                                    <option value="Feminino">Feminino</option>
+                                    <option value="Outro">Outro</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="endereco" class="form-label">Endereço</label>
+                                <textarea class="form-control" id="endereco" rows="2"></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="nomeResponsavel" class="form-label">Nome do Responsável</label>
+                                <input type="text" class="form-control" id="nomeResponsavel">
+                            </div>
+                            <div class="mb-3">
+                                <label for="contatoResponsavel" class="form-label">Contato do Responsável</label>
+                                <input type="text" class="form-control" id="contatoResponsavel">
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-save"></i> Salvar
+                            </button>
+                            <button type="button" class="btn btn-secondary w-100 mt-2" id="btnCancelar" style="display:none;">
+                                <i class="bi bi-x-circle"></i> Cancelar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5>Lista de Pacientes</h5>
+                        <button class="btn btn-sm btn-success" onclick="carregarPacientes()">
+                            <i class="bi bi-arrow-clockwise"></i> Atualizar
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <input type="text" class="form-control" id="buscarNome" placeholder="Buscar por nome...">
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome</th>
+                                        <th>CPF</th>
+                                        <th>Data Nasc.</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabelaPacientes">
+                                    <tr>
+                                        <td colspan="5" class="text-center">Carregando...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = '/api/pacientes';
+
+        // Carregar pacientes
+        async function carregarPacientes() {
+            try {
+                const response = await fetch(API_URL);
+                const pacientes = await response.json();
+                exibirPacientes(pacientes);
+            } catch (error) {
+                console.error('Erro ao carregar pacientes:', error);
+                alert('Erro ao carregar pacientes!');
+            }
+        }
+
+        // Exibir pacientes na tabela
+        function exibirPacientes(pacientes) {
+            const tbody = document.getElementById('tabelaPacientes');
+            if (pacientes.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">Nenhum paciente cadastrado</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = pacientes.map(p => `
+                <tr>
+                    <td>${p.id}</td>
+                    <td>${p.nomeCompleto}</td>
+                    <td>${p.cpf || '-'}</td>
+                    <td>${p.dataNascimento || '-'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-warning" onclick="editarPaciente(${p.id})">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="deletarPaciente(${p.id})">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Buscar paciente por nome
+        document.getElementById('buscarNome').addEventListener('input', async (e) => {
+            const nome = e.target.value;
+            if (nome.length > 2) {
+                try {
+                    const response = await fetch(`${API_URL}/buscar?nome=${nome}`);
+                    const pacientes = await response.json();
+                    exibirPacientes(pacientes);
+                } catch (error) {
+                    console.error('Erro ao buscar:', error);
+                }
+            } else if (nome.length === 0) {
+                carregarPacientes();
+            }
+        });
+
+        // Salvar ou atualizar paciente
+        document.getElementById('pacienteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const paciente = {
+                nomeCompleto: document.getElementById('nomeCompleto').value,
+                cpf: document.getElementById('cpf').value || null,
+                rg: document.getElementById('rg').value || null,
+                nSus: document.getElementById('nSus').value || null,
+                dataNascimento: document.getElementById('dataNascimento').value || null,
+                sexo: document.getElementById('sexo').value || null,
+                endereco: document.getElementById('endereco').value || null,
+                nomeResponsavel: document.getElementById('nomeResponsavel').value || null,
+                contatoResponsavel: document.getElementById('contatoResponsavel').value || null
+            };
+
+            const id = document.getElementById('pacienteId').value;
+            const url = id ? `${API_URL}/${id}` : API_URL;
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(paciente)
+                });
+
+                if (response.ok) {
+                    alert(id ? 'Paciente atualizado com sucesso!' : 'Paciente cadastrado com sucesso!');
+                    limparFormulario();
+                    carregarPacientes();
+                } else {
+                    alert('Erro ao salvar paciente!');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao salvar paciente!');
+            }
+        });
+
+        // Editar paciente
+        async function editarPaciente(id) {
+            try {
+                const response = await fetch(`${API_URL}/${id}`);
+                const paciente = await response.json();
+
+                document.getElementById('pacienteId').value = paciente.id;
+                document.getElementById('nomeCompleto').value = paciente.nomeCompleto;
+                document.getElementById('cpf').value = paciente.cpf || '';
+                document.getElementById('rg').value = paciente.rg || '';
+                document.getElementById('nSus').value = paciente.nSus || '';
+                document.getElementById('dataNascimento').value = paciente.dataNascimento || '';
+                document.getElementById('sexo').value = paciente.sexo || '';
+                document.getElementById('endereco').value = paciente.endereco || '';
+                document.getElementById('nomeResponsavel').value = paciente.nomeResponsavel || '';
+                document.getElementById('contatoResponsavel').value = paciente.contatoResponsavel || '';
+
+                document.getElementById('formTitle').textContent = 'Editar';
+                document.getElementById('btnCancelar').style.display = 'block';
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar paciente!');
+            }
+        }
+
+        // Deletar paciente
+        async function deletarPaciente(id) {
+            if (!confirm('Deseja realmente excluir este paciente?')) return;
+
+            try {
+                const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    alert('Paciente excluído com sucesso!');
+                    carregarPacientes();
+                } else {
+                    alert('Erro ao excluir paciente!');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao excluir paciente!');
+            }
+        }
+
+        // Limpar formulário
+        function limparFormulario() {
+            document.getElementById('pacienteForm').reset();
+            document.getElementById('pacienteId').value = '';
+            document.getElementById('formTitle').textContent = 'Cadastrar';
+            document.getElementById('btnCancelar').style.display = 'none';
+        }
+
+        document.getElementById('btnCancelar').addEventListener('click', limparFormulario);
+
+        // Carregar pacientes ao iniciar
+        carregarPacientes();
+    </script>
+</body>
+</html>
