@@ -18,11 +18,13 @@ Estilos Globais e de Acessibilidade
 ==============================================
 */
 body {
-  font-family: "Poppins", sans-serif;
+  font-family: "Inter", sans-serif;
   background-color: var(--cor-fundo);
   color: var(--cor-texto);
   animation: fadeInPage 1s ease-in-out;
 }
+
+/* Anula a regra 'flex: 1' do estilo global para o <main> nestas páginas */
 
 /* Foco visível para navegação por teclado (WCAG 2.1) */
 a:focus-visible,
@@ -177,9 +179,15 @@ Conteúdo principal para demonstração
 */
 main {
   padding-top: var(--header-altura);
-  min-height: 200vh; /* Forçar scroll para ver o efeito do header */
+  min-height: calc(100vh - var(--header-altura));
 }
 
+/* Exceção: páginas de autenticação */
+.body-auth main {
+  padding-top: 0;
+  min-height: auto;
+  flex: none;
+}
 .hero-section {
   display: flex;
   align-items: center;
@@ -591,21 +599,67 @@ NOVO: Estilos da Página de Pacientes
 NOVO: Estilos das Páginas de Login e Cadastro
 =========================================================
 */
+/* === Layout para telas de autenticação (login/cadastro) === */
+/* Centralização e layout das páginas de autenticação */
 .body-auth {
-  background-color: var(--cor-fundo);
-  background-image: linear-gradient(135deg, #f7f8fc 0%, #eef1f8 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--cor-fundo, #f8f9fa);
+  margin: 0;
+  padding: 0;
 }
 
-.auth-card {
-  border-radius: 1rem;
-  border: none;
-  overflow: hidden; /* Garante que os cantos arredondados do painel interno funcionem */
+/* O main dentro das páginas de login/cadastro */
+.body-auth main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  min-height: 100vh;
+  padding: 1rem;
 }
 
-.auth-card-branding {
-  background-color: var(--cor-primaria-escura);
+/* Card principal do login/cadastro */
+.body-auth .auth-card {
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  max-width: 1100px; /* 💪 largo como o original */
+  overflow: hidden;
+}
+
+/* Coluna da logo */
+.body-auth .auth-card-branding {
+  background-color: #f2f2f2;
+  border-top-left-radius: 20px;
+  border-bottom-left-radius: 20px;
+  text-align: center;
   padding: 2rem;
-  color: var(--cor-branca);
+}
+
+/* Coluna do formulário */
+.body-auth .card-body {
+  background: #fff;
+  border-top-right-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+
+@media (max-width: 992px) {
+  .body-auth .auth-card {
+    max-width: 95%;
+    border-radius: 15px;
+  }
+
+  .body-auth .auth-card-branding {
+    border-radius: 15px 15px 0 0;
+  }
+
+  .body-auth .card-body {
+    border-radius: 0 0 15px 15px;
+  }
 }
 
 .auth-logo {

@@ -31,13 +31,8 @@ public class WebController {
         return "atendimento/atendimento";
     }
 
-    @GetMapping("/pacientes")
+    @GetMapping("/profissional")
     public String pacientes() {
-        return "pacientes";
-    }
-
-    @GetMapping("/materiais")
-    public String materiais() {
-        return "materiais";
+        return "profissional/profissional";
     }
 }

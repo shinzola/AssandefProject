@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/base :: headPadrao('Portal do Profissional')}">
+</head>
+
+<body>
+
+<header th:replace="~{fragments/base :: cabecalho}"></header>
+
+<main class="main-page">
+    <div class="container-fluid">
+
+        <div id="visao-geral">
+            <div class="page-header">
+                <h1 class="page-title">Portal do Profissional</h1>
+            </div>
+
+            <ul class="nav nav-tabs mt-4" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="fila-tab" data-bs-toggle="tab" data-bs-target="#fila-pane" type="button" role="tab" aria-selected="true">
+                        <i class="bi bi-person-lines-fill me-2"></i>Fila de Espera
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="historico-tab" data-bs-toggle="tab" data-bs-target="#historico-pane" type="button" role="tab" aria-selected="false">
+                        <i class="bi bi-journal-text me-2"></i>Meus Atendimentos
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content card">
+                <div class="tab-pane fade show active" id="fila-pane" role="tabpanel">
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                <tr>
+                                    <th scope="col">Paciente</th>
+                                    <th scope="col">Chegada</th>
+                                    <th scope="col">Prioridade</th>
+                                    <th scope="col">Encaminhado Por</th>
+                                    <th scope="col" class="text-end">Ação</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr>
+                                    <td>Carlos Alberto de Souza</td>
+                                    <td>10:15</td>
+                                    <td><span class="badge bg-danger">Urgente</span></td>
+                                    <td>Secretaria</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-success iniciar-atendimento">
+                                            <i class="bi bi-play-fill me-1"></i> Iniciar Atendimento
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Maria Eduarda Gonçalves</td>
+                                    <td>10:28</td>
+                                    <td><span class="badge bg-info">Normal</span></td>
+                                    <td>Secretaria</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-sm btn-success iniciar-atendimento">
+                                            <i class="bi bi-play-fill me-1"></i> Iniciar Atendimento
+                                        </button>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade" id="historico-pane" role="tabpanel">
+                    <div class="card-body">
+                        <p class="text-center text-muted">Histórico de atendimentos realizados aparecerá aqui.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="visao-atendimento" class="d-none">
+            <div class="page-header">
+                <h1 class="page-title">Atendimento em Andamento</h1>
+            </div>
+
+            <div class="card mt-4 shadow-sm">
+                <div class="card-header bg-light fs-5 fw-bold d-flex justify-content-between align-items-center">
+                        <span>
+                            <i class="bi bi-person-fill me-2"></i>
+                            Paciente: <span id="nome-paciente-atendimento" class="fw-normal"></span>
+                        </span>
+                    <span class="badge bg-primary">EM ANDAMENTO</span>
+                </div>
+                <div class="card-body p-4">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <strong>Início do Atendimento:</strong>
+                            <p class="text-muted" id="inicio-atendimento">15/10/2025 21:50</p>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Fim do Atendimento:</strong>
+                            <p class="text-muted" id="fim-atendimento">--:-- (Aguardando finalização)</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <form id="form-atendimento">
+                        <div class="mb-4">
+                            <label for="evolucao-texto" class="form-label fs-6 fw-bold">Evolução do Paciente / Anotações da Sessão</label>
+                            <textarea class="form-control" id="evolucao-texto" rows="8" placeholder="Descreva aqui a evolução, procedimentos realizados e observações..."></textarea>
+                        </div>
+                        <h5 class="mb-3">Ações e Prescrições</h5>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalPrescricao">
+                                <i class="bi bi-clipboard2-plus me-2"></i>Prescrever Atividade
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalPrescricao">
+                                <i class="bi bi-capsule me-2"></i>Prescrever Medicamento
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-end">
+                    <button id="btn-finalizar-atendimento" class="btn btn-danger btn-lg">
+                        <i class="bi bi-check-circle me-2"></i>Finalizar e Marcar como "Atendido"
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+
+<div class="modal fade" id="modalPrescricao" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5">Nova Prescrição</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Prescrição</label>
+                        <select class="form-select">
+                            <option>Atividade Terapêutica</option>
+                            <option>Medicamento</option>
+                            <option>Encaminhamento</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-control" rows="4"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary">Salvar Prescrição</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
