@@ -5,17 +5,20 @@ import br.org.assandef.assandefsystem.model.Funcionario;
 import br.org.assandef.assandefsystem.model.Material;
 import br.org.assandef.assandefsystem.model.SolicitacoesMaterial;
 import br.org.assandef.assandefsystem.model.StatusSolicitacao;
+import br.org.assandef.assandefsystem.repository.FuncionarioRepository;
 import br.org.assandef.assandefsystem.service.CategoriaService;
 import br.org.assandef.assandefsystem.service.FuncionarioService;
 import br.org.assandef.assandefsystem.service.MaterialService;
 import br.org.assandef.assandefsystem.service.SolicitacoesMaterialService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +31,8 @@ public class AlmoxarifadoViewController {
     private final MaterialService materialService;
     private final SolicitacoesMaterialService solicitacoesService;
     private final FuncionarioService funcionarioService;
-
+    @Autowired
+    private final FuncionarioRepository funcionarioRepository;
     // Página única
     @GetMapping
     public String pagina(Model model,
@@ -128,24 +132,21 @@ public class AlmoxarifadoViewController {
     // ======================
     @PostMapping("/solicitacao/salvar")
     public String salvarSolicitacao(@ModelAttribute SolicitacoesMaterial solicitacao,
+                                    @AuthenticationPrincipal UserDetails userDetails,
                                     RedirectAttributes ra) {
         try {
-            // status default
             if (solicitacao.getStatus() == null) {
                 solicitacao.setStatus(StatusSolicitacao.PENDENTE);
             }
             solicitacao.setDataSolicitacao(LocalDateTime.now());
 
-            // Resolver relações por ID, se necessário
-            if (solicitacao.getFuncionarioSolicitante() != null
-                    && solicitacao.getFuncionarioSolicitante().getIdFuncionario() != null) {
-                Integer idFunc = solicitacao.getFuncionarioSolicitante().getIdFuncionario();
-                Funcionario f = funcionarioService.findById(idFunc);
-                solicitacao.setFuncionarioSolicitante(f);
-            }
+            String loginUsuario = userDetails.getUsername();
+            Funcionario funcionarioLogado = funcionarioRepository.findByLogin(loginUsuario)
+                    .orElseThrow(() -> new RuntimeException("Funcionário logado não encontrado: " + loginUsuario));
 
-            if (solicitacao.getMaterial() != null
-                    && solicitacao.getMaterial().getIdMaterial() != null) {
+            solicitacao.setFuncionarioSolicitante(funcionarioLogado);
+
+            if (solicitacao.getMaterial() != null && solicitacao.getMaterial().getIdMaterial() != null) {
                 Integer idMat = solicitacao.getMaterial().getIdMaterial();
                 Material m = materialService.findById(idMat);
                 solicitacao.setMaterial(m);

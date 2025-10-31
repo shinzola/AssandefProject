@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head th:fragment="headPadrao(titulo)">
     <meta charset="UTF-8" />
@@ -13,7 +13,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 
-
     <link rel="stylesheet" th:href="@{/css/style.css}" />
 </head>
 
@@ -25,7 +24,7 @@
                 <img th:src="@{/img/assandef-logo.png}" alt="Logo da ASSANDEF" class="d-inline-block align-text-top" />
             </a>
             <div class="navbar-title d-none d-lg-block">
-                <span class="fw-bold fs-4">ASSANDEF</span>
+                <a class="fw-bold fs-4 text-decoration-none" th:href="@{/}">ASSANDEF</a>
             </div>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
@@ -37,7 +36,16 @@
                 </span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-                <ul class="navbar-nav">
+                <!-- Menu para usuários NÃO autenticados -->
+                <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${ativa == 'doar'} ? ' active' : ''"
+                           th:href="@{/doadores}">Tornar-se Doador</a>
+                    </li>
+                </ul>
+
+                <!-- Menu completo para usuários autenticados -->
+                <ul class="navbar-nav" sec:authorize="isAuthenticated()">
                     <li class="nav-item">
                         <a class="nav-link" th:classappend="${ativa == 'inicio'} ? ' active' : ''"
                            th:href="@{/}">Início</a>
@@ -63,12 +71,34 @@
                            th:href="@{/funcionarios}">Gestão de Acesso</a>
                     </li>
                 </ul>
+
                 <hr class="d-lg-none text-muted" />
+
+                <!-- Botão de Login/Logout -->
                 <div class="navbar-nav">
-                    <div class="nav-item">
+                    <!-- Botão de Login (não autenticado) -->
+                    <div class="nav-item" sec:authorize="!isAuthenticated()">
                         <a class="nav-link align-items-center" th:href="@{/login}">
                             <i class="bi bi-person-circle fs-4 me-2"></i>Acesso
                         </a>
+                    </div>
+
+                    <!-- Dropdown do usuário (autenticado) -->
+                    <div class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-person-circle fs-4 me-2"></i>
+                            <span sec:authentication="name">Usuário</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <form th:action="@{/logout}" method="post" class="d-inline">
+                                    <button type="submit" class="dropdown-item">
+                                        <i class="bi bi-box-arrow-right me-2"></i>Sair
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>

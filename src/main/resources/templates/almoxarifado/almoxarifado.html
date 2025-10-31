@@ -72,7 +72,6 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
               <tr>
-                <th>ID</th>
                 <th>Nome do Material</th>
                 <th>Categoria</th>
                 <th>Quantidade</th>
@@ -83,7 +82,6 @@
               </thead>
               <tbody>
               <tr th:each="material : ${materiais}">
-                <td th:text="${material.idMaterial}">1</td>
                 <td th:text="${material.nome}">Nome</td>
                 <td th:text="${material.categoria != null && material.categoria.nome != null ? material.categoria.nome : 'N/A'}">Categoria</td>
                 <td th:text="${material.quantidadeAtual != null ? material.quantidadeAtual + ' Un.' : '0 Un.'}">0 Un.</td>
@@ -116,7 +114,6 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
               <tr>
-                <th>ID</th>
                 <th>Material</th>
                 <th>Qtd.</th>
                 <th>Solicitante</th>
@@ -128,10 +125,9 @@
               </thead>
               <tbody>
               <tr th:each="sol : ${solicitacoes}">
-                <td th:text="${sol.idSolicitacao}">101</td>
                 <td th:text="${sol.material != null && sol.material.nome != null ? sol.material.nome : 'N/A'}">Material</td>
                 <td th:text="${sol.quantidadeSolicitada}">0</td>
-                <td th:text="${sol.funcionarioSolicitante != null && sol.funcionarioSolicitante.nome != null ? sol.funcionarioSolicitante.nome : 'N/A'}">Solicitante</td>
+                <td th:text="${sol.funcionarioSolicitante != null && sol.funcionarioSolicitante.nomeCompleto != null ? sol.funcionarioSolicitante.nomeCompleto : 'N/A'}">Solicitante</td>
                 <td th:text="${sol.dataSolicitacao != null ? #temporals.format(sol.dataSolicitacao, 'dd/MM/yyyy HH:mm') : 'N/A'}">Data</td>
                 <td th:text="${sol.tipoSaida}">N/a</td>
 
@@ -172,14 +168,12 @@
             <table class="table table-hover align-middle">
               <thead class="table-light">
               <tr>
-                <th>ID</th>
                 <th>Nome da Categoria</th>
                 <th class="text-end">Ações</th>
               </tr>
               </thead>
               <tbody>
               <tr th:each="cat : ${categorias}">
-                <td th:text="${cat.idCategoria}">1</td>
                 <td th:text="${cat.nome}">Categoria</td>
                 <td class="text-end">
                   <button class="btn btn-sm btn-outline-secondary me-2"
@@ -438,7 +432,7 @@
           <dt class="col-sm-4">Solicitante:</dt>
           <dd class="col-sm-8" id="viewSolSolicitante">-</dd>
 
-          <dt class="col-sm-4">Data:</dt>
+          <dt class="col-sm-4">Data e hora:</dt>
           <dd class="col-sm-8" id="viewSolData">-</dd>
 
           <dt class="col-sm-4">Status:</dt>
@@ -544,28 +538,40 @@
       window.location.href = `/almoxarifado/solicitacao/recusar/${id}`;
     }
   }
-  function visualizarSolicitacao(id) {
+ function visualizarSolicitacao(id) {
     fetch(`/almoxarifado/solicitacao/visualizar/${id}`)
-      .then(r => r.json())
-      .then(sol => {
-        document.getElementById('viewSolId').textContent = sol.idSolicitacao || '-';
-        document.getElementById('viewSolMaterial').textContent =
-          (sol.material && sol.material.nome) ? sol.material.nome : '-';
-        document.getElementById('viewSolQtd').textContent = sol.quantidadeSolicitada || '-';
-        document.getElementById('viewSolTipo').textContent = sol.tipoSaida || '-';
-        document.getElementById('viewSolSolicitante').textContent =
-          (sol.funcionarioSolicitante && sol.funcionarioSolicitante.nome) ? sol.funcionarioSolicitante.nome : '-';
-        document.getElementById('viewSolData').textContent = sol.dataSolicitacao || '-';
-        document.getElementById('viewSolStatus').textContent = sol.status || '-';
-        document.getElementById('viewSolJustificativa').textContent = sol.justificativa || 'Sem justificativa';
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('viewSolMaterial').textContent = data.material?.nome || '-';
+            document.getElementById('viewSolQtd').textContent = data.quantidadeSolicitada || '-';
+            document.getElementById('viewSolTipo').textContent = data.tipoSaida || '-';
+            document.getElementById('viewSolSolicitante').textContent = data.funcionarioSolicitante?.nomeCompleto || '-';
 
-        const modalEl = document.getElementById('modalVisualizarSolicitacao');
-        if (!modalEl) return console.error('Elemento #modalVisualizarSolicitacao não encontrado');
-        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-        modal.show();
-      })
-      .catch(err => alert('Erro ao carregar solicitação: ' + err));
-  }
+            // Formatar data e hora
+            if (data.dataSolicitacao) {
+                const dataObj = new Date(data.dataSolicitacao);
+                const dia = String(dataObj.getDate()).padStart(2, '0');
+                const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                const ano = dataObj.getFullYear();
+                const hora = String(dataObj.getHours()).padStart(2, '0');
+                const minuto = String(dataObj.getMinutes()).padStart(2, '0');
+                document.getElementById('viewSolData').textContent = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+            } else {
+                document.getElementById('viewSolData').textContent = '-';
+            }
+
+            document.getElementById('viewSolStatus').textContent = data.status || '-';
+            document.getElementById('viewSolJustificativa').textContent = data.justificativa || '-';
+
+            // Abrir o modal
+            const modal = new bootstrap.Modal(document.getElementById('modalVisualizarSolicitacao'));
+            modal.show();
+        })
+        .catch(error => {
+            console.error('Erro ao carregar solicitação:', error);
+            alert('Erro ao carregar detalhes da solicitação');
+        });
+}
   /*]]>*/
 </script>
 

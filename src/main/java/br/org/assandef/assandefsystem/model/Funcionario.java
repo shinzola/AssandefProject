@@ -18,7 +18,7 @@ public class Funcionario {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_funcionario")
-    private Integer idFuncionario;
+    private Integer idFuncionario   ;
 
     @NotBlank(message = "Nome completo é obrigatório")
     @Column(name = "nome_completo", nullable = false)
