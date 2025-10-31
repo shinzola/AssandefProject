@@ -1,64 +1,37 @@
 package br.org.assandef.assandefsystem.service;
 
 import java.util.List;
-import java.util.Optional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import br.org.assandef.assandefsystem.model.Paciente;
+import org.springframework.stereotype.Service;
+
 import br.org.assandef.assandefsystem.repository.PacienteRepository;
+import lombok.RequiredArgsConstructor;
 
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class PacienteService {
+    private final PacienteRepository pacienteRepository;
 
-    @Autowired
-    private PacienteRepository pacienteRepository;
-
-    public List<Paciente> listarTodos() {
+    public List<Paciente> findAll() {
         return pacienteRepository.findAll();
     }
 
-    public Optional<Paciente> buscarPorId(Integer id) {
-        return pacienteRepository.findById(id);
+    public Paciente findById(Integer id) {
+        return pacienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
     }
 
-    public List<Paciente> buscarPorNome(String nome) {
-        return pacienteRepository.findByNomeCompletoContainingIgnoreCase(nome);
-    }
-
-    public Paciente buscarPorCpf(String cpf) {
-        return pacienteRepository.findByCpf(cpf);
-    }
-
-    public Paciente salvar(Paciente paciente) {
+    public Paciente save(Paciente paciente) {
         return pacienteRepository.save(paciente);
     }
 
-    public Paciente atualizar(Integer id, Paciente pacienteAtualizado) {
-        return pacienteRepository.findById(id)
-            .map(paciente -> {
-                paciente.setNomeCompleto(pacienteAtualizado.getNomeCompleto());
-                paciente.setCpf(pacienteAtualizado.getCpf());
-                paciente.setRg(pacienteAtualizado.getRg());
-                paciente.setnSus(pacienteAtualizado.getnSus());
-                paciente.setDataNascimento(pacienteAtualizado.getDataNascimento());
-                paciente.setSexo(pacienteAtualizado.getSexo());
-                paciente.setEndereco(pacienteAtualizado.getEndereco());
-                paciente.setNomeResponsavel(pacienteAtualizado.getNomeResponsavel());
-                paciente.setContatoResponsavel(pacienteAtualizado.getContatoResponsavel());
-                return pacienteRepository.save(paciente);
-            })
-            .orElseThrow(() -> new RuntimeException("Paciente não encontrado com id: " + id));
-    }
-
-    public void deletar(Integer id) {
+    public void deleteById(Integer id) {
         pacienteRepository.deleteById(id);
     }
 
-    public boolean existe(Integer id) {
-        return pacienteRepository.existsById(id);
+    public Paciente findByCpf(String cpf) {
+        return pacienteRepository.findByCpf(cpf)
+                .orElseThrow(() -> new RuntimeException("Paciente não encontrado"));
     }
 }

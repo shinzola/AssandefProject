@@ -8,15 +8,17 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 @Entity
 @Table(name = "funcionarios")
+@Data
 public class Funcionario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_funcionario")
-    private Integer id;
+    private Integer idFuncionario;
 
     @NotBlank(message = "Nome completo é obrigatório")
     @Column(name = "nome_completo", nullable = false)
@@ -34,55 +36,4 @@ public class Funcionario {
     @Column(name = "hierarquia", nullable = false)
     private Integer hierarquia;
 
-  
-    public Funcionario() {
-    }
-
-    public Funcionario(String nomeCompleto, String login, String senhaHash, Integer hierarquia) {
-        this.nomeCompleto = nomeCompleto;
-        this.login = login;
-        this.senhaHash = senhaHash;
-        this.hierarquia = hierarquia;
-    }
-
-   
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNomeCompleto() {
-        return nomeCompleto;
-    }
-
-    public void setNomeCompleto(String nomeCompleto) {
-        this.nomeCompleto = nomeCompleto;
-    }
-
-    public String getLogin() {
-        return login;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public String getSenhaHash() {
-        return senhaHash;
-    }
-
-    public void setSenhaHash(String senhaHash) {
-        this.senhaHash = senhaHash;
-    }
-
-    public Integer getHierarquia() {
-        return hierarquia;
-    }
-
-    public void setHierarquia(Integer hierarquia) {
-        this.hierarquia = hierarquia;
-    }
 }

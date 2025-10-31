@@ -16,16 +16,6 @@ public class WebController {
         return "acesso/login";
     }
 
-    @GetMapping("/cadastro")
-    public String cadastro() {
-        return "acesso/cadastro";
-    }
-
-    @GetMapping("/almoxarifado")
-    public String almoxarifado() {
-        return "almoxarifado/almoxarifado";
-    }
-
     @GetMapping("/atendimento")
     public String atendimento() {
         return "atendimento/atendimento";
@@ -34,5 +24,15 @@ public class WebController {
     @GetMapping("/profissional")
     public String pacientes() {
         return "profissional/profissional";
+    }
+
+    @GetMapping("/doadores")
+    public String doacoes() {
+        return "doadores/donation";
+    }
+
+    @GetMapping("/funcionarios")
+    public String gestaoFuncionarios() {
+        return "funcionarios/gestaofuncionarios";
     }
 }

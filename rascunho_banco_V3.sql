@@ -180,6 +180,7 @@ CREATE TABLE `solicitacoes_material` (
   `id_funcionario_solicitante` INT NOT NULL,
   `id_material` INT NOT NULL,
   `quantidade_solicitada` INT NOT NULL,
+  `tipo_saida` VARCHAR(120) NOT NULL,
   `data_solicitacao` DATETIME NOT NULL,
   `status` ENUM('Pendente', 'Aprovada', 'Recusada') NOT NULL,
   `descricao` TEXT NULL COMMENT 'Adicionado para substituir a tabela de movimentações.',

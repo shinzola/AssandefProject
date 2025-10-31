@@ -14,15 +14,17 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 @Entity
 @Table(name = "pacientes")
+@Data
 public class Paciente {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_paciente")
-    private Integer id;
+    private Integer idPaciente;
 
     @NotBlank(message = "Nome completo é obrigatório")
     @Column(name = "nome_completo", nullable = false)
@@ -59,110 +61,5 @@ public class Paciente {
     @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Telefone> telefones = new ArrayList<>();
 
-  
-    public Paciente() {
-    }
 
-    public Paciente(String nomeCompleto) {
-        this.nomeCompleto = nomeCompleto;
-    }
-
-   
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNomeCompleto() {
-        return nomeCompleto;
-    }
-
-    public void setNomeCompleto(String nomeCompleto) {
-        this.nomeCompleto = nomeCompleto;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public String getRg() {
-        return rg;
-    }
-
-    public void setRg(String rg) {
-        this.rg = rg;
-    }
-
-    public String getnSus() {
-        return nSus;
-    }
-
-    public void setnSus(String nSus) {
-        this.nSus = nSus;
-    }
-
-    public LocalDate getDataNascimento() {
-        return dataNascimento;
-    }
-
-    public void setDataNascimento(LocalDate dataNascimento) {
-        this.dataNascimento = dataNascimento;
-    }
-
-    public String getSexo() {
-        return sexo;
-    }
-
-    public void setSexo(String sexo) {
-        this.sexo = sexo;
-    }
-
-    public String getEndereco() {
-        return endereco;
-    }
-
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
-    }
-
-    public String getNomeResponsavel() {
-        return nomeResponsavel;
-    }
-
-    public void setNomeResponsavel(String nomeResponsavel) {
-        this.nomeResponsavel = nomeResponsavel;
-    }
-
-    public String getContatoResponsavel() {
-        return contatoResponsavel;
-    }
-
-    public void setContatoResponsavel(String contatoResponsavel) {
-        this.contatoResponsavel = contatoResponsavel;
-    }
-
-    public List<Telefone> getTelefones() {
-        return telefones;
-    }
-
-    public void setTelefones(List<Telefone> telefones) {
-        this.telefones = telefones;
-    }
-
-    public void addTelefone(Telefone telefone) {
-        telefones.add(telefone);
-        telefone.setPaciente(this);
-    }
-
-    public void removeTelefone(Telefone telefone) {
-        telefones.remove(telefone);
-        telefone.setPaciente(null);
-    }
 }

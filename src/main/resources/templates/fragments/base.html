@@ -55,8 +55,12 @@
                            th:href="@{/profissional}">Saúde</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link" th:classappend="${ativa == 'doar'} ? ' active' : ''"
+                           th:href="@{/doadores}">Doadores</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" th:classappend="${ativa == 'gestao'} ? ' active' : ''"
-                           href="#">Gestão de Acesso</a>
+                           th:href="@{/funcionarios}">Gestão de Acesso</a>
                     </li>
                 </ul>
                 <hr class="d-lg-none text-muted" />

@@ -13,15 +13,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
 @Entity
 @Table(name = "materiais")
+@Data
 public class Material {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id_material")
-    private Integer id;
+    private Integer idMaterial;
 
     @NotBlank(message = "Nome é obrigatório")
     @Column(name = "nome", nullable = false)
@@ -40,61 +42,4 @@ public class Material {
 
     @Column(name = "data_validade")
     private LocalDate dataValidade;
-
-    public Material() {
-    }
-
-    public Material(String nome, Categoria categoria, Integer quantidadeAtual) {
-        this.nome = nome;
-        this.categoria = categoria;
-        this.quantidadeAtual = quantidadeAtual;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public Categoria getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(Categoria categoria) {
-        this.categoria = categoria;
-    }
-
-    public Integer getQuantidadeAtual() {
-        return quantidadeAtual;
-    }
-
-    public void setQuantidadeAtual(Integer quantidadeAtual) {
-        this.quantidadeAtual = quantidadeAtual;
-    }
-
-    public String getFornecedor() {
-        return fornecedor;
-    }
-
-    public void setFornecedor(String fornecedor) {
-        this.fornecedor = fornecedor;
-    }
-
-    public LocalDate getDataValidade() {
-        return dataValidade;
-    }
-
-    public void setDataValidade(LocalDate dataValidade) {
-        this.dataValidade = dataValidade;
-    }
 }
