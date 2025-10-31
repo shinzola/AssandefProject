@@ -33,7 +33,7 @@
           <i class="bi bi-tags-fill me-2"></i>Nova Categoria
         </button>
         <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalSolicitarMaterial">
-          <i class="bi bi-hand-index-thumb me-2"></i>Solicitar Material
+          <i class="bi bi-hand-index-thumb me-2"></i>Regitrar saída
         </button>
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionarMaterial">
           <i class="bi bi-plus-circle me-2"></i>Adicionar Novo Material
@@ -52,7 +52,7 @@
       <li class="nav-item" role="presentation">
         <button class="nav-link p-2" id="solicitacoes-tab" data-bs-toggle="tab" data-bs-target="#solicitacoes-tab-pane"
                 type="button" role="tab" aria-controls="solicitacoes-tab-pane" aria-selected="false">
-          <i class="bi bi-card-checklist me-2"></i>Acompanhamento de Solicitações
+          <i class="bi bi-card-checklist me-2"></i>Acompanhamento de Saída
         </button>
       </li>
       <li class="nav-item" role="presentation">
@@ -121,6 +121,7 @@
                 <th>Qtd.</th>
                 <th>Solicitante</th>
                 <th>Data</th>
+                <th>Tipo de saída</th>
                 <th>Status</th>
                 <th class="text-end">Ações</th>
               </tr>
@@ -132,11 +133,17 @@
                 <td th:text="${sol.quantidadeSolicitada}">0</td>
                 <td th:text="${sol.funcionarioSolicitante != null && sol.funcionarioSolicitante.nome != null ? sol.funcionarioSolicitante.nome : 'N/A'}">Solicitante</td>
                 <td th:text="${sol.dataSolicitacao != null ? #temporals.format(sol.dataSolicitacao, 'dd/MM/yyyy HH:mm') : 'N/A'}">Data</td>
+                <td th:text="${sol.tipoSaida}">N/a</td>
+
                 <td>
                     <span th:class="${sol.status != null ? (sol.status.name() == 'PENDENTE' ? 'badge bg-warning' : (sol.status.name() == 'APROVADA' ? 'badge bg-success' : 'badge bg-danger')) : 'badge bg-secondary'}"
                           th:text="${sol.status != null ? sol.status : 'N/A'}">Status</span>
                 </td>
                 <td class="text-end">
+                  <button class="btn btn-sm btn-outline-info me-2" title="Visualizar"
+                          data-action="visualizar-solicitacao" th:attr="data-id=${sol.idSolicitacao}">
+                    <i class="bi bi-eye"></i>
+                  </button>
                   <button th:if="${sol.status != null && sol.status.name() == 'PENDENTE'}"
                           class="btn btn-sm btn-success me-2" title="Aprovar"
                           data-action="aprovar-solicitacao" th:attr="data-id=${sol.idSolicitacao}">
@@ -320,6 +327,12 @@
               <label for="solicitacaoQtd" class="form-label">Quantidade</label>
               <input type="number" class="form-control" id="solicitacaoQtd" name="quantidadeSolicitada" min="1" required />
             </div>
+            <select class="form-select" name="tipoSaida" required>
+              <option value="" selected disabled>Selecione o tipo de saída</option>
+              <option value="Interna">Interna</option>
+              <option value="Doação">Doação</option>
+              <option value="Empréstimo">Empréstimo</option>
+            </select>
             <div class="col-12">
               <label for="solicitacaoJustificativa" class="form-label">Justificativa</label>
               <textarea class="form-control" id="solicitacaoJustificativa" name="justificativa" rows="3"></textarea>
@@ -400,6 +413,47 @@
     </div>
   </div>
 </div>
+<!-- Modal: Visualizar Solicitação -->
+<div class="modal fade" id="modalVisualizarSolicitacao" tabindex="-1" aria-labelledby="modalVisualizarSolicitacaoLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="modalVisualizarSolicitacaoLabel">Detalhes da Solicitação</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="row">
+          <dt class="col-sm-4">ID:</dt>
+          <dd class="col-sm-8" id="viewSolId">-</dd>
+
+          <dt class="col-sm-4">Material:</dt>
+          <dd class="col-sm-8" id="viewSolMaterial">-</dd>
+
+          <dt class="col-sm-4">Quantidade:</dt>
+          <dd class="col-sm-8" id="viewSolQtd">-</dd>
+
+          <dt class="col-sm-4">Tipo de Saída:</dt>
+          <dd class="col-sm-8" id="viewSolTipo">-</dd>
+
+          <dt class="col-sm-4">Solicitante:</dt>
+          <dd class="col-sm-8" id="viewSolSolicitante">-</dd>
+
+          <dt class="col-sm-4">Data:</dt>
+          <dd class="col-sm-8" id="viewSolData">-</dd>
+
+          <dt class="col-sm-4">Status:</dt>
+          <dd class="col-sm-8" id="viewSolStatus">-</dd>
+
+          <dt class="col-sm-4">Justificativa:</dt>
+          <dd class="col-sm-8" id="viewSolJustificativa">-</dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <footer th:replace="~{fragments/base :: rodape}"></footer>
 
@@ -430,6 +484,8 @@
         return abrirModalCategoria(id, btn.dataset.nome || '');
       case 'excluir-categoria':
         return confirmarExclusaoCategoria(id);
+       case 'visualizar-solicitacao':
+        return visualizarSolicitacao(id);
     }
   });
 
@@ -487,6 +543,28 @@
     if (confirm('Recusar esta solicitação?')) {
       window.location.href = `/almoxarifado/solicitacao/recusar/${id}`;
     }
+  }
+  function visualizarSolicitacao(id) {
+    fetch(`/almoxarifado/solicitacao/visualizar/${id}`)
+      .then(r => r.json())
+      .then(sol => {
+        document.getElementById('viewSolId').textContent = sol.idSolicitacao || '-';
+        document.getElementById('viewSolMaterial').textContent =
+          (sol.material && sol.material.nome) ? sol.material.nome : '-';
+        document.getElementById('viewSolQtd').textContent = sol.quantidadeSolicitada || '-';
+        document.getElementById('viewSolTipo').textContent = sol.tipoSaida || '-';
+        document.getElementById('viewSolSolicitante').textContent =
+          (sol.funcionarioSolicitante && sol.funcionarioSolicitante.nome) ? sol.funcionarioSolicitante.nome : '-';
+        document.getElementById('viewSolData').textContent = sol.dataSolicitacao || '-';
+        document.getElementById('viewSolStatus').textContent = sol.status || '-';
+        document.getElementById('viewSolJustificativa').textContent = sol.justificativa || 'Sem justificativa';
+
+        const modalEl = document.getElementById('modalVisualizarSolicitacao');
+        if (!modalEl) return console.error('Elemento #modalVisualizarSolicitacao não encontrado');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      })
+      .catch(err => alert('Erro ao carregar solicitação: ' + err));
   }
   /*]]>*/
 </script>

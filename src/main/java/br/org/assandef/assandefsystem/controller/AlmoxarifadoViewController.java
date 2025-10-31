@@ -199,4 +199,10 @@ public class AlmoxarifadoViewController {
         }
         return "redirect:/almoxarifado";
     }
+
+    @GetMapping("/solicitacao/visualizar/{id}")
+    @ResponseBody
+    public SolicitacoesMaterial getSolicitacao(@PathVariable("id") Integer id) {
+        return solicitacoesService.findById(id);
+    }
 }
