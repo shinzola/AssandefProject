@@ -26,10 +26,10 @@ public class WebController {
         return "profissional/profissional";
     }
 
-    @GetMapping("/doadores")
+    /*@GetMapping("/doadores")
     public String doacoes() {
         return "doadores/donation";
-    }
+    }*/
 
     @GetMapping("/funcionarios")
     public String gestaoFuncionarios() {

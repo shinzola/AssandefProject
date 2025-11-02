@@ -123,7 +123,7 @@ CREATE TABLE `doadores` (
   `endereco` TEXT NULL,
   `data_nascimento` DATE NULL,
   `mensalidade` DECIMAL(10, 2) NULL DEFAULT 0.00,
-  `data_vencimento` INT NULL COMMENT 'Dia preferencial para vencimento dos boletos',
+  `dia_vencimento` INT NULL COMMENT 'Dia preferencial para vencimento dos boletos',
   PRIMARY KEY (`id_doador`)
 ) ENGINE=InnoDB;
 -- =================================================================
@@ -133,7 +133,7 @@ CREATE TABLE `doadores` (
 CREATE TABLE `boletos` (
   `id_boleto` INT NOT NULL AUTO_INCREMENT,
   `id_doador` INT NOT NULL,
-  `status` ENUM('Em aberto', 'Pago', 'Vencido') NOT NULL,
+  `status` ENUM('PENDENTE', 'PAGO', 'VENCIDO') NOT NULL,
   `pdf_boleto` LONGTEXT NULL,
   PRIMARY KEY (`id_boleto`),
   INDEX `fk_boletos_doadores_idx` (`id_doador` ASC),

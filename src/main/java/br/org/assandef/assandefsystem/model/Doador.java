@@ -38,7 +38,8 @@ public class Doador {
     @Column(precision = 10, scale = 2)
     private BigDecimal mensalidade;
 
-    private LocalDate dataVencimento;
+    @Column(name = "dia_vencimento")
+    private Integer diaVencimento;
 
     @OneToMany(mappedBy = "doador")
     private List<Boleto> boletos;
