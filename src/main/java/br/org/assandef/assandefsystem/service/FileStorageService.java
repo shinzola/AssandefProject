@@ -1,6 +1,5 @@
 package br.org.assandef.assandefsystem.service;
 
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -30,12 +29,17 @@ public class FileStorageService {
      * @return Caminho relativo: "doador_1/2025-01/boleto_123.pdf"
      */
     public String salvarBoleto(MultipartFile file, Integer idDoador, Integer idBoleto) throws IOException {
+        System.out.println("📁 FileStorageService.salvarBoleto() chamado!");
+        System.out.println("   - idDoador: " + idDoador);
+        System.out.println("   - idBoleto: " + idBoleto);
+
         // Validações
         if (file.isEmpty()) {
             throw new IOException("Arquivo vazio");
         }
 
         String originalFilename = StringUtils.cleanPath(file.getOriginalFilename());
+        System.out.println("   - Nome original: " + originalFilename);
 
         // Validar extensão
         if (!originalFilename.toLowerCase().endsWith(".pdf")) {
@@ -52,18 +56,27 @@ public class FileStorageService {
         String subDiretorio = "doador_" + idDoador + "/" + anoMes;
         Path diretorioDestino = Paths.get(uploadDir, subDiretorio);
 
+        System.out.println("   - Diretório destino: " + diretorioDestino.toAbsolutePath());
+
         // AQUI: Cria automaticamente as pastas se não existirem!
         Files.createDirectories(diretorioDestino);
+        System.out.println("   ✅ Diretório criado/verificado");
 
         // Nome do arquivo: boleto_{id}_{uuid}.pdf (para evitar duplicatas)
         String nomeArquivo = "boleto_" + idBoleto + "_" + UUID.randomUUID().toString().substring(0, 8) + ".pdf";
         Path arquivoDestino = diretorioDestino.resolve(nomeArquivo);
 
+        System.out.println("   - Arquivo destino: " + arquivoDestino.toAbsolutePath());
+
         // Copiar arquivo para o destino
         Files.copy(file.getInputStream(), arquivoDestino, StandardCopyOption.REPLACE_EXISTING);
+        System.out.println("   ✅ Arquivo copiado com sucesso!");
 
         // Retornar caminho relativo (para salvar no banco)
-        return subDiretorio + "/" + nomeArquivo;
+        String caminhoRelativo = subDiretorio + "/" + nomeArquivo;
+        System.out.println("   - Caminho relativo: " + caminhoRelativo);
+
+        return caminhoRelativo;
     }
 
     /**

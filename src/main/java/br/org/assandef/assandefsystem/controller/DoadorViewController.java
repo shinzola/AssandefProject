@@ -1,4 +1,6 @@
+/*Testee */
 package br.org.assandef.assandefsystem.controller;
+
 
 import br.org.assandef.assandefsystem.model.Boleto;
 import br.org.assandef.assandefsystem.model.Doador;
@@ -88,6 +90,18 @@ public class DoadorViewController {
         return ResponseEntity.ok(doador);
     }
 
+    // Listar boletos de um doador específico
+    @ResponseBody
+    @GetMapping("/{id}/boletos")
+    public ResponseEntity<List<Boleto>> listarBoletosPorDoador(@PathVariable("id") Integer idDoador) {
+        try {
+            List<Boleto> boletos = boletoService.findByDoador(idDoador);
+            return ResponseEntity.ok(boletos);
+        } catch (Exception e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     // ======================
     // BOLETO (COM UPLOAD)
     // ======================
@@ -97,6 +111,16 @@ public class DoadorViewController {
             @ModelAttribute Boleto boleto,
             RedirectAttributes ra) {
         try {
+            // DEBUG: Log do arquivo recebido
+            System.out.println("🔍 DEBUG - Arquivo recebido:");
+            System.out.println("   - arquivo == null? " + (arquivo == null));
+            if (arquivo != null) {
+                System.out.println("   - arquivo.isEmpty()? " + arquivo.isEmpty());
+                System.out.println("   - Nome original: " + arquivo.getOriginalFilename());
+                System.out.println("   - Tamanho: " + arquivo.getSize() + " bytes");
+                System.out.println("   - Content-Type: " + arquivo.getContentType());
+            }
+
             // Resolver a entidade Doador se veio apenas o ID
             if (boleto.getDoador() != null && boleto.getDoador().getIdDoador() != null) {
                 Integer idDoador = boleto.getDoador().getIdDoador();
@@ -111,22 +135,31 @@ public class DoadorViewController {
 
             // Salvar primeiro para obter o ID do boleto
             Boleto boletoSalvo = boletoService.save(boleto);
+            System.out.println("✅ Boleto salvo no banco com ID: " + boletoSalvo.getIdBoleto());
 
             // Se enviou arquivo, fazer upload
             if (arquivo != null && !arquivo.isEmpty()) {
+                System.out.println("📤 Iniciando upload do arquivo...");
                 String caminhoArquivo = fileStorageService.salvarBoleto(
                         arquivo,
                         boletoSalvo.getDoador().getIdDoador(),
                         boletoSalvo.getIdBoleto()
                 );
+                System.out.println("✅ Arquivo salvo em: " + caminhoArquivo);
+
                 boletoSalvo.setPdfBoleto(caminhoArquivo);
                 boletoService.save(boletoSalvo); // Atualizar com o caminho do arquivo
+                System.out.println("✅ Caminho atualizado no banco");
+            } else {
+                System.out.println("⚠️ NENHUM ARQUIVO FOI ENVIADO!");
             }
 
             ra.addFlashAttribute("msg", boleto.getIdBoleto() == null
                     ? "Boleto cadastrado com sucesso!"
                     : "Boleto atualizado com sucesso!");
         } catch (Exception e) {
+            System.err.println("❌ ERRO ao salvar boleto: " + e.getMessage());
+            e.printStackTrace();
             ra.addFlashAttribute("erro", "Erro ao salvar boleto: " + e.getMessage());
         }
         return "redirect:/doadores";

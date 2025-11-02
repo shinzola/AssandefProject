@@ -134,7 +134,10 @@ CREATE TABLE `boletos` (
   `id_boleto` INT NOT NULL AUTO_INCREMENT,
   `id_doador` INT NOT NULL,
   `status` ENUM('PENDENTE', 'PAGO', 'VENCIDO') NOT NULL,
-  `pdf_boleto` LONGTEXT NULL,
+  `data_emissao` DATE NULL,
+  `data_vencimento` DATE NULL,
+  `valor` DECIMAL(10, 2) NULL,
+  `pdf_boleto` LONGTEXT NULL COMMENT 'Armazena o caminho do arquivo no servidor (ex: uploads/boletos/doador_1/boleto_3.pdf)',
   PRIMARY KEY (`id_boleto`),
   INDEX `fk_boletos_doadores_idx` (`id_doador` ASC),
   CONSTRAINT `fk_boletos_doadores`

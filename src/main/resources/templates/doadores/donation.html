@@ -7,7 +7,6 @@
 
 <header th:replace="~{fragments/base :: cabecalho}"></header>
 
-<!-- FLASH MESSAGES -->
 <div class="container mt-3" th:if="${(msg != null and !#strings.isEmpty(msg)) or (erro != null and !#strings.isEmpty(erro))}">
     <div class="alert alert-success alert-dismissible fade show" role="alert"
          th:if="${msg != null and !#strings.isEmpty(msg)}">
@@ -76,7 +75,6 @@
         </ul>
 
         <div class="tab-content card" id="doadoresTabsContent">
-            <!-- TAB: LISTA DE DOADORES -->
             <div
                     class="tab-pane fade show active"
                     id="lista-doadores-pane"
@@ -123,6 +121,14 @@
                                 <td th:text="${doador.mensalidade != null ? 'R$ ' + #numbers.formatDecimal(doador.mensalidade, 1, 'POINT', 2, 'COMMA') : 'N/A'}">R$ 0,00</td>
                                 <td class="text-end">
                                     <button
+                                            class="btn btn-sm btn-outline-info me-2"
+                                            title="Visualizar"
+                                            data-action="visualizar-doador"
+                                            th:attr="data-id=${doador.idDoador}"
+                                    >
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                    <button
                                             class="btn btn-sm btn-outline-secondary me-2"
                                             title="Editar"
                                             data-action="editar-doador"
@@ -149,7 +155,6 @@
                 </div>
             </div>
 
-            <!-- TAB: BOLETOS -->
             <div
                     class="tab-pane fade"
                     id="boletos-pane"
@@ -164,8 +169,10 @@
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">Doador</th>
+                                <th scope="col">Valor</th>
+                                <th scope="col">Vencimento</th>
                                 <th scope="col">Status</th>
-                                <th scope="col">Link do Boleto</th>
+                                <th scope="col">PDF</th>
                                 <th scope="col" class="text-end">Ações</th>
                             </tr>
                             </thead>
@@ -173,19 +180,21 @@
                             <tr th:each="boleto : ${boletos}">
                                 <th scope="row" th:text="${boleto.idBoleto}">1</th>
                                 <td th:text="${boleto.doador != null ? boleto.doador.nome : 'N/A'}">Doador</td>
+                                <td th:text="${boleto.valor != null ? 'R$ ' + #numbers.formatDecimal(boleto.valor, 1, 'POINT', 2, 'COMMA') : '-'}">R$ 0,00</td>
+                                <td th:text="${boleto.dataVencimento != null ? #temporals.format(boleto.dataVencimento, 'dd/MM/yyyy') : '-'}">01/01/2025</td>
                                 <td>
                                     <span th:class="${boleto.status != null ? (boleto.status.name() == 'PAGO' ? 'badge bg-success' : (boleto.status.name() == 'PENDENTE' ? 'badge bg-warning' : 'badge bg-danger')) : 'badge bg-secondary'}"
                                           th:text="${boleto.status != null ? boleto.status : 'N/A'}">Status</span>
                                 </td>
                                 <td>
                                     <a th:if="${boleto.pdfBoleto != null and !#strings.isEmpty(boleto.pdfBoleto)}"
-                                       th:href="${boleto.pdfBoleto}"
+                                       th:href="@{/doadores/boleto/download/{id}(id=${boleto.idBoleto})}"
                                        target="_blank"
                                        class="btn btn-sm btn-outline-primary">
-                                        <i class="bi bi-link-45deg me-1"></i>Ver Boleto
+                                        <i class="bi bi-file-pdf me-1"></i>Ver PDF
                                     </a>
                                     <span th:if="${boleto.pdfBoleto == null or #strings.isEmpty(boleto.pdfBoleto)}"
-                                          class="text-muted">Sem link</span>
+                                          class="text-muted">Sem arquivo</span>
                                 </td>
                                 <td class="text-end">
                                     <button
@@ -225,7 +234,7 @@
                                 </td>
                             </tr>
                             <tr th:if="${#lists.isEmpty(boletos)}">
-                                <td colspan="5" class="text-center text-muted">Nenhum boleto cadastrado</td>
+                                <td colspan="7" class="text-center text-muted">Nenhum boleto cadastrado</td>
                             </tr>
                             </tbody>
                         </table>
@@ -238,7 +247,6 @@
 
 <footer th:replace="~{fragments/base :: rodape}"></footer>
 
-<!-- MODAL: NOVO DOADOR -->
 <div
         class="modal fade"
         id="modalNovoDoador"
@@ -297,9 +305,10 @@
                             <label for="doadorMensalidade" class="form-label">Valor Mensalidade (R$)</label>
                             <input type="number" class="form-control" id="doadorMensalidade" name="mensalidade" step="0.01" placeholder="0.00"/>
                         </div>
+
                         <div class="col-md-6">
-                            <label for="doadorVencimento" class="form-label">Data Vencimento</label>
-                            <input type="date" class="form-control" id="doadorVencimento" name="dataVencimento"/>
+                            <label for="doadorDiaVencimento" class="form-label">Dia Preferencial Vencimento</label>
+                            <input type="number" class="form-control" id="doadorDiaVencimento" name="diaVencimento" min="1" max="31" placeholder="Ex: 10"/>
                         </div>
                         <div class="col-12">
                             <label for="doadorEndereco" class="form-label">Endereço</label>
@@ -324,7 +333,6 @@
     </div>
 </div>
 
-<!-- MODAL: EDITAR DOADOR -->
 <div
         class="modal fade"
         id="modalEditarDoador"
@@ -384,9 +392,10 @@
                             <label for="editDoadorMensalidade" class="form-label">Valor Mensalidade (R$)</label>
                             <input type="number" class="form-control" id="editDoadorMensalidade" name="mensalidade" step="0.01" placeholder="0.00"/>
                         </div>
+
                         <div class="col-md-6">
-                            <label for="editDoadorVencimento" class="form-label">Data Vencimento</label>
-                            <input type="date" class="form-control" id="editDoadorVencimento" name="dataVencimento"/>
+                            <label for="editDoadorDiaVencimento" class="form-label">Dia Preferencial Vencimento</label>
+                            <input type="number" class="form-control" id="editDoadorDiaVencimento" name="diaVencimento" min="1" max="31" placeholder="Ex: 10"/>
                         </div>
                         <div class="col-12">
                             <label for="editDoadorEndereco" class="form-label">Endereço</label>
@@ -411,7 +420,6 @@
     </div>
 </div>
 
-<!-- MODAL: NOVO BOLETO -->
 <div
         class="modal fade"
         id="modalNovoBoleto"
@@ -432,28 +440,42 @@
                         aria-label="Close"
                 ></button>
             </div>
-            <form th:action="@{/doadores/boleto/salvar}" method="post">
+            <form th:action="@{/doadores/boleto/salvar}" method="post" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="boletoDoador" class="form-label">Doador</label>
-                        <select class="form-select" id="boletoDoador" name="doador.idDoador" required>
-                            <option value="">Selecione...</option>
-                            <option th:each="doador : ${doadores}" th:value="${doador.idDoador}" th:text="${doador.nome}">Doador</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="boletoStatus" class="form-label">Status</label>
-                        <select class="form-select" id="boletoStatus" name="status" required>
-                            <option value="PENDENTE" selected>Pendente</option>
-                            <option value="PAGO">Pago</option>
-                            <option value="VENCIDO">Vencido</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="boletoPdf" class="form-label">Arquivo do Boleto (PDF)</label>
-                        <input type="file" class="form-control" id="boletoPdf" name="arquivo" accept=".pdf" required/>
-                        <div class="form-text">Selecione o arquivo PDF do boleto (máximo 10MB)</div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="boletoDoador" class="form-label">Doador *</label>
+                            <select class="form-select" id="boletoDoador" name="doador.idDoador" required>
+                                <option value="">Selecione...</option>
+                                <option th:each="doador : ${doadores}" th:value="${doador.idDoador}" th:text="${doador.nome}">Doador</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="boletoDataEmissao" class="form-label">Data de Emissão</label>
+                            <input type="date" class="form-control" id="boletoDataEmissao" name="dataEmissao"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="boletoDataVencimento" class="form-label">Data de Vencimento</label>
+                            <input type="date" class="form-control" id="boletoDataVencimento" name="dataVencimento"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="boletoValor" class="form-label">Valor (R$)</label>
+                            <input type="number" class="form-control" id="boletoValor" name="valor" step="0.01" placeholder="0.00"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="boletoStatus" class="form-label">Status *</label>
+                            <select class="form-select" id="boletoStatus" name="status" required>
+                                <option value="PENDENTE" selected>Pendente</option>
+                                <option value="PAGO">Pago</option>
+                                <option value="VENCIDO">Vencido</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="boletoArquivo" class="form-label">Arquivo do Boleto (PDF) *</label>
+                            <input type="file" class="form-control" id="boletoArquivo" name="arquivo" accept="application/pdf,.pdf" required/>
+                            <div class="form-text">Selecione o arquivo PDF do boleto (máximo 10MB)</div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -473,7 +495,6 @@
     </div>
 </div>
 
-<!-- MODAL: EDITAR BOLETO -->
 <div
         class="modal fade"
         id="modalEditarBoleto"
@@ -494,29 +515,44 @@
                         aria-label="Close"
                 ></button>
             </div>
-            <form th:action="@{/doadores/boleto/salvar}" method="post">
+            <form th:action="@{/doadores/boleto/salvar}" method="post" enctype="multipart/form-data">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
                 <input type="hidden" id="editBoletoId" name="idBoleto"/>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <label for="editBoletoDoador" class="form-label">Doador</label>
-                        <select class="form-select" id="editBoletoDoador" name="doador.idDoador" required>
-                            <option value="">Selecione...</option>
-                            <option th:each="doador : ${doadores}" th:value="${doador.idDoador}" th:text="${doador.nome}">Doador</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editBoletoStatus" class="form-label">Status</label>
-                        <select class="form-select" id="editBoletoStatus" name="status" required>
-                            <option value="PENDENTE">Pendente</option>
-                            <option value="PAGO">Pago</option>
-                            <option value="VENCIDO">Vencido</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label for="editBoletoPdf" class="form-label">Link do Boleto (PDF)</label>
-                        <input type="url" class="form-control" id="editBoletoPdf" name="pdfBoleto" placeholder="https://exemplo.com/boleto.pdf"/>
-                        <div class="form-text">Cole o link/URL do boleto aqui</div>
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="editBoletoDoador" class="form-label">Doador *</label>
+                            <select class="form-select" id="editBoletoDoador" name="doador.idDoador" required>
+                                <option value="">Selecione...</option>
+                                <option th:each="doador : ${doadores}" th:value="${doador.idDoador}" th:text="${doador.nome}">Doador</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editBoletoDataEmissao" class="form-label">Data de Emissão</label>
+                            <input type="date" class="form-control" id="editBoletoDataEmissao" name="dataEmissao"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editBoletoDataVencimento" class="form-label">Data de Vencimento</label>
+                            <input type="date" class="form-control" id="editBoletoDataVencimento" name="dataVencimento"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editBoletoValor" class="form-label">Valor (R$)</label>
+                            <input type="number" class="form-control" id="editBoletoValor" name="valor" step="0.01" placeholder="0.00"/>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="editBoletoStatus" class="form-label">Status *</label>
+                            <select class="form-select" id="editBoletoStatus" name="status" required>
+                                <option value="PENDENTE">Pendente</option>
+                                <option value="PAGO">Pago</option>
+                                <option value="VENCIDO">Vencido</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="editBoletoArquivo" class="form-label">Arquivo do Boleto (PDF)</label>
+                            <input type="file" class="form-control" id="editBoletoArquivo" name="arquivo" accept="application/pdf,.pdf"/>
+                            <div class="form-text">Deixe em branco para manter o arquivo atual</div>
+                            <div id="arquivoAtual" class="mt-2 text-muted small"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -536,16 +572,142 @@
     </div>
 </div>
 
+<div class="modal fade" id="modalVisualizarDoador" tabindex="-1" aria-labelledby="modalVisualizarDoadorLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalVisualizarDoadorLabel">
+                    <i class="bi bi-person-circle me-2"></i><span id="viewDoadorNome">Detalhes do Doador</span>
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="viewDoadorTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="info-tab" data-bs-toggle="tab"
+                                data-bs-target="#info-pane" type="button" role="tab">
+                            <i class="bi bi-info-circle me-2"></i>Informações do Doador
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="boletos-doador-tab" data-bs-toggle="tab"
+                                data-bs-target="#boletos-doador-pane" type="button" role="tab">
+                            <i class="bi bi-file-earmark-text me-2"></i>Boletos (<span id="countBoletos">0</span>)
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content mt-3" id="viewDoadorTabsContent">
+                    <div class="tab-pane fade show active" id="info-pane" role="tabpanel">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nome / Razão Social:</label>
+                                <p class="form-control-plaintext" id="viewDoadorNomeCompleto">-</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">CPF/CNPJ:</label>
+                                <p class="form-control-plaintext" id="viewDoadorCpfCnpj">-</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Sexo:</label>
+                                <p class="form-control-plaintext" id="viewDoadorSexo">-</p>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Telefone:</label>
+                                <p class="form-control-plaintext" id="viewDoadorTelefone">-</p>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Email:</label>
+                                <p class="form-control-plaintext" id="viewDoadorEmail">-</p>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Data de Nascimento:</label>
+                                <p class="form-control-plaintext" id="viewDoadorNascimento">-</p>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Endereço:</label>
+                                <p class="form-control-plaintext" id="viewDoadorEndereco">-</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Mensalidade:</label>
+                                <p class="form-control-plaintext text-success fw-bold" id="viewDoadorMensalidade">-</p>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label fw-bold">Dia Vencimento:</label>
+                                <p class="form-control-plaintext" id="viewDoadorDiaVencimento">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="tab-pane fade" id="boletos-doador-pane" role="tabpanel">
+                        <div id="boletosContainer">
+                            <div class="text-center text-muted py-4">
+                                <i class="bi bi-hourglass-split fs-1"></i>
+                                <p>Carregando boletos...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script
         src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"
 ></script>
 
-<!-- JavaScript da Página -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/imask/7.1.3/imask.min.js"></script>
+
 <script th:inline="javascript" defer>
     /*<![CDATA[*/
-    // Delegação centralizada para todos botões com data-action
+    // ======================
+    // MÁSCARAS DE INPUT (SEU CÓDIGO CORRETO)
+    // ======================
+    document.addEventListener('DOMContentLoaded', function() {
+        // Máscara de Telefone (Celular ou Fixo)
+        const telefoneMask = {
+            mask: [
+                {mask: '(00) 0000-0000'},  // Fixo
+                {mask: '(00) 00000-0000'}  // Celular
+            ]
+        };
+
+        const telefoneInputs = [
+            document.getElementById('doadorTelefone'),
+            document.getElementById('editDoadorTelefone')
+        ];
+
+        telefoneInputs.forEach(input => {
+            if (input) IMask(input, telefoneMask);
+        });
+
+        // Máscara de CPF/CNPJ (dinâmica)
+        const cpfCnpjMask = {
+            mask: [
+                {mask: '000.000.000-00', maxLength: 11},  // CPF
+                {mask: '00.000.000/0000-00'}              // CNPJ
+            ]
+        };
+
+        const cpfCnpjInputs = [
+            document.getElementById('doadorCpfCnpj'),
+            document.getElementById('editDoadorCpfCnpj')
+        ];
+
+        cpfCnpjInputs.forEach(input => {
+            if (input) IMask(input, cpfCnpjMask);
+        });
+    });
+
+    // ======================
+    // DELEGAÇÃO DE EVENTOS (SEU CÓDIGO CORRETO)
+    // ======================
     document.addEventListener('click', function (e) {
         const btn = e.target.closest('button[data-action]');
         if (!btn) return;
@@ -554,6 +716,8 @@
         const id = btn.dataset.id;
 
         switch (action) {
+            case 'visualizar-doador':
+                return visualizarDoador(id);
             case 'editar-doador':
                 return editarDoador(id);
             case 'excluir-doador':
@@ -569,7 +733,171 @@
         }
     });
 
-    // ========== DOADOR ==========
+    // ======================
+    // DOADOR - VISUALIZAR (SEU CÓDIGO CORRETO, COM PEQUENO AJUSTE)
+    // ======================
+    function visualizarDoador(id) {
+        fetch(`/doadores/${id}`)
+            .then(r => r.json())
+            .then(doador => {
+                // Preencher informações básicas
+                document.getElementById('viewDoadorNome').textContent = doador.nome || 'Doador';
+                document.getElementById('viewDoadorNomeCompleto').textContent = doador.nome || '-';
+                document.getElementById('viewDoadorCpfCnpj').textContent = doador.cpfCnpj || '-';
+                document.getElementById('viewDoadorTelefone').textContent = doador.telefone || '-';
+                document.getElementById('viewDoadorEmail').textContent = doador.email || '-';
+                document.getElementById('viewDoadorSexo').textContent = doador.sexo || '-';
+                document.getElementById('viewDoadorNascimento').textContent =
+                    doador.dataNascimento ? new Date(doador.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
+                document.getElementById('viewDoadorEndereco').textContent = doador.endereco || '-';
+                document.getElementById('viewDoadorMensalidade').textContent =
+                    doador.mensalidade ? `R$ ${parseFloat(doador.mensalidade).toFixed(2).replace('.', ',')}` : '-';
+
+                // ================== CORREÇÃO AQUI ==================
+                // Corrigido para "viewDoadorDiaVencimento" e "diaVencimento"
+                document.getElementById('viewDoadorDiaVencimento').textContent =
+                    doador.diaVencimento ? `Dia ${doador.diaVencimento}` : '-';
+                // ================== FIM DA CORREÇÃO ==================
+
+                // Carregar boletos do doador
+                carregarBoletosDoador(id);
+
+                // Abrir modal
+                const modal = new bootstrap.Modal(document.getElementById('modalVisualizarDoador'));
+
+                // Garantir que a primeira aba esteja ativa ao abrir
+                const infoTab = document.getElementById('info-tab');
+                if (infoTab) {
+                    const bsTab = new bootstrap.Tab(infoTab);
+                    bsTab.show();
+                }
+
+                modal.show();
+            })
+            .catch(err => alert('Erro ao carregar doador: ' + err));
+    }
+
+    // ======================
+    // CARREGAR BOLETOS DO DOADOR (SEU CÓDIGO CORRETO)
+    // ======================
+    function carregarBoletosDoador(idDoador) {
+        const container = document.getElementById('boletosContainer');
+        container.innerHTML = '<div class="text-center"><div class="spinner-border" role="status"></div><p>Carregando...</p></div>';
+
+        fetch(`/doadores/${idDoador}/boletos`)
+            .then(r => r.json())
+            .then(boletos => {
+                document.getElementById('countBoletos').textContent = boletos.length;
+
+                if (boletos.length === 0) {
+                    container.innerHTML = `
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Nenhum boleto cadastrado para este doador.
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Agrupar boletos por mês
+                const boletosPorMes = {};
+                boletos.forEach(boleto => {
+                    let mesAno = 'Sem data';
+                    let valor = 0;
+
+                    if (boleto.dataVencimento) {
+                        const data = new Date(boleto.dataVencimento + 'T00:00:00');
+                        const mes = data.toLocaleString('pt-BR', { month: 'long', year: 'numeric' });
+                        mesAno = mes.charAt(0).toUpperCase() + mes.slice(1);
+                    }
+
+                    if (!boletosPorMes[mesAno]) {
+                        boletosPorMes[mesAno] = {
+                            boletos: [],
+                            total: 0
+                        };
+                    }
+
+                    valor = boleto.valor ? parseFloat(boleto.valor) : 0;
+                    boletosPorMes[mesAno].boletos.push(boleto);
+                    boletosPorMes[mesAno].total += valor;
+                });
+
+                // Renderizar HTML
+                let html = '';
+                for (const [mes, dados] of Object.entries(boletosPorMes)) {
+                    const totalFormatado = dados.total.toFixed(2).replace('.', ',');
+
+                    html += `
+                        <div class="card mb-3">
+                            <div class="card-header bg-primary text-white">
+                                <i class="bi bi-calendar-month me-2"></i>
+                                <strong>${mes}</strong>
+                                <span class="float-end">Total: R$ ${totalFormatado}</span>
+                            </div>
+                            <div class="card-body">
+                                <div class="list-group">
+                    `;
+
+                    dados.boletos.forEach(boleto => {
+                        const statusClass =
+                            boleto.status === 'PAGO' ? 'success' :
+                            boleto.status === 'PENDENTE' ? 'warning' : 'danger';
+
+                        const dataVenc = boleto.dataVencimento ?
+                            new Date(boleto.dataVencimento + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
+
+                        const valorBoleto = boleto.valor ?
+                            parseFloat(boleto.valor).toFixed(2).replace('.', ',') : '0,00';
+
+                        const pdfLink = boleto.pdfBoleto ?
+                            `<a href="/doadores/boleto/download/${boleto.idBoleto}" target="_blank" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-pdf"></i> Ver PDF
+                            </a>` :
+                            '<span class="text-muted">Sem PDF</span>';
+
+                        html += `
+                            <div class="list-group-item">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">
+                                            <span class="badge bg-${statusClass}">${boleto.status}</span>
+                                            Boleto #${boleto.idBoleto}
+                                        </h6>
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3 me-1"></i>Vencimento: ${dataVenc}
+                                        </small>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="fw-bold text-success mb-2">R$ ${valorBoleto}</div>
+                                        ${pdfLink}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                container.innerHTML = html;
+            })
+            .catch(err => {
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        Erro ao carregar boletos: ${err}
+                    </div>
+                `;
+                document.getElementById('countBoletos').textContent = '!';
+            });
+    }
+
+    // ========== DOADOR - EDITAR (JAVASCRIPT) ==========
     function editarDoador(id) {
         fetch(`/doadores/${id}`)
             .then(r => r.json())
@@ -582,7 +910,12 @@
                 document.getElementById('editDoadorNascimento').value = doador.dataNascimento || '';
                 document.getElementById('editDoadorSexo').value = doador.sexo || '';
                 document.getElementById('editDoadorMensalidade').value = doador.mensalidade || '';
-                document.getElementById('editDoadorVencimento').value = doador.dataVencimento || '';
+
+                // ================== CORREÇÃO AQUI ==================
+                // Corrigido para "editDoadorDiaVencimento" e "diaVencimento"
+                document.getElementById('editDoadorDiaVencimento').value = doador.diaVencimento || '';
+                // ================== FIM DA CORREÇÃO ==================
+
                 document.getElementById('editDoadorEndereco').value = doador.endereco || '';
 
                 const modalEl = document.getElementById('modalEditarDoador');
@@ -599,7 +932,7 @@
         }
     }
 
-    // ========== BOLETO ==========
+    // ========== BOLETO (SEU CÓDIGO CORRETO) ==========
     function editarBoleto(id) {
         fetch(`/doadores/boleto/${id}`)
             .then(r => r.json())
@@ -608,7 +941,22 @@
                 document.getElementById('editBoletoDoador').value =
                     (boleto.doador && boleto.doador.idDoador) ? boleto.doador.idDoador : '';
                 document.getElementById('editBoletoStatus').value = boleto.status || 'PENDENTE';
-                document.getElementById('editBoletoPdf').value = boleto.pdfBoleto || '';
+                document.getElementById('editBoletoDataEmissao').value = boleto.dataEmissao || '';
+                document.getElementById('editBoletoDataVencimento').value = boleto.dataVencimento || '';
+                document.getElementById('editBoletoValor').value = boleto.valor || '';
+
+                // Mostrar arquivo atual se existir
+                const arquivoAtualDiv = document.getElementById('arquivoAtual');
+                if (boleto.pdfBoleto && boleto.pdfBoleto.length > 0) {
+                    // Extrai o nome do arquivo do caminho (mesmo que seja complexo)
+                    const nomeArquivo = boleto.pdfBoleto.split(/[\\/]/).pop();
+                    arquivoAtualDiv.innerHTML = `📄 Arquivo atual: ${nomeArquivo}`;
+                } else {
+                    arquivoAtualDiv.innerHTML = 'Nenhum arquivo anexado';
+                }
+
+                // Limpar o campo de input de arquivo
+                document.getElementById('editBoletoArquivo').value = null;
 
                 const modalEl = document.getElementById('modalEditarBoleto');
                 if (!modalEl) return console.error('Elemento #modalEditarBoleto não encontrado');
@@ -636,7 +984,7 @@
         }
     }
 
-    // ========== BUSCA/FILTRO ==========
+    // ========== BUSCA/FILTRO (SEU CÓDIGO CORRETO) ==========
     const buscaInput = document.getElementById('buscaDoador');
     if (buscaInput) {
         buscaInput.addEventListener('input', function() {
@@ -652,3 +1000,5 @@
 
     /*]]>*/
 </script>
+</body>
+</html>

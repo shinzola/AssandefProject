@@ -1,5 +1,6 @@
 package br.org.assandef.assandefsystem.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // <-- IMPORTAR ISTO
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -41,6 +42,7 @@ public class Doador {
     @Column(name = "dia_vencimento")
     private Integer diaVencimento;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "doador")
     private List<Boleto> boletos;
 }
