@@ -18,7 +18,15 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
                         .requestMatchers("/", "/login", "/doadores", "/doadores/**").permitAll()
+                        .requestMatchers("/api/debug/**").permitAll() // DEBUG - REMOVER EM PRODUÇÃO
+                        .requestMatchers("/h2-console/**").permitAll()
                         .anyRequest().authenticated()
+                )
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/debug/**", "/h2-console/**")
+                )
+                .headers(headers -> headers
+                        .frameOptions(frame -> frame.sameOrigin())
                 )
                 .formLogin(form -> form
                         .loginPage("/login")

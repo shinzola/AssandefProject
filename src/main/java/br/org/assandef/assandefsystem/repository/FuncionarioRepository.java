@@ -13,4 +13,7 @@ public interface FuncionarioRepository extends JpaRepository<Funcionario, Intege
     Optional<Funcionario> findByLogin(String login);
     List<Funcionario> findByNomeCompletoContainingIgnoreCase(String nome);
     List<Funcionario> findByHierarquia(Integer hierarquia);
+    List<Funcionario> findByAtivoTrue();
+    List<Funcionario> findByAtivoTrueOrderByNomeCompletoAsc();
+    Optional<Funcionario> findByLoginAndAtivoTrue(String login);
 }

@@ -36,4 +36,7 @@ public class Funcionario {
     @Column(name = "hierarquia", nullable = false)
     private Integer hierarquia;
 
+    @Column(name = "ativo", nullable = false)
+    private Boolean ativo = true;
+
 }

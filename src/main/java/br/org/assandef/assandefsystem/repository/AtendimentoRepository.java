@@ -12,4 +12,8 @@ public interface AtendimentoRepository extends JpaRepository<Atendimento, Intege
     List<Atendimento> findByFuncionario_IdFuncionario(Integer idFuncionario);
     List<Atendimento> findByStatus(String status);
     List<Atendimento> findByDataHoraInicioBetween(LocalDateTime inicio, LocalDateTime fim);
+    List<Atendimento> findByStatusOrderByDataHoraInicioAsc(String status);
+    List<Atendimento> findAllByOrderByDataHoraInicioDesc();
+    Long countByStatus(String status);
 }
+
