@@ -4,6 +4,8 @@ import br.org.assandef.assandefsystem.model.Doador;
 import br.org.assandef.assandefsystem.repository.DoadorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -34,5 +36,18 @@ public class DoadorService {
     }
     public boolean existsByCpfCnpjOrEmailOrTelefone(String cpfCnpj, String email, String telefone) {
         return doadorRepository.existsByCpfCnpjOrEmailOrTelefone(cpfCnpj, email, telefone);
+    }
+    public List<Doador> findByDataCadastroBetween(LocalDate dataInicio, LocalDate dataFim) {
+        if (dataInicio == null && dataFim == null) {
+            return doadorRepository.findAll();
+        }
+        if (dataInicio == null) {
+            return doadorRepository.findByDataCadastroLessThanEqual(dataFim);
+        }
+        if (dataFim == null) {
+            return doadorRepository.findByDataCadastroGreaterThanEqual(dataInicio);
+        }
+        // Between é inclusivo em ambos os lados
+        return doadorRepository.findByDataCadastroBetween(dataInicio, dataFim);
     }
 }

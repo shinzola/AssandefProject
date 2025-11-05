@@ -122,3 +122,11 @@ function downloadCSV(csvContent, filename) {
     link.click();
     document.body.removeChild(link);
 }
+
+document.getElementById('formGerarRelatorio').addEventListener('submit', function(e) {
+  const tipo = this.tipo.value;
+  if (!tipo) {
+    e.preventDefault();
+    alert('Por favor, selecione o tipo de relatório.');
+  }
+});

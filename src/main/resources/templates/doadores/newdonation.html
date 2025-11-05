@@ -79,8 +79,41 @@
                                    placeholder="seu@email.com">
                         </div>
 
+                        <!-- Endereço -->
+                        <div class="col-md-12 mb-3">
+                            <label for="endereco" class="form-label">Endereço</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="endereco"
+                                   th:field="*{endereco}"
+                                   placeholder="Digite seu endereço">
+                        </div>
+
+                        <!-- Data de Nascimento -->
+                        <div class="col-md-6 mb-3">
+                            <label for="dataNascimento" class="form-label">Data de Nascimento</label>
+                            <input type="date"
+                                   class="form-control"
+                                   id="dataNascimento"
+                                   th:field="*{dataNascimento}">
+                        </div>
+
+                        <!-- Sexo -->
+                        <div class="col-md-6 mb-3">
+                            <label for="sexo" class="form-label">Sexo</label>
+                            <select class="form-select"
+                                    id="sexo"
+                                    th:field="*{sexo}">
+                                <option value="" disabled selected>Selecione</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Feminino">Feminino</option>
+                                <option value="Outro">Outro</option>
+                                <option value="Prefiro não informar">Prefiro não informar</option>
+                            </select>
+                        </div>
+
                         <!-- Mensalidade -->
-                        <div class="col-md-12 mb-4">
+                        <div class="col-md-12 mb-3">
                             <label for="mensalidade" class="form-label">Valor da Mensalidade (R$)</label>
                             <input type="number"
                                    class="form-control"
@@ -90,6 +123,19 @@
                                    step="0.01"
                                    placeholder="Ex: 50.00">
                             <div class="form-text">Valor que deseja contribuir mensalmente (opcional)</div>
+                        </div>
+
+                        <!-- Dia de Vencimento -->
+                        <div class="col-md-6 mb-3">
+                            <label for="diaVencimento" class="form-label">Dia de Vencimento</label>
+                            <input type="number"
+                                   class="form-control"
+                                   id="diaVencimento"
+                                   th:field="*{diaVencimento}"
+                                   min="1"
+                                   max="31"
+                                   placeholder="Ex: 10">
+                            <div class="form-text">Dia do mês para vencimento da mensalidade</div>
                         </div>
                     </div>
 

@@ -29,9 +29,9 @@
                 <button
                         class="btn btn-primary"
                         data-bs-toggle="modal"
-                        data-bs-target="#modalNovoDoador"
+                        data-bs-target="#modalGerarRelatorioDoadores"
                 >
-                    <i class="bi bi-person-plus-fill me-2"></i>Cadastrar Novo Doador
+                    <i class="bi bi-file-earmark-text me-2"></i>Gerar Relatórios
                 </button>
                 <button
                         class="btn btn-secondary"
@@ -107,6 +107,7 @@
                                 <th scope="col">Telefone</th>
                                 <th scope="col">Email</th>
                                 <th scope="col">Mensalidade</th>
+                                <th scope="col">Data do cadastro</th>
                                 <th scope="col" class="text-end">Ações</th>
                             </tr>
                             </thead>
@@ -117,6 +118,7 @@
                                 <td th:text="${doador.telefone}">Telefone</td>
                                 <td th:text="${doador.email}">Email</td>
                                 <td th:text="${doador.mensalidade != null ? 'R$ ' + #numbers.formatDecimal(doador.mensalidade, 1, 'POINT', 2, 'COMMA') : 'N/A'}">R$ 0,00</td>
+                                <td th:text="${#temporals.format(doador.dataCadastro, 'dd/MM/yyyy')}">01/01/2025</td>
                                 <td class="text-end">
                                     <button
                                             class="btn btn-sm btn-outline-info me-2"
@@ -563,6 +565,55 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalGerarRelatorioDoadores" tabindex="-1" aria-labelledby="modalGerarRelatorioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formGerarRelatorio" th:action="@{/doadores/relatorio/gerar}" method="post" target="_blank">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalGerarRelatorioLabel">Gerar Relatório</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="relatorioTipo" class="form-label">Tipo de Relatório</label>
+                        <select class="form-select" id="relatorioTipo" name="tipo" required>
+                            <option value="doadores" selected>Doadores</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Formato</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="formato" id="formatoCsv" value="csv" checked>
+                                <label class="form-check-label" for="formatoCsv">CSV</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="formato" id="formatoPdf" value="pdf">
+                                <label class="form-check-label" for="formatoPdf">PDF</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="dataInicio" class="form-label">Data Início</label>
+                            <input type="date" class="form-control" id="dataInicio" name="dataInicio" />
+                        </div>
+                        <div class="col-6">
+                            <label for="dataFim" class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" id="dataFim" name="dataFim" />
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Gerar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>

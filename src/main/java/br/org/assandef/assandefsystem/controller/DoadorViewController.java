@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -79,6 +80,12 @@ public class DoadorViewController {
     @PostMapping("/salvar")
     public String salvarDoador(@ModelAttribute Doador doador, RedirectAttributes ra) {
         try {
+            boolean isNew = (doador.getIdDoador() == null);
+
+            if (isNew) {
+                doador.setDataCadastro(LocalDate.now());
+            }
+
             // Verifica se já existe um doador com os mesmos dados
             boolean exists = doadorService.existsByCpfCnpjOrEmailOrTelefone(
                     doador.getCpfCnpj(), doador.getEmail(), doador.getTelefone());
@@ -88,8 +95,6 @@ public class DoadorViewController {
                 return "redirect:/doadores/newdonation";
             }
 
-            // Se não existe, salva o novo doador
-            boolean isNew = (doador.getIdDoador() == null);
             doadorService.save(doador);
             ra.addFlashAttribute("msg", isNew
                     ? "Doador cadastrado com sucesso!"

@@ -36,6 +36,9 @@ public class Doador {
 
     private LocalDate dataNascimento;
 
+    @Column(name = "data_cadastro")
+    private LocalDate dataCadastro;
+
     @Column(precision = 10, scale = 2)
     private BigDecimal mensalidade;
 
