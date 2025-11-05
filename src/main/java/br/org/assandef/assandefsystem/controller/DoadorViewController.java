@@ -53,6 +53,25 @@ public class DoadorViewController {
 
         return "doadores/donation";
     }
+    // dentro de DoadorViewController (usa os mesmos serviços já injetados)
+    @GetMapping("/newdonation")
+    public String novaPaginaDoador(Model model,
+                                   @ModelAttribute("msg") String msg,
+                                   @ModelAttribute("erro") String erro) {
+
+        List<Doador> doadores = doadorService.findAll();
+        List<Boleto> boletos = boletoService.findAll();
+
+        model.addAttribute("doadores", doadores);
+        model.addAttribute("boletos", boletos);
+        model.addAttribute("doador", new Doador());
+        model.addAttribute("boleto", new Boleto());
+
+        if (msg != null && !msg.isBlank()) model.addAttribute("msg", msg);
+        if (erro != null && !erro.isBlank()) model.addAttribute("erro", erro);
+
+        return "doadores/newdonation";
+    }
 
     // ======================
     // DOADOR
@@ -60,14 +79,25 @@ public class DoadorViewController {
     @PostMapping("/salvar")
     public String salvarDoador(@ModelAttribute Doador doador, RedirectAttributes ra) {
         try {
+            // Verifica se já existe um doador com os mesmos dados
+            boolean exists = doadorService.existsByCpfCnpjOrEmailOrTelefone(
+                    doador.getCpfCnpj(), doador.getEmail(), doador.getTelefone());
+
+            if (exists) {
+                ra.addFlashAttribute("erro", "Já existe um cadastro com este CPF/CNPJ, email ou telefone.");
+                return "redirect:/doadores/newdonation";
+            }
+
+            // Se não existe, salva o novo doador
+            boolean isNew = (doador.getIdDoador() == null);
             doadorService.save(doador);
-            ra.addFlashAttribute("msg", doador.getIdDoador() == null
+            ra.addFlashAttribute("msg", isNew
                     ? "Doador cadastrado com sucesso!"
                     : "Doador atualizado com sucesso!");
         } catch (Exception e) {
             ra.addFlashAttribute("erro", "Erro ao salvar doador: " + e.getMessage());
         }
-        return "redirect:/doadores";
+        return "redirect:/doadores/newdonation";
     }
 
     @GetMapping("/deletar/{id}")

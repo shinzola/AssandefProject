@@ -32,4 +32,7 @@ public class DoadorService {
         return doadorRepository.findByCpfCnpj(cpfCnpj)
                 .orElseThrow(() -> new RuntimeException("Doador não encontrado"));
     }
+    public boolean existsByCpfCnpjOrEmailOrTelefone(String cpfCnpj, String email, String telefone) {
+        return doadorRepository.existsByCpfCnpjOrEmailOrTelefone(cpfCnpj, email, telefone);
+    }
 }

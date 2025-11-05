@@ -9,4 +9,5 @@ import java.util.Optional;
 public interface DoadorRepository extends JpaRepository<Doador, Integer> {
     Optional<Doador> findByCpfCnpj(String cpfCnpj);
     Optional<Doador> findByEmail(String email);
+    boolean existsByCpfCnpjOrEmailOrTelefone(String cpfCnpj, String email, String telefone);
 }

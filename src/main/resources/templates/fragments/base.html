@@ -40,7 +40,7 @@
                 <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
                     <li class="nav-item">
                         <a class="nav-link" th:classappend="${ativa == 'doar'} ? ' active' : ''"
-                           th:href="@{/doadores}">Tornar-se Doador</a>
+                           th:href="@{/doadores/newdonation}">Tornar-se Doador</a>
                     </li>
                 </ul>
 

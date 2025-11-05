@@ -21,7 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDateTime;
 import java.util.List;
-
+import org.springframework.dao.DataIntegrityViolationException;
 @Controller
 @RequestMapping("/almoxarifado")
 @RequiredArgsConstructor
@@ -65,8 +65,15 @@ public class AlmoxarifadoViewController {
     @PostMapping("/categoria/salvar")
     public String salvarCategoria(@ModelAttribute Categoria categoria, RedirectAttributes ra) {
         try {
-            categoriaService.save(categoria); // ajuste se for salvar(...)
+            categoriaService.save(categoria);
             ra.addFlashAttribute("msg", "Categoria salva com sucesso!");
+        } catch (DataIntegrityViolationException e) {
+            // Verifica se é erro de duplicação (constraint violation)
+            if (e.getRootCause() != null && e.getRootCause().getMessage().contains("Duplicate entry")) {
+                ra.addFlashAttribute("erro", "Erro: Já existe uma categoria com esse nome.");
+            } else {
+                ra.addFlashAttribute("erro", "Erro ao salvar categoria: " + e.getMessage());
+            }
         } catch (Exception e) {
             ra.addFlashAttribute("erro", "Erro ao salvar categoria: " + e.getMessage());
         }

@@ -9,5 +9,4 @@ public class AssandefsystemApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AssandefsystemApplication.class, args);
 	}
-
 }
