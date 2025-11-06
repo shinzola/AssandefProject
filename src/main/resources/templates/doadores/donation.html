@@ -44,7 +44,7 @@
         </div>
 
         <ul class="nav nav-tabs mt-4" id="doadoresTabs" role="tablist">
-            <li class="nav-item" role="presentation">
+            <li class="nav-item p-3" role="presentation">
                 <button
                         class="nav-link active"
                         id="lista-doadores-tab"
@@ -58,7 +58,7 @@
                     <i class="bi bi-people-fill me-2"></i>Lista de Doadores
                 </button>
             </li>
-            <li class="nav-item" role="presentation">
+            <li class="nav-item p-3" role="presentation">
                 <button
                         class="nav-link"
                         id="boletos-tab"
@@ -564,6 +564,9 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" id="btnGerarDocAssinatura" onclick="gerarDocumentacaoAssinatura()">
+                    <i class="bi bi-file-earmark-arrow-up me-1"></i> Gerar Documentação para Assinatura
+                </button>
             </div>
         </div>
     </div>
@@ -601,11 +604,11 @@
                     <div class="row g-3">
                         <div class="col-6">
                             <label for="dataInicio" class="form-label">Data Início</label>
-                            <input type="date" class="form-control" id="dataInicio" name="dataInicio" />
+                            <input type="date" class="form-control" id="dataInicio" name="dataInicio" required/>
                         </div>
                         <div class="col-6">
                             <label for="dataFim" class="form-label">Data Fim</label>
-                            <input type="date" class="form-control" id="dataFim" name="dataFim" />
+                            <input type="date" class="form-control" id="dataFim" name="dataFim" required/>
                         </div>
                     </div>
                 </div>
@@ -695,49 +698,71 @@
         }
     });
 
-    // ======================
-    // DOADOR - VISUALIZAR (SEU CÓDIGO CORRETO, COM PEQUENO AJUSTE)
-    // ======================
-    function visualizarDoador(id) {
-        fetch(`/doadores/${id}`)
-            .then(r => r.json())
-            .then(doador => {
-                // Preencher informações básicas
-                document.getElementById('viewDoadorNome').textContent = doador.nome || 'Doador';
-                document.getElementById('viewDoadorNomeCompleto').textContent = doador.nome || '-';
-                document.getElementById('viewDoadorCpfCnpj').textContent = doador.cpfCnpj || '-';
-                document.getElementById('viewDoadorTelefone').textContent = doador.telefone || '-';
-                document.getElementById('viewDoadorEmail').textContent = doador.email || '-';
-                document.getElementById('viewDoadorSexo').textContent = doador.sexo || '-';
-                document.getElementById('viewDoadorNascimento').textContent =
-                    doador.dataNascimento ? new Date(doador.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
-                document.getElementById('viewDoadorEndereco').textContent = doador.endereco || '-';
-                document.getElementById('viewDoadorMensalidade').textContent =
-                    doador.mensalidade ? `R$ ${parseFloat(doador.mensalidade).toFixed(2).replace('.', ',')}` : '-';
+ // ======================
+// DOADOR - VISUALIZAR (SEU CÓDIGO CORRIGIDO E INTEGRADO)
+// ======================
+function visualizarDoador(id) {
+    fetch(`/doadores/${id}`)
+        .then(r => r.json())
+        .then(doador => {
+            // Preencher informações básicas
+            document.getElementById('viewDoadorNome').textContent = doador.nome || 'Doador';
+            document.getElementById('viewDoadorNomeCompleto').textContent = doador.nome || '-';
+            document.getElementById('viewDoadorCpfCnpj').textContent = doador.cpfCnpj || '-';
+            document.getElementById('viewDoadorTelefone').textContent = doador.telefone || '-';
+            document.getElementById('viewDoadorEmail').textContent = doador.email || '-';
+            document.getElementById('viewDoadorSexo').textContent = doador.sexo || '-';
+            document.getElementById('viewDoadorNascimento').textContent =
+                doador.dataNascimento ? new Date(doador.dataNascimento + 'T00:00:00').toLocaleDateString('pt-BR') : '-';
+            document.getElementById('viewDoadorEndereco').textContent = doador.endereco || '-';
+            document.getElementById('viewDoadorMensalidade').textContent =
+                doador.mensalidade ? `R$ ${parseFloat(doador.mensalidade).toFixed(2).replace('.', ',')}` : '-';
 
-                // ================== CORREÇÃO AQUI ==================
-                // Corrigido para "viewDoadorDiaVencimento" e "diaVencimento"
-                document.getElementById('viewDoadorDiaVencimento').textContent =
-                    doador.diaVencimento ? `Dia ${doador.diaVencimento}` : '-';
-                // ================== FIM DA CORREÇÃO ==================
+            // ================== CORREÇÃO AQUI ==================
+            // Corrigido para "viewDoadorDiaVencimento" e "diaVencimento"
+            document.getElementById('viewDoadorDiaVencimento').textContent =
+                doador.diaVencimento ? `Dia ${doador.diaVencimento}` : '-';
+            // ================== FIM DA CORREÇÃO ==================
 
-                // Carregar boletos do doador
+            // Guardar o id do doador no dataset da modal para uso posterior
+            const modal = document.getElementById('modalVisualizarDoador');
+            modal.dataset.doadorId = doador.idDoador || id;
+
+            // Carregar boletos do doador (se tiver essa função)
+            if (typeof carregarBoletosDoador === 'function') {
                 carregarBoletosDoador(id);
+            }
 
-                // Abrir modal
-                const modal = new bootstrap.Modal(document.getElementById('modalVisualizarDoador'));
+            // Abrir modal
+            const bsModal = new bootstrap.Modal(modal);
 
-                // Garantir que a primeira aba esteja ativa ao abrir
-                const infoTab = document.getElementById('info-tab');
-                if (infoTab) {
-                    const bsTab = new bootstrap.Tab(infoTab);
-                    bsTab.show();
-                }
+            // Garantir que a primeira aba esteja ativa ao abrir
+            const infoTab = document.getElementById('info-tab');
+            if (infoTab) {
+                const bsTab = new bootstrap.Tab(infoTab);
+                bsTab.show();
+            }
 
-                modal.show();
-            })
-            .catch(err => alert('Erro ao carregar doador: ' + err));
+            bsModal.show();
+        })
+        .catch(err => alert('Erro ao carregar doador: ' + err));
+}
+
+// ======================
+// GERAR DOCUMENTAÇÃO (PDF) - ABRIR EM NOVA ABA
+// ======================
+function gerarDocumentacaoAssinatura() {
+    const modal = document.getElementById('modalVisualizarDoador');
+    const id = modal?.dataset?.doadorId;
+    if (!id) {
+        alert('ID do doador não definido. Reabra a ficha e tente novamente.');
+        return;
     }
+
+    // Abre o PDF gerado pelo backend em nova aba
+    const url = `/doadores/relatorio/documentacao/${id}`;
+    window.open(url, '_blank');
+}
 
     // ======================
     // CARREGAR BOLETOS DO DOADOR (SEU CÓDIGO CORRETO)

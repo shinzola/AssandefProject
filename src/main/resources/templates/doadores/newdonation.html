@@ -86,7 +86,7 @@
                                    class="form-control"
                                    id="endereco"
                                    th:field="*{endereco}"
-                                   placeholder="Digite seu endereço">
+                                   placeholder="Digite seu endereço" required>
                         </div>
 
                         <!-- Data de Nascimento -->
@@ -95,7 +95,8 @@
                             <input type="date"
                                    class="form-control"
                                    id="dataNascimento"
-                                   th:field="*{dataNascimento}">
+                                   th:field="*{dataNascimento}"
+                                    required>
                         </div>
 
                         <!-- Sexo -->
@@ -103,7 +104,7 @@
                             <label for="sexo" class="form-label">Sexo</label>
                             <select class="form-select"
                                     id="sexo"
-                                    th:field="*{sexo}">
+                                    th:field="*{sexo}" required>
                                 <option value="" disabled selected>Selecione</option>
                                 <option value="Masculino">Masculino</option>
                                 <option value="Feminino">Feminino</option>
@@ -121,7 +122,8 @@
                                    th:field="*{mensalidade}"
                                    min="0"
                                    step="0.01"
-                                   placeholder="Ex: 50.00">
+                                   placeholder="Ex: 50.00"
+                                   required>
                             <div class="form-text">Valor que deseja contribuir mensalmente (opcional)</div>
                         </div>
 
@@ -134,7 +136,7 @@
                                    th:field="*{diaVencimento}"
                                    min="1"
                                    max="31"
-                                   placeholder="Ex: 10">
+                                   placeholder="Ex: 10" required>
                             <div class="form-text">Dia do mês para vencimento da mensalidade</div>
                         </div>
                     </div>
@@ -174,7 +176,7 @@
             </div>
         </div>
     </div>
-</main>
+</main> <br>
 <footer th:replace="~{fragments/base :: rodape}"></footer>
 
 <!-- Scripts -->

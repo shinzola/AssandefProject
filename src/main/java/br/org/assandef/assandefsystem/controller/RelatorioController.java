@@ -10,10 +10,12 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-
+import java.util.function.BiConsumer;
 import jakarta.servlet.http.HttpServletResponse;
 import java.awt.Color;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -25,7 +27,7 @@ public class RelatorioController {
 
     private final MaterialService materialService;
     private final SolicitacoesMaterialService solicitacoesMaterialService;
-    private final DoadorService doadorService;  // novo serviço
+    private final DoadorService doadorService;
 
     public RelatorioController(MaterialService materialService,
                                SolicitacoesMaterialService solicitacoesMaterialService,
@@ -35,29 +37,33 @@ public class RelatorioController {
         this.doadorService = doadorService;
     }
 
-    // GET dados (mantido para consumo via JS se quiser)
+    // ----------------------------
+    // GET dados (para consumo via JS)
+    // ----------------------------
     @GetMapping("/dados")
     public Object getDadosRelatorio(
             @RequestParam String tipo,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim) {
 
-        if ("Estoque    ".equalsIgnoreCase(tipo)) {
+        if ("estoque".equalsIgnoreCase(tipo) || "Estoque".equalsIgnoreCase(tipo)) {
             return materialService.findAll();
         }
 
-        if ("Solicitações".equalsIgnoreCase(tipo)) {
+        if ("solicitacoes".equalsIgnoreCase(tipo) || "Solicitações".equalsIgnoreCase(tipo)) {
             return solicitacoesMaterialService.findByPeriodo(dataInicio, dataFim);
         }
 
-        if ("doadores".equalsIgnoreCase(tipo)) {
+        if ("doadores".equalsIgnoreCase(tipo) || "Doadores".equalsIgnoreCase(tipo)) {
             return doadorService.findByDataCadastroBetween(dataInicio, dataFim);
         }
 
         return List.of();
     }
 
+    // ----------------------------
     // POST gerar: gera CSV ou PDF e retorna como download
+    // ----------------------------
     @PostMapping("/gerar")
     public void gerarRelatorio(
             @RequestParam String tipo,
@@ -99,10 +105,10 @@ public class RelatorioController {
             response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
             try {
-                Document document = new Document(PageSize.A4.rotate()); // Paisagem
+                Document document = new Document(PageSize.A4.rotate()); // Paisagem para relatórios tabulares
                 PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
 
-                // Evento de página para cabeçalho e rodapé
+                // Cabeçalho/Rodapé genérico
                 writer.setPageEvent(new PdfPageEventHelper() {
                     public void onEndPage(PdfWriter writer, Document document) {
                         try {
@@ -154,7 +160,7 @@ public class RelatorioController {
                 DateTimeFormatter dtfData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 DateTimeFormatter dtfDataHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
-                if ("Estoque".equalsIgnoreCase(tipo)) {
+                if ("estoque".equalsIgnoreCase(tipo)) {
                     List<Material> materiais = materialService.findAll();
                     PdfPTable table = new PdfPTable(new float[]{3, 2, 1, 2, 2});
                     table.setWidthPercentage(100);
@@ -169,7 +175,7 @@ public class RelatorioController {
                     }
                     document.add(table);
 
-                } else if ("Solicitações".equalsIgnoreCase(tipo)) {
+                } else if ("solicitacoes".equalsIgnoreCase(tipo)) {
                     List<SolicitacoesMaterial> solicitacoes = solicitacoesMaterialService.findByPeriodo(dataInicio, dataFim);
                     PdfPTable table = new PdfPTable(new float[]{2, 1, 2, 2, 1, 2, 2});
                     table.setWidthPercentage(100);
@@ -188,9 +194,9 @@ public class RelatorioController {
 
                 } else if ("doadores".equalsIgnoreCase(tipo)) {
                     List<Doador> doadores = doadorService.findByDataCadastroBetween(dataInicio, dataFim);
-                    PdfPTable table = new PdfPTable(new float[]{2,2, 2, 3, 1, 2, 2,2});
+                    PdfPTable table = new PdfPTable(new float[]{2, 2, 2, 3, 1, 2, 2, 2});
                     table.setWidthPercentage(100);
-                    addTableHeader(table, new String[]{"Nome", "CPF/CNPJ", "Telefone", "Email", "Mensalidade", "Data Nascimento", "Sexo","Data cadastro"});
+                    addTableHeader(table, new String[]{"Nome", "CPF/CNPJ", "Telefone", "Email", "Mensalidade", "Data Nascimento", "Sexo", "Data cadastro"});
 
                     DateTimeFormatter dtfNascimento = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                     DateTimeFormatter dtfCadastro = DateTimeFormatter.ofPattern("dd/MM/yyyy");
@@ -203,7 +209,7 @@ public class RelatorioController {
                         table.addCell(createBodyCell(d.getMensalidade() != null ? String.format("R$ %.2f", d.getMensalidade()) : ""));
                         table.addCell(createBodyCell(d.getDataNascimento() != null ? d.getDataNascimento().format(dtfNascimento) : ""));
                         table.addCell(createBodyCell(orEmpty(d.getSexo())));
-                        table.addCell(createBodyCell(orEmpty(d.getDataCadastro()!= null ? d.getDataCadastro().format(dtfCadastro) : "")));
+                        table.addCell(createBodyCell(orEmpty(d.getDataCadastro() != null ? d.getDataCadastro().format(dtfCadastro) : "")));
                     }
                     document.add(table);
 
@@ -223,7 +229,162 @@ public class RelatorioController {
         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Formato inválido (use csv ou pdf)");
     }
 
-    // --- Helpers CSV ---
+    // ----------------------------
+    // GERA DOCUMENTAÇÃO: FICHA DE PARCEIRO (USANDO APENAS CAMPOS DO MODEL DOADOR)
+    // ----------------------------
+    @GetMapping("/documentacao/{id}")
+    public void gerarDocumentacaoDoador(@PathVariable("id") Integer idDoador,
+                                        HttpServletResponse response) throws IOException {
+        Doador d = doadorService.findById(idDoador);
+        if (d == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Doador não encontrado");
+            return;
+        }
+
+        response.setContentType("application/pdf");
+        String filename = "ficha_parceiro_" + (d.getNome() != null ? d.getNome().replaceAll("\\s+", "_") : idDoador) + ".pdf";
+        response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "\"");
+
+        Document document = new Document(PageSize.A4, 50, 50, 70, 50);
+        try {
+            PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
+            document.open();
+
+            PdfContentByte canvas = writer.getDirectContent();
+
+            // ---------- CABEÇALHO: logo | título | número ----------
+            PdfPTable headerTable = new PdfPTable(3);
+            headerTable.setWidthPercentage(100);
+            headerTable.setWidths(new float[]{1f, 4f, 1f});
+            headerTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+            headerTable.getDefaultCell().setVerticalAlignment(Element.ALIGN_MIDDLE);
+
+            // Logo (esquerda)
+            PdfPCell logoCell = new PdfPCell();
+            logoCell.setBorder(Rectangle.NO_BORDER);
+            logoCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            String logoPath = "static/img/assandef-logo.png";
+            java.net.URL logoUrl = getClass().getClassLoader().getResource(logoPath);
+            if (logoUrl != null) {
+                com.lowagie.text.Image logo = com.lowagie.text.Image.getInstance(logoUrl);
+                logo.scaleToFit(90, 45);
+                logoCell.addElement(logo);
+            }
+            headerTable.addCell(logoCell);
+
+            // Título (centro)
+            Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16, Color.BLACK);
+            Paragraph titlePar = new Paragraph("FICHA DE PARCEIRO DA PROJETO SOS ASSANDEF", titleFont);
+            titlePar.setAlignment(Element.ALIGN_CENTER);
+            PdfPCell titleCell = new PdfPCell();
+            titleCell.setBorder(Rectangle.NO_BORDER);
+            titleCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+            titleCell.addElement(titlePar);
+            headerTable.addCell(titleCell);
+
+            // Número do documento (direita) — evito sobrepor título
+            Font numFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.BLACK);
+            Paragraph numPar = new Paragraph("Nº: " + (34 + (idDoador != null ? idDoador : 0)), numFont);
+            numPar.setAlignment(Element.ALIGN_RIGHT);
+            PdfPCell numCell = new PdfPCell();
+            numCell.setBorder(Rectangle.NO_BORDER);
+            numCell.setVerticalAlignment(Element.ALIGN_TOP);
+            numCell.addElement(numPar);
+            headerTable.addCell(numCell);
+
+            document.add(headerTable);
+
+            // pequeno separador
+            document.add(Chunk.NEWLINE);
+
+            // ---------- TABELA DE DADOS (labels à esquerda, valores à direita) ----------
+            Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.BLACK);
+            Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 12, Color.DARK_GRAY);
+            PdfPTable table = new PdfPTable(2);
+            table.setWidthPercentage(90);
+            table.setWidths(new float[]{3f, 7f});
+            table.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+            table.getDefaultCell().setPaddingBottom(6f);
+
+            // helper inline: adiciona par de células
+            java.util.function.BiConsumer<String, String> addRowLocal = (label, value) -> {
+                PdfPCell c1 = new PdfPCell(new Phrase(label, labelFont));
+                c1.setBorder(Rectangle.NO_BORDER);
+                c1.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                c1.setPaddingBottom(8f);
+                PdfPCell c2 = new PdfPCell(new Phrase(value != null ? value : "", valueFont));
+                c2.setBorder(Rectangle.NO_BORDER);
+                c2.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                c2.setPaddingBottom(8f);
+                table.addCell(c1);
+                table.addCell(c2);
+            };
+
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+            addRowLocal.accept("Nome:", orEmpty(d.getNome()));
+            addRowLocal.accept("CPF/CNPJ:", orEmpty(d.getCpfCnpj()));
+            addRowLocal.accept("E-mail:", orEmpty(d.getEmail()));
+            addRowLocal.accept("Telefone:", orEmpty(d.getTelefone()));
+            addRowLocal.accept("Sexo:", orEmpty(d.getSexo()));
+            addRowLocal.accept("Endereço:", orEmpty(d.getEndereco()));
+            addRowLocal.accept("Data de Nascimento:", d.getDataNascimento() != null ? d.getDataNascimento().format(dtf) : "");
+            addRowLocal.accept("Data de Cadastro:", d.getDataCadastro() != null ? d.getDataCadastro().format(dtf) : "");
+            addRowLocal.accept("Valor inicial da contribuição:", formatCurrency(d.getMensalidade()));
+            addRowLocal.accept("Dia para cobrança:", d.getDiaVencimento() != null ? String.valueOf(d.getDiaVencimento()) : "");
+
+            document.add(table);
+
+            // ---------- Data de emissão e espaço para assinatura ----------
+            document.add(Chunk.NEWLINE);
+            document.add(Chunk.NEWLINE);
+
+            PdfPTable bottomTable = new PdfPTable(2);
+            bottomTable.setWidthPercentage(90);
+            bottomTable.setWidths(new float[]{1f, 1f});
+            bottomTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+
+            // Data de Emissão (esquerda)
+            PdfPCell dateCell = new PdfPCell(new Phrase("Data de Emissão: " + LocalDate.now().format(dtf), valueFont));
+            dateCell.setBorder(Rectangle.NO_BORDER);
+            dateCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+            bottomTable.addCell(dateCell);
+
+            // Espaço para assinatura (direita) — deixo linha grande
+            PdfPCell signCell = new PdfPCell();
+            signCell.setBorder(Rectangle.NO_BORDER);
+            signCell.setVerticalAlignment(Element.ALIGN_BOTTOM);
+            // assinatura label centralizado e linha abaixo
+            Paragraph signPar = new Paragraph();
+            signPar.setAlignment(Element.ALIGN_CENTER);
+            signPar.add(new Phrase("\n\n_______________________________\n", valueFont)); // linha
+            signPar.add(new Phrase("Assinatura do Contribuinte", labelFont));
+            signCell.addElement(signPar);
+            bottomTable.addCell(signCell);
+
+            document.add(bottomTable);
+
+            // ---------- Rodapé missão ----------
+            document.add(Chunk.NEWLINE);
+            Paragraph footer = new Paragraph();
+            footer.setFont(FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, Color.GRAY));
+            footer.setAlignment(Element.ALIGN_CENTER);
+            footer.add("Missão: Promover ações e serviços que mobilizem a sociedade, visando a inclusão das\n");
+            footer.add("Pessoas Com Deficiência na conquista de sua plena cidadania.\n");
+            footer.add("\"Seja um parceiro associado da Assandef.\"");
+            document.add(footer);
+
+            document.close();
+        } catch (Exception e) {
+            document.close();
+            response.reset();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erro ao gerar documento: " + e.getMessage());
+        }
+    }
+
+    // ----------------------------
+    // Helpers CSV / PDF tables
+    // ----------------------------
     private String buildCsvEstoque(List<Material> materiais) {
         StringBuilder sb = new StringBuilder();
         sb.append("Nome do Material;Categoria;Quantidade;Validade;Fornecedor\n");
@@ -269,7 +430,6 @@ public class RelatorioController {
                     .append(d.getDataNascimento() != null ? d.getDataNascimento().format(dtf) : "").append(';')
                     .append(escapeCsv(d.getSexo())).append(';')
                     .append(d.getDataCadastro() != null ? d.getDataCadastro().format(dtf) : "").append('\n');
-
         }
         return sb.toString();
     }
@@ -283,6 +443,11 @@ public class RelatorioController {
         return o == null ? "" : o.toString();
     }
 
+    private String formatCurrency(BigDecimal value) {
+        if (value == null) return "";
+        return "R$ " + value.setScale(2, RoundingMode.HALF_UP).toString().replace(".", ",");
+    }
+
     // --- Helpers PDF table header ---
     private void addTableHeader(PdfPTable table, String[] headers) {
         Font font = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, Color.WHITE);
@@ -291,17 +456,11 @@ public class RelatorioController {
             cell.setBackgroundColor(new Color(70, 130, 180)); // azul moderno
             cell.setHorizontalAlignment(Element.ALIGN_CENTER);
             cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
-
-            // padding maior
             cell.setPaddingTop(8f);
             cell.setPaddingBottom(8f);
-
-            // altura mínima para não ficar espremido
             cell.setMinimumHeight(26f);
-
             table.addCell(cell);
         }
-        // garante que a primeira linha será repetida como cabeçalho em páginas seguintes
         table.setHeaderRows(1);
     }
 
@@ -311,7 +470,6 @@ public class RelatorioController {
         Phrase phrase = new Phrase();
         phrase.setLeading(14f);
         phrase.add(new Chunk(text == null ? "" : text, bodyFont));
-
         PdfPCell cell = new PdfPCell(phrase);
         cell.setPaddingTop(6f);
         cell.setPaddingBottom(6f);
