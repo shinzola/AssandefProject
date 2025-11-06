@@ -147,13 +147,23 @@ public class DoadorViewController {
             RedirectAttributes ra) {
         try {
             // DEBUG: Log do arquivo recebido
-            System.out.println("🔍 DEBUG - Arquivo recebido:");
+            System.out.println("📎 DEBUG - Arquivo recebido:");
             System.out.println("   - arquivo == null? " + (arquivo == null));
             if (arquivo != null) {
                 System.out.println("   - arquivo.isEmpty()? " + arquivo.isEmpty());
                 System.out.println("   - Nome original: " + arquivo.getOriginalFilename());
                 System.out.println("   - Tamanho: " + arquivo.getSize() + " bytes");
                 System.out.println("   - Content-Type: " + arquivo.getContentType());
+            }
+
+            boolean isEdicao = (boleto.getIdBoleto() != null);
+            String caminhoArquivoAntigo = null;
+
+            // Se for edição, buscar o boleto existente para preservar dados
+            if (isEdicao) {
+                Boleto boletoExistente = boletoService.findById(boleto.getIdBoleto());
+                caminhoArquivoAntigo = boletoExistente.getPdfBoleto();
+                System.out.println("📝 Editando boleto existente. Arquivo atual: " + caminhoArquivoAntigo);
             }
 
             // Resolver a entidade Doador se veio apenas o ID
@@ -168,13 +178,30 @@ public class DoadorViewController {
                 boleto.setStatus(StatusBoleto.PENDENTE);
             }
 
-            // Salvar primeiro para obter o ID do boleto
+            // IMPORTANTE: Se for edição e não enviou arquivo novo, preservar o antigo
+            if (isEdicao && (arquivo == null || arquivo.isEmpty())) {
+                boleto.setPdfBoleto(caminhoArquivoAntigo);
+                System.out.println("⚠️ Edição sem novo arquivo - preservando arquivo antigo");
+            }
+
+            // Salvar/atualizar o boleto
             Boleto boletoSalvo = boletoService.save(boleto);
             System.out.println("✅ Boleto salvo no banco com ID: " + boletoSalvo.getIdBoleto());
 
-            // Se enviou arquivo, fazer upload
+            // Se enviou arquivo novo, fazer upload
             if (arquivo != null && !arquivo.isEmpty()) {
                 System.out.println("📤 Iniciando upload do arquivo...");
+
+                // Se for edição, deletar arquivo antigo antes de salvar o novo
+                if (isEdicao && caminhoArquivoAntigo != null && !caminhoArquivoAntigo.isBlank()) {
+                    try {
+                        fileStorageService.deletarBoleto(caminhoArquivoAntigo);
+                        System.out.println("🗑️ Arquivo antigo deletado: " + caminhoArquivoAntigo);
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Erro ao deletar arquivo antigo: " + e.getMessage());
+                    }
+                }
+
                 String caminhoArquivo = fileStorageService.salvarBoleto(
                         arquivo,
                         boletoSalvo.getDoador().getIdDoador(),
@@ -185,13 +212,14 @@ public class DoadorViewController {
                 boletoSalvo.setPdfBoleto(caminhoArquivo);
                 boletoService.save(boletoSalvo); // Atualizar com o caminho do arquivo
                 System.out.println("✅ Caminho atualizado no banco");
-            } else {
-                System.out.println("⚠️ NENHUM ARQUIVO FOI ENVIADO!");
+            } else if (!isEdicao) {
+                // Se for cadastro novo e não enviou arquivo, avisar
+                System.out.println("⚠️ NOVO BOLETO SEM ARQUIVO!");
             }
 
-            ra.addFlashAttribute("msg", boleto.getIdBoleto() == null
-                    ? "Boleto cadastrado com sucesso!"
-                    : "Boleto atualizado com sucesso!");
+            ra.addFlashAttribute("msg", isEdicao
+                    ? "Boleto atualizado com sucesso!"
+                    : "Boleto cadastrado com sucesso!");
         } catch (Exception e) {
             System.err.println("❌ ERRO ao salvar boleto: " + e.getMessage());
             e.printStackTrace();
