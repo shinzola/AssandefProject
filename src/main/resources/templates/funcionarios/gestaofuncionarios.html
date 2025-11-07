@@ -87,13 +87,10 @@
                                 <td th:text="${func.nomeCompleto}"></td>
                                 <td th:text="${func.login}"></td>
                                 <td>
-                                    <span th:switch="${func.hierarquia}" class="badge"
-                                          th:classappend="${func.hierarquia == 1 ? 'bg-danger' :
-                                                          func.hierarquia == 2 ? 'bg-primary' :
-                                                          func.hierarquia == 3 ? 'bg-info'}">
-                                        <span th:case="1">Diretoria</span>
-                                        <span th:case="2">Secretaria</span>
-                                        <span th:case="3">Administrativo</span>
+                                    <span th:switch="${func.hierarquia}">
+                                        <span class="badge bg-danger" th:case="1">Diretoria</span>
+                                        <span class="badge bg-primary" th:case="2">Secretaria</span>
+                                        <span class="badge bg-info" th:case="3">Administrativo</span>
                                     </span>
                                 </td>
                                 <td class="text-end">
