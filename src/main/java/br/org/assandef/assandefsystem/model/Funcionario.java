@@ -28,7 +28,6 @@ public class Funcionario {
     @Column(name = "login", nullable = false, unique = true, length = 80)
     private String login;
 
-    @NotBlank(message = "Senha é obrigatória")
     @Column(name = "senha_hash", nullable = false)
     private String senhaHash;
 

@@ -45,24 +45,34 @@
                 </ul>
 
                 <!-- Menu completo para usuários autenticados -->
+                <!-- Menu completo para usuários autenticados -->
                 <ul class="navbar-nav" sec:authorize="isAuthenticated()">
+                    <!-- Início: disponível para todos os autenticados (1,2,3) -->
                     <li class="nav-item">
                         <a class="nav-link" th:classappend="${ativa == 'inicio'} ? ' active' : ''"
                            th:href="@{/}">Início</a>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Almoxarifado: disponível para Administrador (1) e Auxiliar Administrativo (3) -->
+                    <li class="nav-item" th:if="${hierarquia == 1 or hierarquia == 3}">
                         <a class="nav-link" th:classappend="${ativa == 'almoxarifado'} ? ' active' : ''"
                            th:href="@{/almoxarifado}">Almoxarifado</a>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Atendimento: disponível para Administrador (1) e Atendente (2) -->
+                    <li class="nav-item" th:if="${hierarquia == 1 or hierarquia == 2}">
                         <a class="nav-link" th:classappend="${ativa == 'atendimento'} ? ' active' : ''"
                            th:href="@{/atendimento}">Atendimento</a>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Afiliações / Doadores: disponível para Administrador (1) e Auxiliar Administrativo (3) -->
+                    <li class="nav-item" th:if="${hierarquia == 1 or hierarquia == 3}">
                         <a class="nav-link" th:classappend="${ativa == 'doar'} ? ' active' : ''"
                            th:href="@{/doadores}">Afiliações</a>
                     </li>
-                    <li class="nav-item">
+
+                    <!-- Gestão de Acesso (funcionários): apenas Administrador/Diretoria (1) -->
+                    <li class="nav-item" th:if="${hierarquia == 1}">
                         <a class="nav-link" th:classappend="${ativa == 'gestao'} ? ' active' : ''"
                            th:href="@{/funcionarios}">Gestão de Acesso</a>
                     </li>

@@ -30,9 +30,4 @@ public class WebController {
     public String doacoes() {
         return "doadores/donation";
     }*/
-
-    @GetMapping("/funcionarios")
-    public String gestaoFuncionarios() {
-        return "funcionarios/gestaofuncionarios";
-    }
 }
