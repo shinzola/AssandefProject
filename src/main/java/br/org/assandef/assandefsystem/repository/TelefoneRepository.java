@@ -8,4 +8,5 @@ import java.util.List;
 @Repository
 public interface TelefoneRepository extends JpaRepository<Telefone, Integer> {
     List<Telefone> findByPacienteIdPaciente(Integer idPaciente);
+    List<Telefone> findByPaciente_IdPaciente(Integer idPaciente);
 }

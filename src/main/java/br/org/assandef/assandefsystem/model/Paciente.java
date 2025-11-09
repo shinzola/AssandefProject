@@ -4,14 +4,19 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
@@ -58,8 +63,40 @@ public class Paciente {
     @Column(name = "contato_responsavel")
     private String contatoResponsavel;
 
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JsonManagedReference
     private List<Telefone> telefones = new ArrayList<>();
 
+    @Transient
+    private String telefonePrincipal; // preenchido em runtime para exibição
 
+    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Atendimento> atendimentos = new ArrayList<>();
+
+    // Getters e setters explícitos para nSus (garantir binding do Spring)
+    public String getNSus() {
+        return nSus;
+    }
+
+    public void setNSus(String nSus) {
+        this.nSus = nSus;
+    }
+
+    // Alias para compatibilidade com binder
+    public String getnSus() {
+        return nSus;
+    }
+
+    public void setnSus(String nSus) {
+        this.nSus = nSus;
+    }
+
+    public String getTelefonePrincipal() {
+        return telefonePrincipal;
+    }
+
+    public void setTelefonePrincipal(String telefonePrincipal) {
+        this.telefonePrincipal = telefonePrincipal;
+    }
 }

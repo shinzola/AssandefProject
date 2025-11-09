@@ -57,6 +57,15 @@ public class SecurityConfig {
                             return new AuthorizationDecision(allowed);
                         })
 
+                        // /pacientes/** -> hierarquia 1 ou 2
+                        .requestMatchers("/pacientes/**")
+                        .access((authSupplier, ctx) -> {
+                            var authentication = authSupplier.get();
+                            AuthService authService = applicationContext.getBean(AuthService.class);
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 2);
+                            return new AuthorizationDecision(allowed);
+                        })
+
                         // /doadores/** -> hierarquia 1 ou 3
                         .requestMatchers("/doadores/**")
                         .access((authSupplier, ctx) -> {

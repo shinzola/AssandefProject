@@ -1,6 +1,6 @@
 package br.org.assandef.assandefsystem.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -26,7 +26,7 @@ public class Telefone {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_paciente", nullable = false)
-    @JsonIgnore
+    @JsonBackReference
     private Paciente paciente;
 
     @NotBlank(message = "Número é obrigatório")
@@ -36,44 +36,12 @@ public class Telefone {
     @Column(name = "descricao", length = 50)
     private String descricao;
 
-   
+    // Construtores
     public Telefone() {
     }
 
     public Telefone(String numero, String descricao) {
         this.numero = numero;
-        this.descricao = descricao;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Paciente getPaciente() {
-        return paciente;
-    }
-
-    public void setPaciente(Paciente paciente) {
-        this.paciente = paciente;
-    }
-
-    public String getNumero() {
-        return numero;
-    }
-
-    public void setNumero(String numero) {
-        this.numero = numero;
-    }
-
-    public String getDescricao() {
-        return descricao;
-    }
-
-    public void setDescricao(String descricao) {
         this.descricao = descricao;
     }
 }

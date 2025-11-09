@@ -65,6 +65,12 @@
                            th:href="@{/atendimento}">Atendimento</a>
                     </li>
 
+                    <!-- Pacientes: disponível para Administrador (1) e Atendente (2) -->
+                    <li class="nav-item" th:if="${hierarquia == 1 or hierarquia == 2}">
+                        <a class="nav-link" th:classappend="${ativa == 'pacientes'} ? ' active' : ''"
+                           th:href="@{/pacientes}">Pacientes</a>
+                    </li>
+
                     <!-- Afiliações / Doadores: disponível para Administrador (1) e Auxiliar Administrativo (3) -->
                     <li class="nav-item" th:if="${hierarquia == 1 or hierarquia == 3}">
                         <a class="nav-link" th:classappend="${ativa == 'doar'} ? ' active' : ''"

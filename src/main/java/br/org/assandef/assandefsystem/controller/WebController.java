@@ -16,8 +16,8 @@ public class WebController {
         return "acesso/login";
     }
 
-    @GetMapping("/atendimento")
-    public String atendimento() {
+    @GetMapping("/atendimento-old")
+    public String atendimentoOld() {
         return "atendimento/atendimento";
     }
 
