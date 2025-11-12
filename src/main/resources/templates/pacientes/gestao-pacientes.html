@@ -257,23 +257,36 @@
 
                 try {
                     const data = JSON.parse(text);
-                    console.log('JSON parseado com sucesso:', data);
+                    console.log('=== DADOS DO PACIENTE ===');
+                    console.log('JSON parseado:', data);
+                    console.log('nSus do JSON:', data.nSus);
+                    console.log('telefones do JSON:', data.telefones);
 
                     document.getElementById('tituloModal').textContent = 'Editar Paciente';
                     document.getElementById('idPaciente').value = data.idPaciente || '';
                     document.getElementById('nomeCompleto').value = data.nomeCompleto || '';
                     document.getElementById('cpf').value = data.cpf || '';
                     document.getElementById('rg').value = data.rg || '';
-                    document.getElementById('nSus').value = data.nSus || '';
+
+                    // nSus com log detalhado
+                    const nSusValue = data.nSus || '';
+                    console.log('Setando nSus para:', nSusValue);
+                    document.getElementById('nSus').value = nSusValue;
+
                     document.getElementById('dataNascimento').value = data.dataNascimento || '';
                     document.getElementById('sexo').value = data.sexo || '';
                     document.getElementById('endereco').value = data.endereco || '';
                     document.getElementById('nomeResponsavel').value = data.nomeResponsavel || '';
                     document.getElementById('contatoResponsavel').value = data.contatoResponsavel || '';
+
                     // telefone principal: primeiro telefone, se existir
                     const tel = (data.telefones && data.telefones.length > 0) ? data.telefones[0].numero : '';
+                    console.log('Setando telefone para:', tel);
                     const telInput = document.getElementById('telefonePrincipal');
-                    if (telInput) telInput.value = tel;
+                    if (telInput) {
+                        telInput.value = tel;
+                        console.log('Telefone setado no campo:', telInput.value);
+                    }
 
                     console.log('Formulário preenchido, abrindo modal...');
 

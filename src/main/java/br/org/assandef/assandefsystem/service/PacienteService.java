@@ -22,6 +22,12 @@ public class PacienteService {
             int qtdTelefones = p.getTelefones() != null ? p.getTelefones().size() : 0;
             System.out.println("Paciente ID " + p.getIdPaciente() +
                              " (" + p.getNomeCompleto() + ") tem " + qtdTelefones + " telefone(s)");
+
+            // Preenche telefone principal para exibição na listagem
+            if (p.getTelefones() != null && !p.getTelefones().isEmpty()) {
+                p.setTelefonePrincipal(p.getTelefones().get(0).getNumero());
+                System.out.println("  -> Telefone principal: " + p.getTelefonePrincipal());
+            }
         });
         return pacientes;
     }
@@ -48,10 +54,13 @@ public class PacienteService {
 
     public List<Paciente> buscarPorNomeOuCpf(String busca) {
         List<Paciente> pacientes = pacienteRepository.findByNomeCompletoContainingIgnoreCaseOrCpfContaining(busca, busca);
-        // Força inicialização dos telefones
+        // Força inicialização dos telefones e preenche telefone principal
         pacientes.forEach(p -> {
             if (p.getTelefones() != null) {
                 p.getTelefones().size();
+                if (!p.getTelefones().isEmpty()) {
+                    p.setTelefonePrincipal(p.getTelefones().get(0).getNumero());
+                }
             }
         });
         return pacientes;
@@ -59,5 +68,13 @@ public class PacienteService {
 
     public boolean existsByCpf(String cpf) {
         return pacienteRepository.existsByCpf(cpf);
+    }
+
+    public boolean temAtendimentosVinculados(Integer idPaciente) {
+        return pacienteRepository.countAtendimentosByPacienteId(idPaciente) > 0;
+    }
+
+    public int contarAtendimentos(Integer idPaciente) {
+        return pacienteRepository.countAtendimentosByPacienteId(idPaciente);
     }
 }

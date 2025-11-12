@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import br.org.assandef.assandefsystem.model.Paciente;
 import lombok.Data;
 
@@ -13,7 +15,10 @@ public class PacienteDTO {
     private String nomeCompleto;
     private String cpf;
     private String rg;
+
+    @JsonProperty("nSus")
     private String nSus;
+
     private LocalDate dataNascimento;
     private String sexo;
     private String endereco;

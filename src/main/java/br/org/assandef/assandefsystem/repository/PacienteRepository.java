@@ -26,4 +26,7 @@ public interface PacienteRepository extends JpaRepository<Paciente, Integer> {
 
     @Query("SELECT p FROM Paciente p LEFT JOIN FETCH p.telefones WHERE p.idPaciente = :id")
     Optional<Paciente> findByIdWithTelefones(@Param("id") Integer id);
+
+    @Query("SELECT COUNT(a) FROM Atendimento a WHERE a.paciente.idPaciente = :idPaciente")
+    int countAtendimentosByPacienteId(@Param("idPaciente") Integer idPaciente);
 }
