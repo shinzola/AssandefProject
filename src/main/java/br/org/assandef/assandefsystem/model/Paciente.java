@@ -63,7 +63,7 @@ public class Paciente {
     @Column(name = "contato_responsavel")
     private String contatoResponsavel;
 
-    @OneToMany(mappedBy = "paciente", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "paciente", cascade = {CascadeType.MERGE, CascadeType.REFRESH}, orphanRemoval = true, fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Telefone> telefones = new ArrayList<>();
 

@@ -50,18 +50,22 @@ public class PacienteController {
             @Valid @ModelAttribute Paciente paciente,
             BindingResult result,
             @RequestParam(name = "nSus", required = false) String nSus,
-            @RequestParam(name = "telefonePrincipal", required = false) String telefonePrincipal,
+            @RequestParam(name = "telefonesExcluir", required = false) List<Integer> telefonesExcluir,
+            jakarta.servlet.http.HttpServletRequest request,
             RedirectAttributes ra) {
 
-        System.out.println("=== SALVANDO PACIENTE ===");
-        System.out.println("ID Paciente: " + paciente.getIdPaciente());
-        System.out.println("Nome: " + paciente.getNomeCompleto());
-        System.out.println("nSus recebido: [" + nSus + "]");
-        System.out.println("telefonePrincipal recebido: [" + telefonePrincipal + "]");
+        // Captura telefones do request
+        java.util.Map<String, String[]> telefones = new java.util.HashMap<>();
+        java.util.Enumeration<String> paramNames = request.getParameterNames();
+        while (paramNames.hasMoreElements()) {
+            String paramName = paramNames.nextElement();
+            if (paramName.startsWith("telefones[")) {
+                telefones.put(paramName, request.getParameterValues(paramName));
+            }
+        }
 
-        // Garante binding do Número SUS (sempre atribui, mesmo se vazio)
+        // Garante binding do Número SUS
         paciente.setNSus(nSus);
-        System.out.println("nSus após set: [" + paciente.getNSus() + "]");
 
         boolean isEdicao = paciente.getIdPaciente() != null;
 
@@ -88,43 +92,109 @@ public class PacienteController {
         }
 
         try {
-            // Salva o paciente primeiro
+            // Limpa a lista de telefones do paciente para evitar problemas com orphanRemoval
+            // Os telefones serão salvos manualmente depois
+            if (paciente.getTelefones() != null) {
+                paciente.getTelefones().clear();
+            }
+
+            // Salva o paciente
             Paciente pacienteSalvo = pacienteService.save(paciente);
-            System.out.println("Paciente salvo com ID: " + pacienteSalvo.getIdPaciente());
-            System.out.println("nSus no banco: [" + pacienteSalvo.getNSus() + "]");
 
-            // Salva telefone se fornecido (tanto em criação quanto em edição)
-            if (telefonePrincipal != null && !telefonePrincipal.isBlank()) {
-                // Verifica se já existe um telefone "Principal" para este paciente
-                List<Telefone> telefonesExistentes = telefoneService.findByPaciente(pacienteSalvo.getIdPaciente());
-                boolean jaTemTelefonePrincipal = telefonesExistentes.stream()
-                    .anyMatch(t -> "Principal".equals(t.getDescricao()));
+            // Excluir telefones marcados para exclusão
+            if (telefonesExcluir != null && !telefonesExcluir.isEmpty()) {
+                telefonesExcluir.forEach(idTelefone -> {
+                    try {
+                        telefoneService.deleteById(idTelefone);
+                    } catch (Exception e) {
+                        System.err.println("Erro ao excluir telefone ID " + idTelefone + ": " + e.getMessage());
+                    }
+                });
+            }
 
-                if (!jaTemTelefonePrincipal) {
-                    System.out.println("Criando telefone principal: " + telefonePrincipal);
-                    Telefone telefone = new Telefone();
-                    telefone.setNumero(telefonePrincipal);
-                    telefone.setDescricao("Principal");
-                    telefone.setPaciente(pacienteSalvo);
-                    telefoneService.save(telefone);
-                    System.out.println("Telefone salvo com sucesso!");
-                } else {
-                    System.out.println("Paciente já possui telefone principal, não criando novo");
+            // Processar telefones enviados pelo formulário
+            if (telefones != null && !telefones.isEmpty()) {
+
+                // Extrair números e descrições
+                java.util.Map<Integer, String> numeros = new java.util.HashMap<>();
+                java.util.Map<Integer, String> descricoes = new java.util.HashMap<>();
+
+                telefones.forEach((key, values) -> {
+                    if (key.matches("telefones\\[(\\d+)\\]\\.numero") && values.length > 0) {
+                        int index = Integer.parseInt(key.replaceAll("[^0-9]", ""));
+                        String numero = values[0];
+                        if (numero != null && !numero.trim().isEmpty()) {
+                            numeros.put(index, numero.trim());
+                        }
+                    } else if (key.matches("telefones\\[(\\d+)\\]\\.descricao") && values.length > 0) {
+                        int index = Integer.parseInt(key.replaceAll("[^0-9]", ""));
+                        String descricao = values[0];
+                        if (descricao != null && !descricao.trim().isEmpty()) {
+                            descricoes.put(index, descricao.trim());
+                        }
+                    }
+                });
+
+                // Combinar todos os índices
+                java.util.Set<Integer> todosIndices = new java.util.HashSet<>();
+                todosIndices.addAll(numeros.keySet());
+                todosIndices.addAll(descricoes.keySet());
+
+                // Salvar cada telefone
+                for (Integer index : todosIndices) {
+                    String numero = numeros.get(index);
+                    String descricao = descricoes.get(index);
+
+                    // Validação: AMBOS devem estar preenchidos
+                    if (numero != null && !numero.trim().isEmpty() &&
+                        descricao != null && !descricao.trim().isEmpty()) {
+                        try {
+                            Telefone telefone = new Telefone();
+                            telefone.setNumero(numero);
+                            telefone.setDescricao(descricao);
+                            telefone.setPaciente(pacienteSalvo);
+                            telefoneService.save(telefone);
+                        } catch (Exception e) {
+                            System.err.println("Erro ao salvar telefone: " + e.getMessage());
+                        }
+                    }
                 }
-            } else {
-                System.out.println("Telefone não fornecido ou vazio");
             }
 
             ra.addFlashAttribute("msg", isEdicao
                 ? "Paciente atualizado com sucesso!"
                 : "Paciente cadastrado com sucesso!");
         } catch (Exception e) {
-            System.err.println("Erro ao salvar paciente: " + e.getMessage());
-            e.printStackTrace();
             ra.addFlashAttribute("erro", "Erro ao salvar paciente: " + e.getMessage());
         }
 
         return "redirect:/pacientes";
+    }
+
+    // API para verificar se paciente pode ser excluído
+    @GetMapping("/{id}/pode-excluir")
+    @ResponseBody
+    public ResponseEntity<java.util.Map<String, Object>> verificarPodeExcluir(@PathVariable Integer id) {
+        java.util.Map<String, Object> response = new java.util.HashMap<>();
+        try {
+            boolean temAtendimentos = pacienteService.temAtendimentosVinculados(id);
+            int qtdAtendimentos = temAtendimentos ? pacienteService.contarAtendimentos(id) : 0;
+
+            response.put("podeExcluir", !temAtendimentos);
+            response.put("qtdAtendimentos", qtdAtendimentos);
+
+            if (temAtendimentos) {
+                response.put("mensagem", "Não é possível excluir este paciente pois ele possui " +
+                    qtdAtendimentos + " atendimento(s) vinculado(s). " +
+                    "Os atendimentos devem ser mantidos para histórico médico.");
+            }
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            response.put("podeExcluir", false);
+            response.put("mensagem", "Erro ao verificar: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
     }
 
     @GetMapping("/deletar/{id}")

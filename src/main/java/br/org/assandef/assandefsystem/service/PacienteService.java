@@ -17,16 +17,10 @@ public class PacienteService {
 
     public List<Paciente> findAll() {
         List<Paciente> pacientes = pacienteRepository.findAllWithTelefones();
-        System.out.println("=== CARREGANDO PACIENTES ===");
+        // Preenche telefone principal para exibição na listagem
         pacientes.forEach(p -> {
-            int qtdTelefones = p.getTelefones() != null ? p.getTelefones().size() : 0;
-            System.out.println("Paciente ID " + p.getIdPaciente() +
-                             " (" + p.getNomeCompleto() + ") tem " + qtdTelefones + " telefone(s)");
-
-            // Preenche telefone principal para exibição na listagem
             if (p.getTelefones() != null && !p.getTelefones().isEmpty()) {
                 p.setTelefonePrincipal(p.getTelefones().get(0).getNumero());
-                System.out.println("  -> Telefone principal: " + p.getTelefonePrincipal());
             }
         });
         return pacientes;
