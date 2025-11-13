@@ -242,24 +242,28 @@
 
 <!-- Modal de Aviso - Não Pode Excluir -->
 <div class="modal fade" id="modalNaoPodeExcluir" tabindex="-1" aria-labelledby="modalNaoPodeExcluirLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-warning">
             <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title" id="modalNaoPodeExcluirLabel">
+                <h5 class="modal-title fw-bold" id="modalNaoPodeExcluirLabel">
                     <i class="bi bi-exclamation-triangle-fill me-2"></i>Exclusão Não Permitida
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p><strong id="nomePacienteNaoPodeExcluir"></strong></p>
-                <div class="alert alert-warning mb-0">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <span id="mensagemNaoPodeExcluir"></span>
+                <div class="mb-3">
+                    <h6 class="fw-bold text-dark" id="nomePacienteNaoPodeExcluir"></h6>
+                </div>
+                <div class="alert alert-warning d-flex align-items-start mb-0" role="alert">
+                    <i class="bi bi-info-circle-fill me-3 fs-4 flex-shrink-0"></i>
+                    <div>
+                        <p class="mb-0 fw-semibold" id="mensagemNaoPodeExcluir"></p>
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    <i class="bi bi-check-circle me-1"></i>Entendi
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">
+                    <i class="bi bi-check-circle me-2"></i>Entendi
                 </button>
             </div>
         </div>
@@ -423,32 +427,15 @@
     }
 
     function confirmarExclusao(id, nome) {
-        console.log('Verificando se pode excluir paciente ID:', id);
+        console.log('Tentativa de excluir paciente ID:', id);
 
-        // Verifica no servidor se pode excluir
-        fetch('/pacientes/' + id + '/pode-excluir')
-            .then(response => response.json())
-            .then(data => {
-                console.log('Resposta do servidor:', data);
+        // SEMPRE mostra o modal de exclusão não permitida - SEM VERIFICAÇÃO NO SERVIDOR
+        document.getElementById('nomePacienteNaoPodeExcluir').textContent = 'Paciente: ' + nome;
+        document.getElementById('mensagemNaoPodeExcluir').textContent =
+            'Não é possível excluir este paciente. Os registros de pacientes devem ser mantidos para histórico médico e integridade do sistema.';
 
-                if (data.podeExcluir) {
-                    // Pode excluir - mostra modal de confirmação
-                    idPacienteExcluir = id;
-                    document.getElementById('nomePacienteExcluir').textContent = nome;
-                    const modal = new bootstrap.Modal(document.getElementById('modalConfirmarExclusao'));
-                    modal.show();
-                } else {
-                    // NÃO pode excluir - mostra modal de aviso
-                    document.getElementById('nomePacienteNaoPodeExcluir').textContent = 'Paciente: ' + nome;
-                    document.getElementById('mensagemNaoPodeExcluir').textContent = data.mensagem;
-                    const modal = new bootstrap.Modal(document.getElementById('modalNaoPodeExcluir'));
-                    modal.show();
-                }
-            })
-            .catch(error => {
-                console.error('Erro ao verificar exclusão:', error);
-                alert('Erro ao verificar se paciente pode ser excluído: ' + error.message);
-            });
+        const modal = new bootstrap.Modal(document.getElementById('modalNaoPodeExcluir'));
+        modal.show();
     }
 
     // Event listeners
@@ -468,15 +455,8 @@
             });
         }
 
-        // Confirmar exclusão
-        const btnConfirmarExclusao = document.getElementById('btnConfirmarExclusao');
-        if (btnConfirmarExclusao) {
-            btnConfirmarExclusao.addEventListener('click', function() {
-                if (idPacienteExcluir) {
-                    window.location.href = '/pacientes/deletar/' + idPacienteExcluir;
-                }
-            });
-        }
+        // Exclusão de pacientes BLOQUEADA - event listener removido
+        // Os pacientes não podem ser excluídos para manter histórico médico
 
         // Validação antes de enviar o formulário
         const formPaciente = document.getElementById('formPaciente');

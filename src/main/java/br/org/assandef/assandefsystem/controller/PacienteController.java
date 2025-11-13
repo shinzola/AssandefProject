@@ -54,17 +54,18 @@ public class PacienteController {
             jakarta.servlet.http.HttpServletRequest request,
             RedirectAttributes ra) {
 
-        // Captura telefones do request
+        // Captura parâmetros de telefone do request
         java.util.Map<String, String[]> telefones = new java.util.HashMap<>();
         java.util.Enumeration<String> paramNames = request.getParameterNames();
         while (paramNames.hasMoreElements()) {
             String paramName = paramNames.nextElement();
+            String[] paramValues = request.getParameterValues(paramName);
             if (paramName.startsWith("telefones[")) {
-                telefones.put(paramName, request.getParameterValues(paramName));
+                telefones.put(paramName, paramValues);
             }
         }
 
-        // Garante binding do Número SUS
+        // Garante binding do Número SUS (sempre atribui, mesmo se vazio)
         paciente.setNSus(nSus);
 
         boolean isEdicao = paciente.getIdPaciente() != null;
@@ -92,13 +93,7 @@ public class PacienteController {
         }
 
         try {
-            // Limpa a lista de telefones do paciente para evitar problemas com orphanRemoval
-            // Os telefones serão salvos manualmente depois
-            if (paciente.getTelefones() != null) {
-                paciente.getTelefones().clear();
-            }
-
-            // Salva o paciente
+            // Salva o paciente primeiro
             Paciente pacienteSalvo = pacienteService.save(paciente);
 
             // Excluir telefones marcados para exclusão
@@ -135,28 +130,37 @@ public class PacienteController {
                     }
                 });
 
-                // Combinar todos os índices
+                // Combinar todos os índices (números E descrições)
                 java.util.Set<Integer> todosIndices = new java.util.HashSet<>();
                 todosIndices.addAll(numeros.keySet());
                 todosIndices.addAll(descricoes.keySet());
 
-                // Salvar cada telefone
+                // Salvar cada telefone (somente se AMBOS número E descrição estiverem preenchidos)
                 for (Integer index : todosIndices) {
                     String numero = numeros.get(index);
                     String descricao = descricoes.get(index);
 
                     // Validação: AMBOS devem estar preenchidos
-                    if (numero != null && !numero.trim().isEmpty() &&
-                        descricao != null && !descricao.trim().isEmpty()) {
-                        try {
-                            Telefone telefone = new Telefone();
-                            telefone.setNumero(numero);
-                            telefone.setDescricao(descricao);
-                            telefone.setPaciente(pacienteSalvo);
+                    if (numero == null || numero.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    if (descricao == null || descricao.trim().isEmpty()) {
+                        continue;
+                    }
+
+                    // Dados válidos - salvar telefone
+                    try {
+                        Telefone telefone = new Telefone();
+                        telefone.setNumero(numero);
+                        telefone.setDescricao(descricao);
+                        telefone.setPaciente(pacienteSalvo);
+
+                        if (telefone.getNumero() != null && !telefone.getNumero().isBlank()) {
                             telefoneService.save(telefone);
-                        } catch (Exception e) {
-                            System.err.println("Erro ao salvar telefone: " + e.getMessage());
                         }
+                    } catch (Exception e) {
+                        System.err.println("Erro ao salvar telefone: " + e.getMessage());
                     }
                 }
             }
@@ -171,6 +175,8 @@ public class PacienteController {
         return "redirect:/pacientes";
     }
 
+    // EXCLUSÃO DE PACIENTES DESABILITADA - Métodos comentados para manter histórico médico
+    /*
     // API para verificar se paciente pode ser excluído
     @GetMapping("/{id}/pode-excluir")
     @ResponseBody
@@ -196,7 +202,9 @@ public class PacienteController {
             return ResponseEntity.status(500).body(response);
         }
     }
+    */
 
+    /*
     @GetMapping("/deletar/{id}")
     public String excluirPaciente(@PathVariable Integer id, RedirectAttributes ra) {
         try {
@@ -216,6 +224,7 @@ public class PacienteController {
         }
         return "redirect:/pacientes";
     }
+    */
 
     // API JSON para buscar paciente
     @GetMapping("/{id}")

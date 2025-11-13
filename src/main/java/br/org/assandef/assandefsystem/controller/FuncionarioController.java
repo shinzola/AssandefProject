@@ -93,6 +93,8 @@ public class FuncionarioController {
         return "redirect:/funcionarios";
     }
 
+    // Exclusão de funcionários desabilitada para manter histórico e integridade do sistema
+    /*
     @PostMapping("/excluir/{id}")
     public String excluirFuncionario(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
         try {
@@ -103,4 +105,5 @@ public class FuncionarioController {
         }
         return "redirect:/funcionarios";
     }
+    */
 }
