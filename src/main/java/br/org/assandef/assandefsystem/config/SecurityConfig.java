@@ -66,6 +66,28 @@ public class SecurityConfig {
                             return new AuthorizationDecision(allowed);
                         })
 
+                        .requestMatchers(HttpMethod.GET, "/doadores/editar/**")
+                        .access((authSupplier, ctx) -> {
+                            var authentication = authSupplier.get();
+                            AuthService authService = applicationContext.getBean(AuthService.class);
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+                            return new AuthorizationDecision(allowed);
+                        })
+                        .requestMatchers(HttpMethod.POST, "/doadores/editar/**")
+                        .access((authSupplier, ctx) -> {
+                            var authentication = authSupplier.get();
+                            AuthService authService = applicationContext.getBean(AuthService.class);
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+                            return new AuthorizationDecision(allowed);
+                        })
+                        .requestMatchers(HttpMethod.GET, "/doadores/deletar/**")
+                        .access((authSupplier, ctx) -> {
+                            var authentication = authSupplier.get();
+                            AuthService authService = applicationContext.getBean(AuthService.class);
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+                            return new AuthorizationDecision(allowed);
+                        })
+
                         // /doadores/** -> hierarquia 1 ou 3
                         .requestMatchers("/doadores/**")
                         .access((authSupplier, ctx) -> {
@@ -74,6 +96,7 @@ public class SecurityConfig {
                             boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
                             return new AuthorizationDecision(allowed);
                         })
+
 
                         .anyRequest().authenticated()
                 )

@@ -1,19 +1,22 @@
-/*Testee */
 package br.org.assandef.assandefsystem.controller;
-
 
 import br.org.assandef.assandefsystem.model.Boleto;
 import br.org.assandef.assandefsystem.model.Doador;
 import br.org.assandef.assandefsystem.model.StatusBoleto;
+import br.org.assandef.assandefsystem.security.AuthService;
 import br.org.assandef.assandefsystem.service.BoletoService;
 import br.org.assandef.assandefsystem.service.DoadorService;
 import br.org.assandef.assandefsystem.service.FileStorageService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationContext;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -29,66 +32,70 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DoadorViewController {
 
+    private final ApplicationContext applicationContext;
     private final DoadorService doadorService;
     private final BoletoService boletoService;
     private final FileStorageService fileStorageService;
+    private final AuthService authService;
 
-    // Página única
+    // ======================
+    // PÁGINAS PRINCIPAIS
+    // ======================
+
+    // Página principal de administração (com modais de edição)
     @GetMapping
-    public String pagina(Model model,
-                         @ModelAttribute("msg") String msg,
-                         @ModelAttribute("erro") String erro) {
+    public String paginaAdministrativa(Model model,
+                                       @ModelAttribute("msg") String msg,
+                                       @ModelAttribute("erro") String erro) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+            return "redirect:/login";
+        }
 
         List<Doador> doadores = doadorService.findAll();
         List<Boleto> boletos = boletoService.findAll();
 
         model.addAttribute("doadores", doadores);
         model.addAttribute("boletos", boletos);
-
-        // Para usar th:object no modal
         model.addAttribute("doador", new Doador());
         model.addAttribute("boleto", new Boleto());
 
         if (msg != null && !msg.isBlank()) model.addAttribute("msg", msg);
         if (erro != null && !erro.isBlank()) model.addAttribute("erro", erro);
 
-        return "doadores/donation";
+        return "doadores/donation"; // página com modais de edição
     }
-    // dentro de DoadorViewController (usa os mesmos serviços já injetados)
+
+    // Página pública de cadastro
     @GetMapping("/newdonation")
-    public String novaPaginaDoador(Model model,
-                                   @ModelAttribute("msg") String msg,
-                                   @ModelAttribute("erro") String erro) {
-
-        List<Doador> doadores = doadorService.findAll();
-        List<Boleto> boletos = boletoService.findAll();
-
-        model.addAttribute("doadores", doadores);
-        model.addAttribute("boletos", boletos);
+    public String paginaCadastroPublico(Model model,
+                                        @ModelAttribute("msg") String msg,
+                                        @ModelAttribute("erro") String erro) {
         model.addAttribute("doador", new Doador());
-        model.addAttribute("boleto", new Boleto());
 
         if (msg != null && !msg.isBlank()) model.addAttribute("msg", msg);
         if (erro != null && !erro.isBlank()) model.addAttribute("erro", erro);
 
-        return "doadores/newdonation";
+        return "doadores/newdonation"; // página de cadastro público
     }
 
     // ======================
-    // DOADOR
+    // CADASTRO PÚBLICO
     // ======================
-    @PostMapping("/salvar")
-    public String salvarDoador(@ModelAttribute Doador doador, RedirectAttributes ra) {
-        try {
-            boolean isNew = (doador.getIdDoador() == null);
 
-            if (isNew) {
-                doador.setDataCadastro(LocalDate.now());
+    @PostMapping("/salvar")
+    public String salvarDoadorPublico(@ModelAttribute Doador doador, RedirectAttributes ra) {
+        try {
+            // Somente criação (não aceita id)
+            if (doador.getIdDoador() != null) {
+                ra.addFlashAttribute("erro", "Cadastro público não permite edição.");
+                return "redirect:/doadores/newdonation";
             }
 
-            // Verifica se já existe um doador com os mesmos dados
-            boolean exists = doadorService.existsByCpfCnpjOrEmailOrTelefone(
-                    doador.getCpfCnpj(), doador.getEmail(), doador.getTelefone());
+            doador.setDataCadastro(LocalDate.now());
+
+            boolean exists = doadorService.existsByCpfCnpjOrEmailOrTelefoneExcludingId(
+                    doador.getCpfCnpj(), doador.getEmail(), doador.getTelefone(), null);
 
             if (exists) {
                 ra.addFlashAttribute("erro", "Já existe um cadastro com este CPF/CNPJ, email ou telefone.");
@@ -96,18 +103,80 @@ public class DoadorViewController {
             }
 
             doadorService.save(doador);
-            ra.addFlashAttribute("msg", isNew
-                    ? "Doador cadastrado com sucesso!"
-                    : "Doador atualizado com sucesso!");
+            ra.addFlashAttribute("msg", "Doador cadastrado com sucesso!");
+            return "redirect:/doadores/newdonation";
+
         } catch (Exception e) {
             ra.addFlashAttribute("erro", "Erro ao salvar doador: " + e.getMessage());
+            return "redirect:/doadores/newdonation";
         }
-        return "redirect:/doadores/newdonation";
     }
+
+    // ======================
+    // EDIÇÃO ADMINISTRATIVA (via modal — só JSON)
+    // ======================
+
+    // Endpoint JSON para carregar dados do doador (usado pelo modal)
+    @ResponseBody
+    @GetMapping("/{id}")
+    public ResponseEntity<Doador> obterDoador(@PathVariable("id") Integer idDoador) {
+        try {
+            Doador doador = doadorService.findById(idDoador);
+            return ResponseEntity.ok(doador);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(500).build();
+        }
+    }
+
+    // Endpoint para salvar edição (via POST /editar/{id})
+    @PostMapping("/editar/{id}")
+    public String salvarEdicao(@PathVariable Integer id,
+                               @ModelAttribute Doador doador,
+                               RedirectAttributes ra) {
+        try {
+            // ... validações de auth ...
+
+            // garantir id coerente
+            doador.setIdDoador(id);
+
+            boolean exists = doadorService.existsByCpfCnpjOrEmailOrTelefoneExcludingId(
+                    doador.getCpfCnpj(), doador.getEmail(), doador.getTelefone(), id);
+
+            if (exists) {
+                ra.addFlashAttribute("erro", "Já existe um cadastro com este CPF/CNPJ, email ou telefone.");
+                return "redirect:/doadores";
+            }
+
+            // chama update (carrega existente e copia campos)
+            doadorService.update(id, doador);
+
+            ra.addFlashAttribute("msg", "Doador atualizado com sucesso!");
+            return "redirect:/doadores";
+        } catch (Exception e) {
+            ra.addFlashAttribute("erro", "Erro ao atualizar doador: " + e.getMessage());
+            return "redirect:/doadores";
+        }
+    }
+
+    // ======================
+    // EXCLUSÃO
+    // ======================
 
     @GetMapping("/deletar/{id}")
     public String deletarDoador(@PathVariable("id") Integer idDoador, RedirectAttributes ra) {
         try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth == null || !auth.isAuthenticated() || auth instanceof AnonymousAuthenticationToken) {
+                ra.addFlashAttribute("erro", "Você precisa estar logado para excluir doadores.");
+                return "redirect:/login";
+            }
+            if (!authService.hasAnyHierarquia(auth, 1, 3)) {
+                ra.addFlashAttribute("erro", "Você não tem permissão para excluir doadores.");
+                return "redirect:/doadores";
+            }
+
             doadorService.deleteById(idDoador);
             ra.addFlashAttribute("msg", "Doador excluído com sucesso!");
         } catch (Exception e) {
@@ -116,16 +185,10 @@ public class DoadorViewController {
         return "redirect:/doadores";
     }
 
-    // JSON para preencher modal de edição
-    @ResponseBody
-    @GetMapping("/{id}")
-    public ResponseEntity<Doador> obterDoador(@PathVariable("id") Integer idDoador) {
-        Doador doador = doadorService.findById(idDoador);
-        if (doador == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(doador);
-    }
+    // ======================
+    // APIs REST (JSON) - BOLETOS
+    // ======================
 
-    // Listar boletos de um doador específico
     @ResponseBody
     @GetMapping("/{id}/boletos")
     public ResponseEntity<List<Boleto>> listarBoletosPorDoador(@PathVariable("id") Integer idDoador) {
@@ -138,68 +201,49 @@ public class DoadorViewController {
     }
 
     // ======================
-    // BOLETO (COM UPLOAD)
+    // BOLETOS (UPLOAD, DOWNLOAD, STATUS)
     // ======================
+
     @PostMapping("/boleto/salvar")
     public String salvarBoleto(
             @RequestParam(value = "arquivo", required = false) MultipartFile arquivo,
             @ModelAttribute Boleto boleto,
             RedirectAttributes ra) {
         try {
-            // DEBUG: Log do arquivo recebido
-            System.out.println("📎 DEBUG - Arquivo recebido:");
-            System.out.println("   - arquivo == null? " + (arquivo == null));
-            if (arquivo != null) {
-                System.out.println("   - arquivo.isEmpty()? " + arquivo.isEmpty());
-                System.out.println("   - Nome original: " + arquivo.getOriginalFilename());
-                System.out.println("   - Tamanho: " + arquivo.getSize() + " bytes");
-                System.out.println("   - Content-Type: " + arquivo.getContentType());
-            }
-
             boolean isEdicao = (boleto.getIdBoleto() != null);
             String caminhoArquivoAntigo = null;
 
-            // Se for edição, buscar o boleto existente para preservar dados
             if (isEdicao) {
                 Boleto boletoExistente = boletoService.findById(boleto.getIdBoleto());
                 caminhoArquivoAntigo = boletoExistente.getPdfBoleto();
-                System.out.println("📝 Editando boleto existente. Arquivo atual: " + caminhoArquivoAntigo);
             }
 
-            // Resolver a entidade Doador se veio apenas o ID
             if (boleto.getDoador() != null && boleto.getDoador().getIdDoador() != null) {
                 Integer idDoador = boleto.getDoador().getIdDoador();
-                Doador doador = doadorService.findById(idDoador);
-                boleto.setDoador(doador);
+                try {
+                    Doador doador = doadorService.findById(idDoador);
+                    boleto.setDoador(doador);
+                } catch (RuntimeException e) {
+                    ra.addFlashAttribute("erro", "Doador informado não encontrado.");
+                    return "redirect:/doadores";
+                }
             }
 
-            // Define status padrão se não informado
             if (boleto.getStatus() == null) {
                 boleto.setStatus(StatusBoleto.PENDENTE);
             }
 
-            // IMPORTANTE: Se for edição e não enviou arquivo novo, preservar o antigo
             if (isEdicao && (arquivo == null || arquivo.isEmpty())) {
                 boleto.setPdfBoleto(caminhoArquivoAntigo);
-                System.out.println("⚠️ Edição sem novo arquivo - preservando arquivo antigo");
             }
 
-            // Salvar/atualizar o boleto
             Boleto boletoSalvo = boletoService.save(boleto);
-            System.out.println("✅ Boleto salvo no banco com ID: " + boletoSalvo.getIdBoleto());
 
-            // Se enviou arquivo novo, fazer upload
             if (arquivo != null && !arquivo.isEmpty()) {
-                System.out.println("📤 Iniciando upload do arquivo...");
-
-                // Se for edição, deletar arquivo antigo antes de salvar o novo
                 if (isEdicao && caminhoArquivoAntigo != null && !caminhoArquivoAntigo.isBlank()) {
                     try {
                         fileStorageService.deletarBoleto(caminhoArquivoAntigo);
-                        System.out.println("🗑️ Arquivo antigo deletado: " + caminhoArquivoAntigo);
-                    } catch (Exception e) {
-                        System.err.println("⚠️ Erro ao deletar arquivo antigo: " + e.getMessage());
-                    }
+                    } catch (Exception ignored) {}
                 }
 
                 String caminhoArquivo = fileStorageService.salvarBoleto(
@@ -207,22 +251,14 @@ public class DoadorViewController {
                         boletoSalvo.getDoador().getIdDoador(),
                         boletoSalvo.getIdBoleto()
                 );
-                System.out.println("✅ Arquivo salvo em: " + caminhoArquivo);
-
                 boletoSalvo.setPdfBoleto(caminhoArquivo);
-                boletoService.save(boletoSalvo); // Atualizar com o caminho do arquivo
-                System.out.println("✅ Caminho atualizado no banco");
-            } else if (!isEdicao) {
-                // Se for cadastro novo e não enviou arquivo, avisar
-                System.out.println("⚠️ NOVO BOLETO SEM ARQUIVO!");
+                boletoService.save(boletoSalvo);
             }
 
             ra.addFlashAttribute("msg", isEdicao
                     ? "Boleto atualizado com sucesso!"
                     : "Boleto cadastrado com sucesso!");
         } catch (Exception e) {
-            System.err.println("❌ ERRO ao salvar boleto: " + e.getMessage());
-            e.printStackTrace();
             ra.addFlashAttribute("erro", "Erro ao salvar boleto: " + e.getMessage());
         }
         return "redirect:/doadores";
@@ -233,16 +269,12 @@ public class DoadorViewController {
         try {
             Boleto boleto = boletoService.findById(idBoleto);
 
-            // Deletar arquivo do disco se existir
             if (boleto.getPdfBoleto() != null && !boleto.getPdfBoleto().isBlank()) {
                 try {
                     fileStorageService.deletarBoleto(boleto.getPdfBoleto());
-                } catch (Exception e) {
-                    System.err.println("Erro ao deletar arquivo: " + e.getMessage());
-                }
+                } catch (Exception ignored) {}
             }
 
-            // Deletar registro do banco
             boletoService.deleteById(idBoleto);
             ra.addFlashAttribute("msg", "Boleto excluído com sucesso!");
         } catch (Exception e) {
@@ -251,7 +283,6 @@ public class DoadorViewController {
         return "redirect:/doadores";
     }
 
-    // JSON para preencher modal de edição
     @ResponseBody
     @GetMapping("/boleto/{id}")
     public ResponseEntity<Boleto> obterBoleto(@PathVariable("id") Integer idBoleto) {
@@ -260,7 +291,6 @@ public class DoadorViewController {
         return ResponseEntity.ok(boleto);
     }
 
-    // Download/Visualização do PDF
     @GetMapping("/boleto/download/{id}")
     public ResponseEntity<Resource> downloadBoleto(@PathVariable("id") Integer idBoleto) {
         try {
@@ -286,7 +316,6 @@ public class DoadorViewController {
         }
     }
 
-    // Atualizar status do boleto
     @GetMapping("/boleto/marcar-pago/{id}")
     public String marcarBoletoComoPago(@PathVariable("id") Integer idBoleto, RedirectAttributes ra) {
         try {

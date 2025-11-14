@@ -255,41 +255,45 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="modalEditarDoadorLabel">
-                    Editar Doador
-                </h1>
-                <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal"
-                        aria-label="Close"
-                ></button>
+                <h5 class="modal-title" id="modalEditarDoadorLabel">Editar Doador</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form th:action="@{/doadores/salvar}" method="post">
-                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
-                <input type="hidden" id="editDoadorId" name="idDoador"/>
+
+            <!-- form sem action fixa; o JS deve setar form.action = '/doadores/editar/{id}' -->
+            <form id="editDoadorForm" method="post" class="needs-validation" novalidate>
+                <!-- CSRF (garanta que o fragmento seja renderizado) -->
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <!-- id do doador (será preenchido pelo JS) -->
+                <input type="hidden" id="editDoadorId" name="idDoador" />
+
                 <div class="modal-body">
                     <div class="row g-3">
                         <div class="col-12">
                             <label for="editDoadorNome" class="form-label">Nome / Razão Social</label>
                             <input type="text" class="form-control" id="editDoadorNome" name="nome" required/>
                         </div>
+
                         <div class="col-md-6">
                             <label for="editDoadorCpfCnpj" class="form-label">CPF / CNPJ</label>
                             <input type="text" class="form-control" id="editDoadorCpfCnpj" name="cpfCnpj" required/>
                         </div>
+
                         <div class="col-md-6">
                             <label for="editDoadorTelefone" class="form-label">Telefone</label>
                             <input type="text" class="form-control" id="editDoadorTelefone" name="telefone"/>
                         </div>
+
                         <div class="col-md-6">
                             <label for="editDoadorEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="editDoadorEmail" name="email"/>
                         </div>
+
                         <div class="col-md-6">
                             <label for="editDoadorNascimento" class="form-label">Data de Nascimento</label>
                             <input type="date" class="form-control" id="editDoadorNascimento" name="dataNascimento"/>
                         </div>
+
                         <div class="col-md-6">
                             <label for="editDoadorSexo" class="form-label">Sexo</label>
                             <select id="editDoadorSexo" class="form-select" name="sexo">
@@ -300,6 +304,7 @@
                                 <option>Pessoa Jurídica</option>
                             </select>
                         </div>
+
                         <div class="col-md-6">
                             <label for="editDoadorMensalidade" class="form-label">Valor Mensalidade (R$)</label>
                             <input type="number" class="form-control" id="editDoadorMensalidade" name="mensalidade" step="0.01" placeholder="0.00"/>
@@ -309,23 +314,17 @@
                             <label for="editDoadorDiaVencimento" class="form-label">Dia Preferencial Vencimento</label>
                             <input type="number" class="form-control" id="editDoadorDiaVencimento" name="diaVencimento" min="1" max="31" placeholder="Ex: 10"/>
                         </div>
+
                         <div class="col-12">
                             <label for="editDoadorEndereco" class="form-label">Endereço</label>
                             <input type="text" class="form-control" id="editDoadorEndereco" name="endereco" placeholder="Rua, Nº, Bairro"/>
                         </div>
                     </div>
                 </div>
+
                 <div class="modal-footer">
-                    <button
-                            type="button"
-                            class="btn btn-secondary"
-                            data-bs-dismiss="modal"
-                    >
-                        Cancelar
-                    </button>
-                    <button type="submit" class="btn btn-primary">
-                        Salvar Alterações
-                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
                 </div>
             </form>
         </div>
@@ -883,34 +882,67 @@ function gerarDocumentacaoAssinatura() {
             });
     }
 
-    // ========== DOADOR - EDITAR (JAVASCRIPT) ==========
-    function editarDoador(id) {
-        fetch(`/doadores/${id}`)
-            .then(r => r.json())
-            .then(doador => {
-                document.getElementById('editDoadorId').value = doador.idDoador;
-                document.getElementById('editDoadorNome').value = doador.nome || '';
-                document.getElementById('editDoadorCpfCnpj').value = doador.cpfCnpj || '';
-                document.getElementById('editDoadorTelefone').value = doador.telefone || '';
-                document.getElementById('editDoadorEmail').value = doador.email || '';
-                document.getElementById('editDoadorNascimento').value = doador.dataNascimento || '';
-                document.getElementById('editDoadorSexo').value = doador.sexo || '';
-                document.getElementById('editDoadorMensalidade').value = doador.mensalidade || '';
+    // ========== DOADOR - EDITAR (JAVASCRIPT COM ACTION DINÂMICA) ==========
+function editarDoador(id) {
+    fetch(`/doadores/${id}`)
+        .then(r => {
+            if (!r.ok) throw new Error('Doador não encontrado');
+            return r.json();
+        })
+        .then(doador => {
+            // Preencher campos do formulário
+            document.getElementById('editDoadorId').value = doador.idDoador || '';
+            document.getElementById('editDoadorNome').value = doador.nome || '';
+            document.getElementById('editDoadorCpfCnpj').value = doador.cpfCnpj || '';
+            document.getElementById('editDoadorTelefone').value = doador.telefone || '';
+            document.getElementById('editDoadorEmail').value = doador.email || '';
 
-                // ================== CORREÇÃO AQUI ==================
-                // Corrigido para "editDoadorDiaVencimento" e "diaVencimento"
-                document.getElementById('editDoadorDiaVencimento').value = doador.diaVencimento || '';
-                // ================== FIM DA CORREÇÃO ==================
+            // Normalizar data para formato yyyy-MM-dd
+            let data = doador.dataNascimento || '';
+            if (data && data.indexOf('T') !== -1) {
+                data = data.split('T')[0];
+            }
+            document.getElementById('editDoadorNascimento').value = data;
 
-                document.getElementById('editDoadorEndereco').value = doador.endereco || '';
+            // Selecionar sexo pelo texto (compatível com options fixas)
+            const sexoSelect = document.getElementById('editDoadorSexo');
+            if (doador.sexo) {
+                Array.from(sexoSelect.options).forEach(opt =>
+                    opt.selected = (opt.text === doador.sexo)
+                );
+            } else {
+                sexoSelect.value = '';
+            }
 
-                const modalEl = document.getElementById('modalEditarDoador');
-                if (!modalEl) return console.error('Elemento #modalEditarDoador não encontrado');
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
-            })
-            .catch(err => alert('Erro ao carregar doador: ' + err));
-    }
+            document.getElementById('editDoadorMensalidade').value = doador.mensalidade != null ? doador.mensalidade : '';
+            document.getElementById('editDoadorDiaVencimento').value = doador.diaVencimento != null ? doador.diaVencimento : '';
+            document.getElementById('editDoadorEndereco').value = doador.endereco || '';
+
+            // === AJUSTE CRÍTICO: SETAR ACTION DINAMICAMENTE PARA /doadores/editar/{id} ===
+            const form = document.getElementById('editDoadorForm');
+            if (form) {
+                form.action = `/doadores/editar/${id}`;
+            } else {
+                console.error('Formulário #editDoadorForm não encontrado!');
+                alert('Erro ao preparar formulário de edição.');
+                return;
+            }
+
+            // Abrir modal
+            const modalEl = document.getElementById('modalEditarDoador');
+            if (!modalEl) {
+                console.error('Modal #modalEditarDoador não encontrado!');
+                alert('Erro ao abrir modal de edição.');
+                return;
+            }
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        })
+        .catch(err => {
+            console.error('Erro ao carregar doador:', err);
+            alert('Erro ao carregar doador: ' + err.message);
+        });
+}
 
     function confirmarExclusaoDoador(id) {
         if (confirm('Tem certeza que deseja excluir este doador?')) {
