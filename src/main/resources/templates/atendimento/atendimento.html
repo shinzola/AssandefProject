@@ -27,6 +27,9 @@
         <div class="page-header">
             <h1 class="page-title">Gestão de Atendimentos</h1>
             <div class="page-actions">
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarRelatorio">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Gerar Relatório
+                </button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalNovoAtendimento">
                     <i class="bi bi-plus-circle me-2"></i>Novo Atendimento
                 </button>
@@ -270,6 +273,57 @@
                     <i class="bi bi-trash me-1"></i>Excluir Atendimento
                 </button>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Gerar Relatório -->
+<div class="modal fade" id="modalGerarRelatorio" tabindex="-1" aria-labelledby="modalGerarRelatorioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalGerarRelatorioLabel">Gerar Relatório de Atendimentos</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="relatorioForm" th:action="@{/atendimento/relatorio/gerar}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" th:if="${_csrf != null}"/>
+                <input type="hidden" name="tipo" value="atendimentos" />
+                <div class="modal-body">
+                    <!-- Opção de formato -->
+                    <div class="mb-3">
+                        <label class="form-label">Formato</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="formato" id="formatoPdf" value="pdf" checked>
+                                <label class="form-check-label" for="formatoPdf">PDF</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="formato" id="formatoCsv" value="csv">
+                                <label class="form-check-label" for="formatoCsv">CSV</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="relatorioDataInicio" class="form-label">Data Início</label>
+                            <input type="date" class="form-control" id="relatorioDataInicio" name="dataInicio" required/>
+                        </div>
+                        <div class="col-6">
+                            <label for="relatorioDataFim" class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" id="relatorioDataFim" name="dataFim" required/>
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Selecione o período dos atendimentos a serem incluídos no relatório.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Gerar</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
