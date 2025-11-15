@@ -25,6 +25,8 @@ public class Atendimento {
 
     private LocalDateTime dataHoraFim;
 
+    private LocalDateTime dataFinalAtendimento;
+
     @Column(length = 50)
     private String status;
 

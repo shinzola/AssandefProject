@@ -100,7 +100,9 @@ public class AtendimentoController {
                 return "redirect:/atendimento";
             }
 
-            atendimento.setDataHoraFim(LocalDateTime.now());
+            LocalDateTime agora = LocalDateTime.now();
+            atendimento.setDataHoraFim(agora);
+            atendimento.setDataFinalAtendimento(agora);
             atendimento.setStatus("FINALIZADO");
             atendimentoService.save(atendimento);
             ra.addFlashAttribute("msg", "Atendimento finalizado com sucesso!");

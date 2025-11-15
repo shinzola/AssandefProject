@@ -15,6 +15,7 @@ public class AtendimentoDetalhesDTO {
     private String tipoEncaminhamento;
     private LocalDateTime dataHoraInicio;
     private LocalDateTime dataHoraFim;
+    private LocalDateTime dataFinalAtendimento;
     private PacienteSimplificadoDTO paciente;
     private FuncionarioSimplificadoDTO funcionario;
     private List<EvolucaoDTO> evolucoes = new ArrayList<>();
@@ -46,6 +47,7 @@ public class AtendimentoDetalhesDTO {
         dto.setTipoEncaminhamento(atendimento.getTipoEncaminhamento());
         dto.setDataHoraInicio(atendimento.getDataHoraInicio());
         dto.setDataHoraFim(atendimento.getDataHoraFim());
+        dto.setDataFinalAtendimento(atendimento.getDataFinalAtendimento());
 
         if (atendimento.getPaciente() != null) {
             PacienteSimplificadoDTO pacienteDTO = new PacienteSimplificadoDTO();
