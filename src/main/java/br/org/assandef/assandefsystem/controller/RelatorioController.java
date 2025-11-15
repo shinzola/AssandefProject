@@ -1,8 +1,10 @@
 package br.org.assandef.assandefsystem.controller;
 
+import br.org.assandef.assandefsystem.model.Atendimento;
 import br.org.assandef.assandefsystem.model.Doador;
 import br.org.assandef.assandefsystem.model.Material;
 import br.org.assandef.assandefsystem.model.SolicitacoesMaterial;
+import br.org.assandef.assandefsystem.service.AtendimentoService;
 import br.org.assandef.assandefsystem.service.DoadorService;
 import br.org.assandef.assandefsystem.service.MaterialService;
 import br.org.assandef.assandefsystem.service.SolicitacoesMaterialService;
@@ -10,7 +12,6 @@ import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import java.util.function.BiConsumer;
 import jakarta.servlet.http.HttpServletResponse;
 import java.awt.Color;
 import java.io.IOException;
@@ -22,19 +23,22 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
-@RequestMapping({"/almoxarifado/relatorio", "/doadores/relatorio"})
+@RequestMapping({"/almoxarifado/relatorio", "/doadores/relatorio", "/atendimento/relatorio"})
 public class RelatorioController {
 
     private final MaterialService materialService;
     private final SolicitacoesMaterialService solicitacoesMaterialService;
     private final DoadorService doadorService;
+    private final AtendimentoService atendimentoService;
 
     public RelatorioController(MaterialService materialService,
                                SolicitacoesMaterialService solicitacoesMaterialService,
-                               DoadorService doadorService) {
+                               DoadorService doadorService,
+                               AtendimentoService atendimentoService) {
         this.materialService = materialService;
         this.solicitacoesMaterialService = solicitacoesMaterialService;
         this.doadorService = doadorService;
+        this.atendimentoService = atendimentoService;
     }
 
     // ----------------------------
@@ -58,6 +62,13 @@ public class RelatorioController {
             return doadorService.findByDataCadastroBetween(dataInicio, dataFim);
         }
 
+        if ("atendimentos".equalsIgnoreCase(tipo) || "Atendimentos".equalsIgnoreCase(tipo)) {
+            if (dataInicio != null && dataFim != null) {
+                return atendimentoService.findByDataHoraInicioBetween(dataInicio.atStartOfDay(), dataFim.plusDays(1).atStartOfDay());
+            }
+            return atendimentoService.findAll();
+        }
+
         return List.of();
     }
 
@@ -66,11 +77,20 @@ public class RelatorioController {
     // ----------------------------
     @PostMapping("/gerar")
     public void gerarRelatorio(
-            @RequestParam String tipo,
+            @RequestParam(required = false) String tipo,
             @RequestParam String formato,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataFim,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response,
+            jakarta.servlet.http.HttpServletRequest request) throws IOException {
+
+        // Define tipo padrão conforme o prefixo da URL caso não tenha vindo no form
+        if (tipo == null || tipo.isBlank()) {
+            String uri = request.getRequestURI();
+            if (uri.startsWith("/atendimento/")) tipo = "atendimentos";
+            else if (uri.startsWith("/almoxarifado/")) tipo = "estoque";
+            else if (uri.startsWith("/doadores/")) tipo = "doadores";
+        }
 
         if ("csv".equalsIgnoreCase(formato)) {
             String csv;
@@ -85,6 +105,14 @@ public class RelatorioController {
             } else if ("doadores".equalsIgnoreCase(tipo)) {
                 List<Doador> doadores = doadorService.findByDataCadastroBetween(dataInicio, dataFim);
                 csv = buildCsvDoadores(doadores);
+            } else if ("atendimentos".equalsIgnoreCase(tipo)) {
+                List<Atendimento> atendimentos;
+                if (dataInicio != null && dataFim != null) {
+                    atendimentos = atendimentoService.findByDataHoraInicioBetween(dataInicio.atStartOfDay(), dataFim.plusDays(1).atStartOfDay());
+                } else {
+                    atendimentos = atendimentoService.findAll();
+                }
+                csv = buildCsvAtendimentos(atendimentos);
             } else {
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Tipo inválido");
                 return;
@@ -100,7 +128,8 @@ public class RelatorioController {
         }
 
         if ("pdf".equalsIgnoreCase(formato)) {
-            String filename = "relatorio_" + tipo + "_" + LocalDate.now() + ".pdf";
+            final String tipoFinal = tipo != null ? tipo : "relatório";
+            String filename = "relatorio_" + tipoFinal + "_" + LocalDate.now() + ".pdf";
             response.setContentType("application/pdf");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
@@ -124,7 +153,7 @@ public class RelatorioController {
                             ColumnText.showTextAligned(
                                     writer.getDirectContent(),
                                     Element.ALIGN_CENTER,
-                                    new Phrase("Relatório de " + tipo.toUpperCase(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)),
+                                    new Phrase("Relatório de " + tipoFinal.toUpperCase(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)),
                                     (document.right() + document.left()) / 2,
                                     document.getPageSize().getHeight() - 40,
                                     0
@@ -210,6 +239,27 @@ public class RelatorioController {
                         table.addCell(createBodyCell(d.getDataNascimento() != null ? d.getDataNascimento().format(dtfNascimento) : ""));
                         table.addCell(createBodyCell(orEmpty(d.getSexo())));
                         table.addCell(createBodyCell(orEmpty(d.getDataCadastro() != null ? d.getDataCadastro().format(dtfCadastro) : "")));
+                    }
+                    document.add(table);
+
+                } else if ("atendimentos".equalsIgnoreCase(tipo)) {
+                    List<Atendimento> atendimentos;
+                    if (dataInicio != null && dataFim != null) {
+                        atendimentos = atendimentoService.findByDataHoraInicioBetween(dataInicio.atStartOfDay(), dataFim.plusDays(1).atStartOfDay());
+                    } else {
+                        atendimentos = atendimentoService.findAll();
+                    }
+                    PdfPTable table = new PdfPTable(new float[]{1, 3, 3, 2, 2, 1.5f});
+                    table.setWidthPercentage(100);
+                    addTableHeader(table, new String[]{"ID", "Paciente", "Profissional", "Tipo", "Data/Hora", "Status"});
+
+                    for (Atendimento a : atendimentos) {
+                        table.addCell(createBodyCell(String.valueOf(a.getIdAtendimento())));
+                        table.addCell(createBodyCell(orEmpty(a.getPaciente() != null ? a.getPaciente().getNomeCompleto() : null)));
+                        table.addCell(createBodyCell(orEmpty(a.getFuncionario() != null ? a.getFuncionario().getNomeCompleto() : null)));
+                        table.addCell(createBodyCell(orEmpty(a.getTipoEncaminhamento())));
+                        table.addCell(createBodyCell(a.getDataHoraInicio() != null ? a.getDataHoraInicio().format(dtfDataHora) : ""));
+                        table.addCell(createBodyCell(orEmpty(a.getStatus())));
                     }
                     document.add(table);
 
@@ -430,6 +480,23 @@ public class RelatorioController {
                     .append(d.getDataNascimento() != null ? d.getDataNascimento().format(dtf) : "").append(';')
                     .append(escapeCsv(d.getSexo())).append(';')
                     .append(d.getDataCadastro() != null ? d.getDataCadastro().format(dtf) : "").append('\n');
+        }
+        return sb.toString();
+    }
+
+    private String buildCsvAtendimentos(List<Atendimento> atendimentos) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ID;Paciente;CPF Paciente;Profissional;Tipo Encaminhamento;Data/Hora Início;Data/Hora Fim;Status\n");
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        for (Atendimento a : atendimentos) {
+            sb.append(a.getIdAtendimento()).append(';')
+                    .append(escapeCsv(a.getPaciente() != null ? a.getPaciente().getNomeCompleto() : "")).append(';')
+                    .append(escapeCsv(a.getPaciente() != null ? a.getPaciente().getCpf() : "")).append(';')
+                    .append(escapeCsv(a.getFuncionario() != null ? a.getFuncionario().getNomeCompleto() : "")).append(';')
+                    .append(escapeCsv(a.getTipoEncaminhamento())).append(';')
+                    .append(a.getDataHoraInicio() != null ? a.getDataHoraInicio().format(dtf) : "").append(';')
+                    .append(a.getDataHoraFim() != null ? a.getDataHoraFim().format(dtf) : "").append(';')
+                    .append(escapeCsv(a.getStatus())).append('\n');
         }
         return sb.toString();
     }

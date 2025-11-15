@@ -63,6 +63,7 @@ CREATE TABLE `atendimentos` (
   `id_funcionario` INT NOT NULL,
   `data_hora_inicio` DATETIME NULL,
   `data_hora_fim` DATETIME NULL,
+  `data_final_atendimento` DATETIME NULL COMMENT 'Data e hora em que o atendimento foi finalizado',
   `status` VARCHAR(50) NOT NULL,
   `tipo_encaminhamento` VARCHAR(50) NULL, 
   PRIMARY KEY (`id_atendimento`),

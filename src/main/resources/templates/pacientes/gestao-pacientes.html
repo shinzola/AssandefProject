@@ -26,6 +26,9 @@
         <div class="page-header">
             <h1 class="page-title">Gestão de Pacientes</h1>
             <div class="page-actions">
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarRelatorioPacientes">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Gerar Relatório
+                </button>
                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalPaciente">
                     <i class="bi bi-person-plus me-2"></i>Novo Paciente
                 </button>
@@ -90,11 +93,7 @@
                                                 title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button type="button" class="btn btn-danger"
-                                                th:attr="onclick='confirmarExclusao(' + ${p.idPaciente} + ', \'' + ${p.nomeCompleto} + '\')'"
-                                                title="Excluir">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <!-- Botão de exclusão removido - pacientes não podem ser excluídos para manter histórico médico -->
                                     </div>
                                 </td>
                             </tr>
@@ -505,6 +504,55 @@
         }
     });
 </script>
+
+<!-- Modal Gerar Relatório de Pacientes -->
+<div class="modal fade" id="modalGerarRelatorioPacientes" tabindex="-1" aria-labelledby="modalGerarRelatorioPacientesLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalGerarRelatorioPacientesLabel">Gerar Relatório de Pacientes</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="relatorioPacientesForm">
+                <div class="modal-body">
+                    <!-- Opção de formato -->
+                    <div class="mb-3">
+                        <label class="form-label">Formato</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="formato" id="formatoPdfPacientes" value="pdf" checked>
+                                <label class="form-check-label" for="formatoPdfPacientes">PDF</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="formato" id="formatoCsvPacientes" value="csv">
+                                <label class="form-check-label" for="formatoCsvPacientes">CSV</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="relatorioDataInicioPacientes" class="form-label">Data Início</label>
+                            <input type="date" class="form-control" id="relatorioDataInicioPacientes" name="dataInicio"/>
+                        </div>
+                        <div class="col-6">
+                            <label for="relatorioDataFimPacientes" class="form-label">Data Fim</label>
+                            <input type="date" class="form-control" id="relatorioDataFimPacientes" name="dataFim"/>
+                        </div>
+                    </div>
+                    <div class="form-text">
+                        <i class="bi bi-info-circle"></i>
+                        Selecione o período dos pacientes cadastrados a serem incluídos no relatório.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Gerar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>
