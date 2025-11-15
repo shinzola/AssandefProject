@@ -93,6 +93,11 @@ public class PacienteController {
         }
 
         try {
+            // Limpa lista de telefones para evitar persistência automática via cascade
+            if (paciente.getTelefones() != null) {
+                paciente.getTelefones().clear();
+            }
+
             // Salva o paciente primeiro
             Paciente pacienteSalvo = pacienteService.save(paciente);
 

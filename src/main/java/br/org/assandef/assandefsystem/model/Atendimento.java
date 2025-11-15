@@ -31,6 +31,6 @@ public class Atendimento {
     @Column(length = 50)
     private String tipoEncaminhamento;
 
-    @OneToMany(mappedBy = "atendimento")
+    @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Evolucao> evolucoes;
 }

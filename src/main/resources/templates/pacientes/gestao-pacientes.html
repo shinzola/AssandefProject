@@ -90,11 +90,7 @@
                                                 title="Editar">
                                             <i class="bi bi-pencil"></i>
                                         </button>
-                                        <button type="button" class="btn btn-danger"
-                                                th:attr="onclick='confirmarExclusao(' + ${p.idPaciente} + ', \'' + ${p.nomeCompleto} + '\')'"
-                                                title="Excluir">
-                                            <i class="bi bi-trash"></i>
-                                        </button>
+                                        <!-- Botão de exclusão removido - pacientes não podem ser excluídos para manter histórico médico -->
                                     </div>
                                 </td>
                             </tr>
