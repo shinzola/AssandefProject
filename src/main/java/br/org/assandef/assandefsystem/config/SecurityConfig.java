@@ -44,7 +44,7 @@ public class SecurityConfig {
                         .access((authSupplier, ctx) -> {
                             var authentication = authSupplier.get();
                             AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1,2,3);
                             return new AuthorizationDecision(allowed);
                         })
 
@@ -96,6 +96,16 @@ public class SecurityConfig {
                             boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
                             return new AuthorizationDecision(allowed);
                         })
+
+                        // /doadores/** -> hierarquia 1 ou 3
+                        .requestMatchers("/funcionarios/**")
+                        .access((authSupplier, ctx) -> {
+                            var authentication = authSupplier.get();
+                            AuthService authService = applicationContext.getBean(AuthService.class);
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1);
+                            return new AuthorizationDecision(allowed);
+                        })
+
 
 
                         .anyRequest().authenticated()

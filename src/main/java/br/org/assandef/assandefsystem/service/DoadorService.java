@@ -90,7 +90,6 @@ public class DoadorService {
 
         // Normaliza dados do dto antes de aplicar
         normalizeFields(dto);
-
         // Copiar apenas campos que podem ser alterados via UI
         existing.setNome(dto.getNome());
         existing.setCpfCnpj(dto.getCpfCnpj());

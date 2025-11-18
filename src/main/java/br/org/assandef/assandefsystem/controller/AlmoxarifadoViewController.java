@@ -26,7 +26,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 @RequestMapping("/almoxarifado")
 @RequiredArgsConstructor
 public class AlmoxarifadoViewController {
-
     private final CategoriaService categoriaService;
     private final MaterialService materialService;
     private final SolicitacoesMaterialService solicitacoesService;

@@ -19,7 +19,8 @@ public class GlobalModelAttributes {
      */
     @ModelAttribute("hierarquia")
     public Integer addHierarquia(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication instanceof org.springframework.security.authentication.AnonymousAuthenticationToken) {
             return null;
         }
         try {
@@ -29,7 +30,7 @@ public class GlobalModelAttributes {
                 return f.getHierarquia();
             }
         } catch (Exception e) {
-            // se não encontrado, retorna null (sem matar a request)
+            // retorna null se não encontrar ou ocorrer erro
         }
         return null;
     }

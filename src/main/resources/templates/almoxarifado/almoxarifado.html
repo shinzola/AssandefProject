@@ -22,25 +22,38 @@
 
   <main class="main-page">
     <div class="container-fluid">
-
       <div class="page-header">
-        <h1 class="page-title">Gestão de Almoxarifado</h1>
-        <div class="page-actions">
-          <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarRelatorio">
-            <i class="bi bi-file-earmark-arrow-down me-2"></i>Gerar Relatório
-          </button>
-          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalNovaCategoria">
-            <i class="bi bi-tags-fill me-2"></i>Nova Categoria
-          </button>
-          <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalSolicitarMaterial">
-            <i class="bi bi-hand-index-thumb me-2"></i>Regitrar saída
-          </button>
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalAdicionarMaterial">
-            <i class="bi bi-plus-circle me-2"></i>Adicionar Novo Material
-          </button>
-        </div>
-      </div>
+      <h1 class="page-title">Gestão de Almoxarifado</h1>
+      <div class="page-actions">
+        <!-- Gerar Relatório: hierarquia 1,2,3 -->
+        <button class="btn btn-outline-secondary"
+                th:if="${hierarquia == 1 or hierarquia == 3}"
+                data-bs-toggle="modal" data-bs-target="#modalGerarRelatorio">
+          <i class="bi bi-file-earmark-arrow-down me-2"></i>Gerar Relatório
+        </button>
 
+        <!-- Nova Categoria: somente admin (1) -->
+        <button class="btn btn-outline-primary"
+                th:if="${hierarquia == 1 or hierarquia == 3}"
+                data-bs-toggle="modal" data-bs-target="#modalNovaCategoria">
+          <i class="bi bi-tags-fill me-2"></i>Nova Categoria
+        </button>
+
+        <!-- Registrar saída: admin(1) e auxiliar(3) -->
+        <button class="btn btn-secondary"
+                th:if="${hierarquia == 1 or hierarquia == 2 or hierarquia == 3}"
+                data-bs-toggle="modal" data-bs-target="#modalSolicitarMaterial">
+          <i class="bi bi-hand-index-thumb me-2"></i>Saída
+        </button>
+
+        <!-- Adicionar material: admin(1) e auxiliar(3) -->
+        <button class="btn btn-primary"
+                th:if="${hierarquia == 1 or hierarquia == 3}"
+                data-bs-toggle="modal" data-bs-target="#modalAdicionarMaterial">
+          <i class="bi bi-plus-circle me-2"></i>Adicionar Novo Material
+        </button>
+      </div>
+  </div>
       <!-- === TABS PRINCIPAIS === -->
       <ul class="nav nav-tabs mt-3" id="almoxarifadoTabs" role="tablist">
         <li class="nav-item" role="presentation">
@@ -50,13 +63,13 @@
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link p-2" id="solicitacoes-tab" data-bs-toggle="tab" data-bs-target="#solicitacoes-tab-pane"
+          <button class="nav-link p-2" id="solicitacoes-tab" th:if="${hierarquia == 1 or hierarquia == 3}" data-bs-toggle="tab" data-bs-target="#solicitacoes-tab-pane"
                   type="button" role="tab" aria-controls="solicitacoes-tab-pane" aria-selected="false">
             <i class="bi bi-card-checklist me-2"></i>Acompanhamento de Saída
           </button>
         </li>
         <li class="nav-item" role="presentation">
-          <button class="nav-link p-2" id="categorias-tab" data-bs-toggle="tab" data-bs-target="#categorias-tab-pane"
+          <button class="nav-link p-2" id="categorias-tab" data-bs-toggle="tab" th:if="${hierarquia == 1 or hierarquia == 3}" data-bs-target="#categorias-tab-pane"
                   type="button" role="tab" aria-controls="categorias-tab-pane" aria-selected="false">
             <i class="bi bi-tags me-2"></i>Categorias
           </button>
@@ -88,11 +101,11 @@
                   <td th:text="${material.dataValidade != null ? #temporals.format(material.dataValidade, 'dd/MM/yyyy') : 'Sem validade'}">Validade</td>
                   <td th:text="${material.fornecedor != null ? material.fornecedor : 'N/A'}">Fornecedor</td>
                   <td class="text-end">
-                    <button class="btn btn-sm btn-outline-secondary me-2" title="Editar"
+                    <button class="btn btn-sm btn-outline-secondary me-2" th:if="${hierarquia == 1 or hierarquia == 3}" title="Editar"
                             data-action="editar-material" th:attr="data-id=${material.idMaterial}">
                       <i class="bi bi-pencil"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger" title="Excluir"
+                    <button class="btn btn-sm btn-outline-danger" th:if="${hierarquia == 1 or hierarquia == 3}" title="Excluir"
                             data-action="excluir-material" th:attr="data-id=${material.idMaterial}">
                       <i class="bi bi-trash"></i>
                     </button>
