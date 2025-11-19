@@ -38,6 +38,14 @@ public class AtendimentoDetalhesDTO {
         private Integer idEvolucao;
         private String descricao;
         private LocalDateTime dataHoraRegistro;
+        private List<PrescricaoDTO> prescricoes = new ArrayList<>();
+    }
+
+    @Data
+    public static class PrescricaoDTO {
+        private Integer idPrescricao;
+        private String tipo;
+        private String descricao;
     }
 
     public static AtendimentoDetalhesDTO from(Atendimento atendimento) {
@@ -70,6 +78,18 @@ public class AtendimentoDetalhesDTO {
                 evolucaoDTO.setIdEvolucao(evolucao.getIdEvolucao());
                 evolucaoDTO.setDescricao(evolucao.getDescricao());
                 evolucaoDTO.setDataHoraRegistro(evolucao.getDataHoraRegistro());
+
+                // Adicionar prescrições da evolução
+                if (evolucao.getPrescricoes() != null) {
+                    for (var prescricao : evolucao.getPrescricoes()) {
+                        PrescricaoDTO prescricaoDTO = new PrescricaoDTO();
+                        prescricaoDTO.setIdPrescricao(prescricao.getIdPrescricao());
+                        prescricaoDTO.setTipo(prescricao.getTipo());
+                        prescricaoDTO.setDescricao(prescricao.getDescricao());
+                        evolucaoDTO.getPrescricoes().add(prescricaoDTO);
+                    }
+                }
+
                 dto.getEvolucoes().add(evolucaoDTO);
             }
         }

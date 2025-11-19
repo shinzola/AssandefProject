@@ -25,78 +25,35 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                // ========== MODO TESTE: CSRF DESABILITADO PARA FACILITAR TESTES ==========
+                // TODO: REVERTER APÓS TESTES -> remova a linha abaixo para reativar CSRF
+                .csrf(csrf -> csrf.disable())
+                // ========== FIM MODO TESTE CSRF ==========
+
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
                         .requestMatchers("/", "/login", "/doadores/newdonation").permitAll()
                         .requestMatchers(HttpMethod.POST, "/doadores/salvar").permitAll()
 
-                        // /funcionarios/** -> somente hierarquia 1
-                        .requestMatchers("/funcionarios/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasHierarquia(authentication, 1);
-                            return new AuthorizationDecision(allowed);
-                        })
+                        // ========== MODO TESTE: TODOS OS ACESSOS LIBERADOS ==========
+                        // TODO: REVERTER APÓS TESTES - Restaurar restrições de hierarquia
 
-                        // /almoxarifado/** -> hierarquia 1 ou 3
-                        .requestMatchers("/almoxarifado/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
-                            return new AuthorizationDecision(allowed);
-                        })
+                        // TEMPORARIAMENTE LIBERADO - /funcionarios/** (era somente hierarquia 1)
+                        .requestMatchers("/funcionarios/**").authenticated()
 
-                        // /atendimento/** -> hierarquia 1 ou 2
-                        .requestMatchers("/atendimento/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 2);
-                            return new AuthorizationDecision(allowed);
-                        })
+                        // TEMPORARIAMENTE LIBERADO - /almoxarifado/** (era hierarquia 1 ou 3)
+                        .requestMatchers("/almoxarifado/**").authenticated()
 
-                        // /pacientes/** -> hierarquia 1 ou 2
-                        .requestMatchers("/pacientes/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 2);
-                            return new AuthorizationDecision(allowed);
-                        })
+                        // TEMPORARIAMENTE LIBERADO - /atendimento/** (era hierarquia 1 ou 2)
+                        .requestMatchers("/atendimento/**").authenticated()
 
-                        .requestMatchers(HttpMethod.GET, "/doadores/editar/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
-                            return new AuthorizationDecision(allowed);
-                        })
-                        .requestMatchers(HttpMethod.POST, "/doadores/editar/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
-                            return new AuthorizationDecision(allowed);
-                        })
-                        .requestMatchers(HttpMethod.GET, "/doadores/deletar/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
-                            return new AuthorizationDecision(allowed);
-                        })
+                        // TEMPORARIAMENTE LIBERADO - /pacientes/** (era hierarquia 1 ou 2)
+                        .requestMatchers("/pacientes/**").authenticated()
 
-                        // /doadores/** -> hierarquia 1 ou 3
-                        .requestMatchers("/doadores/**")
-                        .access((authSupplier, ctx) -> {
-                            var authentication = authSupplier.get();
-                            AuthService authService = applicationContext.getBean(AuthService.class);
-                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
-                            return new AuthorizationDecision(allowed);
-                        })
+                        // TEMPORARIAMENTE LIBERADO - /doadores/** (era hierarquia 1 ou 3)
+                        .requestMatchers("/doadores/**").authenticated()
 
+                        // ========== FIM DO MODO TESTE ==========
 
                         .anyRequest().authenticated()
                 )

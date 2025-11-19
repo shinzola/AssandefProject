@@ -1,0 +1,86 @@
+// ========== BACKUP DAS CONFIGURAÇÕES ORIGINAIS DE SEGURANÇA ==========
+// Arquivo: SecurityConfig.java
+// Data do backup: 2025-11-18
+// Para reverter os testes, copie este conteúdo de volta para SecurityConfig.java
+
+SUBSTITUIR O TRECHO APÓS OS TESTES:
+
+De:
+        // ========== MODO TESTE: TODOS OS ACESSOS LIBERADOS ==========
+        .requestMatchers("/funcionarios/**").authenticated()
+        .requestMatchers("/almoxarifado/**").authenticated()
+        .requestMatchers("/atendimento/**").authenticated()
+        .requestMatchers("/pacientes/**").authenticated()
+        .requestMatchers("/doadores/**").authenticated()
+        // ========== FIM DO MODO TESTE ==========
+
+Para:
+        // /funcionarios/** -> somente hierarquia 1
+        .requestMatchers("/funcionarios/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasHierarquia(authentication, 1);
+            return new AuthorizationDecision(allowed);
+        })
+
+        // /almoxarifado/** -> hierarquia 1 ou 3
+        .requestMatchers("/almoxarifado/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+            return new AuthorizationDecision(allowed);
+        })
+
+        // /atendimento/** -> hierarquia 1 ou 2
+        .requestMatchers("/atendimento/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 2);
+            return new AuthorizationDecision(allowed);
+        })
+
+        // /pacientes/** -> hierarquia 1 ou 2
+        .requestMatchers("/pacientes/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 2);
+            return new AuthorizationDecision(allowed);
+        })
+
+        .requestMatchers(HttpMethod.GET, "/doadores/editar/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+            return new AuthorizationDecision(allowed);
+        })
+        .requestMatchers(HttpMethod.POST, "/doadores/editar/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+            return new AuthorizationDecision(allowed);
+        })
+        .requestMatchers(HttpMethod.GET, "/doadores/deletar/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+            return new AuthorizationDecision(allowed);
+        })
+
+        // /doadores/** -> hierarquia 1 ou 3
+        .requestMatchers("/doadores/**")
+        .access((authSupplier, ctx) -> {
+            var authentication = authSupplier.get();
+            AuthService authService = applicationContext.getBean(AuthService.class);
+            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+            return new AuthorizationDecision(allowed);
+        })
+
+// ========== FIM DO BACKUP ==========
+
