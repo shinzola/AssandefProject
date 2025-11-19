@@ -64,7 +64,6 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Paciente</th>
-                                    <th>Profissional</th>
                                     <th>Tipo</th>
                                     <th>Data/Hora Início</th>
                                     <th>Status</th>
@@ -75,7 +74,6 @@
                                 <tr th:each="a : ${atendimentos}" th:if="${a.status == 'EM_ANDAMENTO'}">
                                     <td th:text="${a.idAtendimento}"></td>
                                     <td th:text="${a.paciente != null ? a.paciente.nomeCompleto : '-'}"></td>
-                                    <td th:text="${a.funcionario != null ? a.funcionario.nomeCompleto : '-'}"></td>
                                     <td>
                                         <span class="badge bg-info" th:text="${a.tipoEncaminhamento != null ? a.tipoEncaminhamento : '-'}"></span>
                                     </td>
@@ -135,7 +133,6 @@
                                 <tr>
                                     <th>ID</th>
                                     <th>Paciente</th>
-                                    <th>Profissional</th>
                                     <th>Tipo</th>
                                     <th>Data/Hora Início</th>
                                     <th>Data/Hora Finalização</th>
@@ -146,7 +143,6 @@
                                 <tr th:each="a : ${atendimentos}" th:if="${a.status == 'FINALIZADO'}">
                                     <td th:text="${a.idAtendimento}"></td>
                                     <td th:text="${a.paciente != null ? a.paciente.nomeCompleto : '-'}"></td>
-                                    <td th:text="${a.funcionario != null ? a.funcionario.nomeCompleto : '-'}"></td>
                                     <td>
                                         <span class="badge bg-info" th:text="${a.tipoEncaminhamento != null ? a.tipoEncaminhamento : '-'}"></span>
                                     </td>
@@ -460,15 +456,13 @@
                 let html = '<div class="row">';
                 html += '<div class="col-md-6">';
                 html += '<dl class="row">';
-                html += '<dt class="col-sm-4">ID:</dt><dd class="col-sm-8">' + data.idAtendimento + '</dd>';
                 html += '<dt class="col-sm-4">Paciente:</dt><dd class="col-sm-8">' + (data.paciente ? data.paciente.nomeCompleto : '-') + '</dd>';
-                html += '<dt class="col-sm-4">Profissional:</dt><dd class="col-sm-8">' + (data.funcionario ? data.funcionario.nomeCompleto : '-') + '</dd>';
+                html += '<dt class="col-sm-4">Tipo:</dt><dd class="col-sm-8"><span class="badge bg-info">' + (data.tipoEncaminhamento || '-') + '</span></dd>';
                 html += '</dl>';
                 html += '</div>';
 
                 html += '<div class="col-md-6">';
                 html += '<dl class="row">';
-                html += '<dt class="col-sm-4">Tipo:</dt><dd class="col-sm-8"><span class="badge bg-info">' + (data.tipoEncaminhamento || '-') + '</span></dd>';
                 html += '<dt class="col-sm-4">Status:</dt><dd class="col-sm-8">';
                 if (data.status === 'EM_ANDAMENTO') {
                     html += '<span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i>Em Andamento</span>';
