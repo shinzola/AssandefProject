@@ -30,4 +30,8 @@ public class AtendimentoService {
     public void deleteById(Integer id) {
         atendimentoRepository.deleteById(id);
     }
+
+    public List<Atendimento> findByDataHoraInicioBetween(java.time.LocalDateTime dataInicio, java.time.LocalDateTime dataFim) {
+        return atendimentoRepository.findByDataHoraInicioBetween(dataInicio, dataFim);
+    }
 }

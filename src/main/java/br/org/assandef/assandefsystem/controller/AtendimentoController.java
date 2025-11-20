@@ -60,6 +60,18 @@ public class AtendimentoController {
 
             Paciente paciente = pacienteService.findById(idPaciente);
 
+            // Verifica se já existe atendimento em andamento para este paciente
+            List<Atendimento> atendimentosEmAndamento = atendimentoService.findAll().stream()
+                    .filter(a -> a.getPaciente() != null &&
+                                 a.getPaciente().getIdPaciente().equals(idPaciente) &&
+                                 "EM_ANDAMENTO".equals(a.getStatus()))
+                    .toList();
+
+            if (!atendimentosEmAndamento.isEmpty()) {
+                ra.addFlashAttribute("erro", "Este paciente já possui um atendimento em andamento. Finalize o atendimento anterior antes de iniciar um novo.");
+                return "redirect:/atendimento";
+            }
+
             Atendimento atendimento = new Atendimento();
             atendimento.setPaciente(paciente);
             atendimento.setFuncionario(funcionario);
@@ -81,7 +93,16 @@ public class AtendimentoController {
             RedirectAttributes ra) {
         try {
             Atendimento atendimento = atendimentoService.findById(id);
-            atendimento.setDataHoraFim(LocalDateTime.now());
+
+            // Verifica se há pelo menos uma evolução registrada
+            if (atendimento.getEvolucoes() == null || atendimento.getEvolucoes().isEmpty()) {
+                ra.addFlashAttribute("erro", "Não é possível finalizar o atendimento sem registrar pelo menos uma evolução.");
+                return "redirect:/atendimento";
+            }
+
+            LocalDateTime agora = LocalDateTime.now();
+            atendimento.setDataHoraFim(agora);
+            atendimento.setDataFinalAtendimento(agora);
             atendimento.setStatus("FINALIZADO");
             atendimentoService.save(atendimento);
             ra.addFlashAttribute("msg", "Atendimento finalizado com sucesso!");
@@ -150,10 +171,11 @@ public class AtendimentoController {
     // API JSON para buscar atendimento com evoluções
     @ResponseBody
     @GetMapping("/{id}/detalhes")
-    public ResponseEntity<Atendimento> obterDetalhesAtendimento(@PathVariable Integer id) {
+    public ResponseEntity<br.org.assandef.assandefsystem.dto.AtendimentoDetalhesDTO> obterDetalhesAtendimento(@PathVariable Integer id) {
         try {
             Atendimento atendimento = atendimentoService.findById(id);
-            return ResponseEntity.ok(atendimento);
+            br.org.assandef.assandefsystem.dto.AtendimentoDetalhesDTO dto = br.org.assandef.assandefsystem.dto.AtendimentoDetalhesDTO.from(atendimento);
+            return ResponseEntity.ok(dto);
         } catch (Exception e) {
             return ResponseEntity.notFound().build();
         }

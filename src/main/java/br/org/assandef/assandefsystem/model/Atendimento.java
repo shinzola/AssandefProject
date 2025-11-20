@@ -25,12 +25,14 @@ public class Atendimento {
 
     private LocalDateTime dataHoraFim;
 
+    private LocalDateTime dataFinalAtendimento;
+
     @Column(length = 50)
     private String status;
 
     @Column(length = 50)
     private String tipoEncaminhamento;
 
-    @OneToMany(mappedBy = "atendimento")
+    @OneToMany(mappedBy = "atendimento", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Evolucao> evolucoes;
 }
