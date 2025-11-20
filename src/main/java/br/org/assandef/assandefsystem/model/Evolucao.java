@@ -23,6 +23,8 @@ public class Evolucao {
 
     private LocalDateTime dataHoraRegistro;
 
-    @OneToMany(mappedBy = "evolucao")
+    @OneToMany(mappedBy = "evolucao",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
     private List<Prescricao> prescricoes;
 }
