@@ -13,10 +13,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "telefones")
+
 @Data
+
 public class Telefone {
 
     @Id
@@ -25,6 +28,7 @@ public class Telefone {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     @JoinColumn(name = "id_paciente", nullable = false)
     @JsonBackReference
     private Paciente paciente;

@@ -20,10 +20,12 @@ import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.ToString;
 
 @Entity
 @Table(name = "pacientes")
 @Data
+@ToString(exclude = "telefones")
 public class Paciente {
 
     @Id
@@ -74,29 +76,4 @@ public class Paciente {
     @JsonIgnore
     private List<Atendimento> atendimentos = new ArrayList<>();
 
-    // Getters e setters explícitos para nSus (garantir binding do Spring)
-    public String getNSus() {
-        return nSus;
-    }
-
-    public void setNSus(String nSus) {
-        this.nSus = nSus;
-    }
-
-    // Alias para compatibilidade com binder
-    public String getnSus() {
-        return nSus;
-    }
-
-    public void setnSus(String nSus) {
-        this.nSus = nSus;
-    }
-
-    public String getTelefonePrincipal() {
-        return telefonePrincipal;
-    }
-
-    public void setTelefonePrincipal(String telefonePrincipal) {
-        this.telefonePrincipal = telefonePrincipal;
-    }
 }

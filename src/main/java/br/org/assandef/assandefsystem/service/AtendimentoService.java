@@ -4,6 +4,7 @@ import br.org.assandef.assandefsystem.model.Atendimento;
 import br.org.assandef.assandefsystem.repository.AtendimentoRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,7 +32,7 @@ public class AtendimentoService {
         atendimentoRepository.deleteById(id);
     }
 
-    public List<Atendimento> findByDataHoraInicioBetween(java.time.LocalDateTime dataInicio, java.time.LocalDateTime dataFim) {
-        return atendimentoRepository.findByDataHoraInicioBetween(dataInicio, dataFim);
+    public List<Atendimento> findByDataHoraInicioBetween(LocalDateTime inicio, LocalDateTime fim) {
+        return atendimentoRepository.findByDataHoraInicioBetween(inicio, fim);
     }
 }

@@ -4,10 +4,7 @@ import br.org.assandef.assandefsystem.model.Atendimento;
 import br.org.assandef.assandefsystem.model.Doador;
 import br.org.assandef.assandefsystem.model.Material;
 import br.org.assandef.assandefsystem.model.SolicitacoesMaterial;
-import br.org.assandef.assandefsystem.service.AtendimentoService;
-import br.org.assandef.assandefsystem.service.DoadorService;
-import br.org.assandef.assandefsystem.service.MaterialService;
-import br.org.assandef.assandefsystem.service.SolicitacoesMaterialService;
+import br.org.assandef.assandefsystem.service.*;
 import com.lowagie.text.*;
 import com.lowagie.text.pdf.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -21,7 +18,12 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+import br.org.assandef.assandefsystem.model.Paciente;
+import br.org.assandef.assandefsystem.model.Evolucao;
+import br.org.assandef.assandefsystem.model.Prescricao;
+import java.util.stream.Collectors;
+import br.org.assandef.assandefsystem.model.Telefone;
+import java.time.LocalDateTime;
 @RestController
 @RequestMapping({"/almoxarifado/relatorio", "/doadores/relatorio", "/atendimento/relatorio"})
 public class RelatorioController {
@@ -30,15 +32,17 @@ public class RelatorioController {
     private final SolicitacoesMaterialService solicitacoesMaterialService;
     private final DoadorService doadorService;
     private final AtendimentoService atendimentoService;
-
+    private final PacienteService pacienteService; // <-- ADICIONE
     public RelatorioController(MaterialService materialService,
                                SolicitacoesMaterialService solicitacoesMaterialService,
                                DoadorService doadorService,
-                               AtendimentoService atendimentoService) {
+                               AtendimentoService atendimentoService, PacienteService pacienteService) {
+
         this.materialService = materialService;
         this.solicitacoesMaterialService = solicitacoesMaterialService;
         this.doadorService = doadorService;
         this.atendimentoService = atendimentoService;
+        this.pacienteService = pacienteService;
     }
 
     // ----------------------------
@@ -499,6 +503,412 @@ public class RelatorioController {
                     .append(escapeCsv(a.getStatus())).append('\n');
         }
         return sb.toString();
+    }
+    // Helper para tabela de dados do paciente
+    private void addRowPaciente(PdfPTable table, String label, String value, Font labelFont, Font valueFont) {
+        PdfPCell labelCell = new PdfPCell(new Phrase(label, labelFont));
+        labelCell.setBorder(Rectangle.NO_BORDER);
+        labelCell.setPaddingBottom(5f);
+        table.addCell(labelCell);
+
+        PdfPCell valueCell = new PdfPCell(new Phrase(value != null ? value : "", valueFont));
+        valueCell.setBorder(Rectangle.NO_BORDER);
+        valueCell.setPaddingBottom(5f);
+        table.addCell(valueCell);
+    }
+
+    // Helper para tabela de atendimento
+    private void addRowAtendimento(PdfPTable table, String label, String value, Font labelFont, Font valueFont) {
+        PdfPCell labelCell = new PdfPCell(new Phrase(label, labelFont));
+        labelCell.setPadding(5f);
+        table.addCell(labelCell);
+
+        PdfPCell valueCell = new PdfPCell(new Phrase(value != null ? value : "", valueFont));
+        valueCell.setPadding(5f);
+        table.addCell(valueCell);
+    }
+    private String formatTelefonesPaciente(Paciente paciente) {
+        if (paciente.getTelefones() == null || paciente.getTelefones().isEmpty()) {
+            return "";
+        }
+
+        return paciente.getTelefones().stream()
+                .filter(t -> t != null && t.getNumero() != null && !t.getNumero().isBlank())
+                .map(t -> {
+                    String numero = t.getNumero();
+                    String desc = t.getDescricao(); // ajuste o nome do getter se for diferente
+                    if (desc != null && !desc.isBlank()) {
+                        return numero + " (" + desc + ")";
+                    }
+                    return numero;
+                })
+                .collect(Collectors.joining(" | "));  // separador entre telefones
+    }
+
+    // -------- CSV do relatório do paciente --------
+    private String buildCsvRelatorioPaciente(Paciente paciente, List<Atendimento> atendimentos) {
+        StringBuilder sb = new StringBuilder();
+        DateTimeFormatter dtfData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter dtfDataHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+        // Cabeçalho de dados do paciente
+        sb.append("RELATÓRIO DO PACIENTE").append("\n\n");
+        sb.append("Nome;").append(escapeCsv(paciente.getNomeCompleto())).append('\n');
+        sb.append("CPF;").append(escapeCsv(paciente.getCpf())).append('\n');
+
+        // monta string com TODOS os telefones do paciente
+        String telefonesStr = "";
+        if (paciente.getTelefones() != null && !paciente.getTelefones().isEmpty()) {
+            telefonesStr = paciente.getTelefones().stream()
+                    .map(Telefone::getNumero)                    // <-- ajuste aqui se o getter tiver outro nome
+                    .filter(t -> t != null && !t.isBlank())
+                    .collect(Collectors.joining(", "));
+        }
+        sb.append("Telefones;").append(escapeCsv(telefonesStr)).append('\n');
+
+        sb.append("Endereço;").append(escapeCsv(paciente.getEndereco())).append('\n');
+        sb.append("\n");
+
+        // Cabeçalho de atendimentos + evoluções + prescrições
+        sb.append("ID Atendimento;Profissional;Tipo Encaminhamento;Data/Hora Início;Data/Hora Fim;Status;")
+                .append("Evolução;Data Evolução;Prescrição Tipo;Prescrição Descrição\n");
+
+        for (Atendimento a : atendimentos) {
+            String idAt = a.getIdAtendimento() != null ? a.getIdAtendimento().toString() : "";
+            String prof = escapeCsv(a.getFuncionario() != null ? a.getFuncionario().getNomeCompleto() : "");
+            String tipoEnc = escapeCsv(a.getTipoEncaminhamento());
+            String dtIni = a.getDataHoraInicio() != null ? a.getDataHoraInicio().format(dtfDataHora) : "";
+            String dtFim = a.getDataHoraFim() != null ? a.getDataHoraFim().format(dtfDataHora) : "";
+            String status = escapeCsv(a.getStatus());
+
+            if (a.getEvolucoes() == null || a.getEvolucoes().isEmpty()) {
+                // Linha simples sem evolução
+                sb.append(idAt).append(';')
+                        .append(prof).append(';')
+                        .append(tipoEnc).append(';')
+                        .append(dtIni).append(';')
+                        .append(dtFim).append(';')
+                        .append(status).append(';')
+                        .append("Sem evoluções;;;;")
+                        .append('\n');
+            } else {
+                for (Evolucao ev : a.getEvolucoes()) {
+                    String descEv = escapeCsv(ev.getDescricao());
+                    String dtEv = ev.getDataHoraRegistro() != null ? ev.getDataHoraRegistro().format(dtfDataHora) : "";
+
+                    if (ev.getPrescricoes() == null || ev.getPrescricoes().isEmpty()) {
+                        // Evolução sem prescrição
+                        sb.append(idAt).append(';')
+                                .append(prof).append(';')
+                                .append(tipoEnc).append(';')
+                                .append(dtIni).append(';')
+                                .append(dtFim).append(';')
+                                .append(status).append(';')
+                                .append(descEv).append(';')
+                                .append(dtEv).append(';')
+                                .append("Sem prescrições;;")
+                                .append('\n');
+                    } else {
+                        for (Prescricao p : ev.getPrescricoes()) {
+                            String tipoPr = escapeCsv(p.getTipo());
+                            String descPr = escapeCsv(p.getDescricao());
+
+                            sb.append(idAt).append(';')
+                                    .append(prof).append(';')
+                                    .append(tipoEnc).append(';')
+                                    .append(dtIni).append(';')
+                                    .append(dtFim).append(';')
+                                    .append(status).append(';')
+                                    .append(descEv).append(';')
+                                    .append(dtEv).append(';')
+                                    .append(tipoPr).append(';')
+                                    .append(descPr)
+                                    .append('\n');
+                        }
+                    }
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+    // ----------------------------
+// RELATÓRIO INDIVIDUAL DO PACIENTE (PDF ou CSV)
+// ----------------------------
+    @GetMapping("/paciente/{idPaciente}")
+    public void gerarRelatorioPaciente(
+            @PathVariable Integer idPaciente,
+            @RequestParam(defaultValue = "pdf") String formato,
+            HttpServletResponse response) throws IOException {
+
+        // Buscar paciente
+        Paciente paciente = pacienteService.findById(idPaciente);
+        if (paciente == null) {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Paciente não encontrado");
+            return;
+        }
+
+        // Buscar todos os atendimentos desse paciente
+        List<Atendimento> atendimentos = atendimentoService.findAll().stream()
+                .filter(a -> a.getPaciente() != null && a.getPaciente().getIdPaciente().equals(idPaciente))
+                .sorted((a1, a2) -> {
+                    if (a1.getDataHoraInicio() == null) return 1;
+                    if (a2.getDataHoraInicio() == null) return -1;
+                    return a2.getDataHoraInicio().compareTo(a1.getDataHoraInicio()); // mais recente primeiro
+                })
+                .toList();
+
+        // ---------------- CSV ----------------
+        if ("csv".equalsIgnoreCase(formato)) {
+            String csv = buildCsvRelatorioPaciente(paciente, atendimentos);
+            String filename = "relatorio_paciente_" +
+                    (paciente.getNomeCompleto() != null ? paciente.getNomeCompleto().replaceAll("\\s+", "_") : idPaciente) +
+                    "_" + LocalDate.now() + ".csv";
+
+            byte[] bytes = ("\uFEFF" + csv).getBytes(StandardCharsets.UTF_8); // BOM para Excel
+            response.setContentType("text/csv; charset=UTF-8");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+            response.setContentLength(bytes.length);
+            response.getOutputStream().write(bytes);
+            response.getOutputStream().flush();
+            return;
+        }
+
+        // ---------------- PDF ----------------
+        if ("pdf".equalsIgnoreCase(formato)) {
+            String filename = "relatorio_paciente_" +
+                    (paciente.getNomeCompleto() != null ? paciente.getNomeCompleto().replaceAll("\\s+", "_") : idPaciente) +
+                    "_" + LocalDate.now() + ".pdf";
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "\"");
+
+            Document document = new Document(PageSize.A4, 40, 40, 60, 50);
+            try {
+                PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream());
+
+                // Cabeçalho/Rodapé
+                writer.setPageEvent(new PdfPageEventHelper() {
+                    public void onEndPage(PdfWriter writer, Document document) {
+                        try {
+                            String logoPath = "static/img/assandef-logo.png";
+                            java.net.URL logoUrl = getClass().getClassLoader().getResource(logoPath);
+                            if (logoUrl != null) {
+                                com.lowagie.text.Image logo = com.lowagie.text.Image.getInstance(logoUrl);
+                                logo.scaleToFit(60, 30);
+                                logo.setAbsolutePosition(40, document.getPageSize().getHeight() - 50);
+                                writer.getDirectContent().addImage(logo);
+                            }
+
+                            ColumnText.showTextAligned(
+                                    writer.getDirectContent(),
+                                    Element.ALIGN_CENTER,
+                                    new Phrase("RELATÓRIO DE ATENDIMENTOS DO PACIENTE",
+                                            FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14)),
+                                    (document.right() + document.left()) / 2,
+                                    document.getPageSize().getHeight() - 40,
+                                    0
+                            );
+
+                            ColumnText.showTextAligned(
+                                    writer.getDirectContent(),
+                                    Element.ALIGN_CENTER,
+                                    new Phrase("Página " + writer.getPageNumber(),
+                                            FontFactory.getFont(FontFactory.HELVETICA, 8, Color.GRAY)),
+                                    (document.right() + document.left()) / 2,
+                                    20,
+                                    0
+                            );
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+
+                document.open();
+
+                DateTimeFormatter dtfData = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                DateTimeFormatter dtfDataHora = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+
+                // ===== DADOS DO PACIENTE =====
+                Font titleFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, new Color(70, 130, 180));
+                Font labelFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, Color.BLACK);
+                Font valueFont = FontFactory.getFont(FontFactory.HELVETICA, 11, Color.DARK_GRAY);
+
+                Paragraph titulo = new Paragraph("Dados do Paciente", titleFont);
+                titulo.setSpacingAfter(10f);
+                document.add(titulo);
+
+                PdfPTable dadosPaciente = new PdfPTable(2);
+                dadosPaciente.setWidthPercentage(100);
+                dadosPaciente.setWidths(new float[]{1.5f, 3f});
+                dadosPaciente.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+                dadosPaciente.getDefaultCell().setPaddingBottom(5f);
+
+                addRowPaciente(dadosPaciente, "Nome:", orEmpty(paciente.getNomeCompleto()), labelFont, valueFont);
+                addRowPaciente(dadosPaciente, "CPF:", orEmpty(paciente.getCpf()), labelFont, valueFont);
+                addRowPaciente(dadosPaciente, "Data de Nascimento:",
+                        paciente.getDataNascimento() != null ? paciente.getDataNascimento().format(dtfData) : "",
+                        labelFont, valueFont);
+                addRowPaciente(dadosPaciente, "Telefone(s):", formatTelefonesPaciente(paciente), labelFont, valueFont);
+                addRowPaciente(dadosPaciente, "Endereço:", orEmpty(paciente.getEndereco()), labelFont, valueFont);
+
+                document.add(dadosPaciente);
+                document.add(Chunk.NEWLINE);
+
+                // ===== RESUMO =====
+                Paragraph tituloResumo = new Paragraph("Resumo de Atendimentos", titleFont);
+                tituloResumo.setSpacingAfter(10f);
+                document.add(tituloResumo);
+
+                long totalAtendimentos = atendimentos.size();
+                long atendFinal = atendimentos.stream().filter(a -> "FINALIZADO".equals(a.getStatus())).count();
+                long atendAndam = atendimentos.stream().filter(a -> "EM_ANDAMENTO".equals(a.getStatus())).count();
+
+                Paragraph resumo = new Paragraph();
+                resumo.setFont(valueFont);
+                resumo.add("Total de atendimentos: " + totalAtendimentos + "\n");
+                resumo.add("Finalizados: " + atendFinal + "\n");
+                resumo.add("Em andamento: " + atendAndam + "\n");
+                resumo.setSpacingAfter(10f);
+                document.add(resumo);
+
+                document.add(Chunk.NEWLINE);
+
+                // ===== HISTÓRICO DETALHADO =====
+                Paragraph tituloDet = new Paragraph("Histórico Detalhado de Atendimentos", titleFont);
+                tituloDet.setSpacingAfter(10f);
+                document.add(tituloDet);
+
+                if (atendimentos.isEmpty()) {
+                    Paragraph sem = new Paragraph("Nenhum atendimento registrado para este paciente.", valueFont);
+                    sem.setSpacingAfter(10f);
+                    document.add(sem);
+                } else {
+                    int i = 1;
+                    for (Atendimento a : atendimentos) {
+                        // Cabeçalho do atendimento
+                        PdfPTable headerAt = new PdfPTable(1);
+                        headerAt.setWidthPercentage(100);
+                        PdfPCell hCell = new PdfPCell(new Phrase(
+                                "Atendimento #" + i + " - ID: " + a.getIdAtendimento(),
+                                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12, Color.WHITE)));
+                        hCell.setBackgroundColor(new Color(70, 130, 180));
+                        hCell.setPadding(8f);
+                        headerAt.addCell(hCell);
+                        document.add(headerAt);
+
+                        // Tabela com dados
+                        PdfPTable tabelaAt = new PdfPTable(2);
+                        tabelaAt.setWidthPercentage(100);
+                        tabelaAt.setWidths(new float[]{1.5f, 3f});
+                        tabelaAt.getDefaultCell().setPadding(5f);
+
+                        addRowAtendimento(tabelaAt, "Profissional:",
+                                orEmpty(a.getFuncionario() != null ? a.getFuncionario().getNomeCompleto() : null),
+                                labelFont, valueFont);
+                        addRowAtendimento(tabelaAt, "Tipo de Encaminhamento:", orEmpty(a.getTipoEncaminhamento()),
+                                labelFont, valueFont);
+                        addRowAtendimento(tabelaAt, "Data/Hora Início:",
+                                a.getDataHoraInicio() != null ? a.getDataHoraInicio().format(dtfDataHora) : "",
+                                labelFont, valueFont);
+                        addRowAtendimento(tabelaAt, "Data/Hora Fim:",
+                                a.getDataHoraFim() != null ? a.getDataHoraFim().format(dtfDataHora) : "Em andamento",
+                                labelFont, valueFont);
+                        addRowAtendimento(tabelaAt, "Status:", orEmpty(a.getStatus()), labelFont, valueFont);
+
+                        document.add(tabelaAt);
+
+                        // Evoluções + prescrições
+                        if (a.getEvolucoes() != null && !a.getEvolucoes().isEmpty()) {
+                            document.add(Chunk.NEWLINE);
+                            Paragraph tEvol = new Paragraph("   Evoluções e Prescrições:",
+                                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, new Color(50, 100, 150)));
+                            tEvol.setSpacingBefore(5f);
+                            tEvol.setSpacingAfter(5f);
+                            document.add(tEvol);
+
+                            int j = 1;
+                            for (Evolucao ev : a.getEvolucoes()) {
+                                PdfPTable tabEv = new PdfPTable(1);
+                                tabEv.setWidthPercentage(95);
+                                tabEv.setSpacingBefore(5f);
+
+                                PdfPCell evHead = new PdfPCell(new Phrase(
+                                        "Evolução #" + j + " - " +
+                                                (ev.getDataHoraRegistro() != null ? ev.getDataHoraRegistro().format(dtfDataHora) : ""),
+                                        FontFactory.getFont(FontFactory.HELVETICA_BOLD, 10, Color.WHITE)));
+                                evHead.setBackgroundColor(new Color(100, 150, 200));
+                                evHead.setPadding(5f);
+                                tabEv.addCell(evHead);
+
+                                PdfPCell evBody = new PdfPCell(new Phrase(orEmpty(ev.getDescricao()),
+                                        FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK)));
+                                evBody.setPadding(8f);
+                                evBody.setBackgroundColor(new Color(240, 248, 255));
+                                tabEv.addCell(evBody);
+
+                                document.add(tabEv);
+
+                                // Prescrições
+                                if (ev.getPrescricoes() != null && !ev.getPrescricoes().isEmpty()) {
+                                    PdfPTable tabPr = new PdfPTable(2);
+                                    tabPr.setWidthPercentage(90);
+                                    tabPr.setWidths(new float[]{1f, 4f});
+                                    tabPr.setSpacingBefore(3f);
+
+                                    for (Prescricao p : ev.getPrescricoes()) {
+                                        PdfPCell tipoCell = new PdfPCell(new Phrase(
+                                                orEmpty(p.getTipo()),
+                                                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 9, Color.WHITE)));
+                                        tipoCell.setBackgroundColor(new Color(34, 139, 34));
+                                        tipoCell.setPadding(5f);
+                                        tipoCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                                        tabPr.addCell(tipoCell);
+
+                                        PdfPCell descCell = new PdfPCell(new Phrase(orEmpty(p.getDescricao()),
+                                                FontFactory.getFont(FontFactory.HELVETICA, 9, Color.BLACK)));
+                                        descCell.setPadding(5f);
+                                        descCell.setBackgroundColor(new Color(240, 255, 240));
+                                        tabPr.addCell(descCell);
+                                    }
+
+                                    document.add(tabPr);
+                                }
+
+                                j++;
+                            }
+                        } else {
+                            Paragraph semEv = new Paragraph("   Nenhuma evolução registrada para este atendimento.",
+                                    FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 10, Color.GRAY));
+                            semEv.setSpacingBefore(5f);
+                            document.add(semEv);
+                        }
+
+                        document.add(Chunk.NEWLINE);
+                        document.add(Chunk.NEWLINE);
+                        i++;
+                    }
+                }
+
+                Paragraph rodape = new Paragraph();
+                rodape.setFont(FontFactory.getFont(FontFactory.HELVETICA_OBLIQUE, 9, Color.GRAY));
+                rodape.setAlignment(Element.ALIGN_CENTER);
+                rodape.add("\n\nRelatório gerado em: " + LocalDate.now().format(dtfData));
+                rodape.add("\nAssandef - Associação Santanense do Deficiente Físico");
+                document.add(rodape);
+
+                document.close();
+            } catch (Exception e) {
+                document.close();
+                response.reset();
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erro ao gerar relatório: " + e.getMessage());
+            }
+            return;
+        }
+
+        // Se não for pdf nem csv
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Formato inválido (use pdf ou csv)");
     }
 
     private String escapeCsv(String s) {

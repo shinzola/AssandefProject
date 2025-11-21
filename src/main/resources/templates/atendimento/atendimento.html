@@ -407,7 +407,17 @@
                         </div>
                     </div>
 
-                    <div class="row g-3">
+                    <!-- Tipo de filtro -->
+                    <div class="mb-3">
+                        <label for="tipoFiltro" class="form-label">Filtrar por</label>
+                        <select class="form-select" id="tipoFiltro" name="tipoFiltro">
+                            <option value="data" selected>Data</option>
+                            <option value="paciente">Paciente</option>
+                        </select>
+                    </div>
+
+                    <!-- Filtro por data -->
+                    <div class="row g-3" id="filtroData">
                         <div class="col-6">
                             <label for="relatorioDataInicio" class="form-label">Data Início</label>
                             <input type="date" class="form-control" id="relatorioDataInicio" name="dataInicio"/>
@@ -417,31 +427,44 @@
                             <input type="date" class="form-control" id="relatorioDataFim" name="dataFim"/>
                         </div>
                     </div>
-                    <div class="form-text">
+
+                    <!-- Filtro por paciente -->
+                    <div class="mt-3 d-none" id="filtroPaciente">
+                        <label for="idPacienteRelatorio" class="form-label">Paciente</label>
+                        <select class="form-select" id="idPacienteRelatorio" name="idPaciente">
+                            <option value="">Selecione um paciente...</option>
+                            <option th:each="p : ${pacientes}"
+                                    th:value="${p.idPaciente}"
+                                    th:text="${p.nomeCompleto}">
+                            </option>
+                        </select>
+                        <div class="form-text">
+                            Comece a digitar o nome para pular para o paciente desejado.
+                        </div>
+                    </div>
+
+                    <div class="form-text mt-3" id="ajudaFiltroTexto">
                         <i class="bi bi-info-circle"></i>
                         Selecione o período dos atendimentos a serem incluídos no relatório.
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Gerar</button>
+                    <button type="submit" class="btn btn-primary">Gerar</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    // BASE_URL pega o contexto da aplicação (ex.: "/" ou "/minhaApp/")
     const BASE_URL = /*[[@{/}]]*/ '';
     const CSRF_TOKEN = /*[[${_csrf.token}]]*/ '';
     const CSRF_PARAM = /*[[${_csrf.parameterName}]]*/ '';
-
 
     function abrirModalEvolucao(idAtendimento) {
         document.getElementById('formEvolucao').action = BASE_URL + 'atendimento/' + idAtendimento + '/evolucao';
@@ -552,36 +575,6 @@
         modal.show();
     }
 
-    document.addEventListener('DOMContentLoaded', function() {
-        // Botão de confirmar finalização
-        document.getElementById('btnConfirmarFinalizacao').addEventListener('click', function() {
-            if (idAtendimentoFinalizar) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = BASE_URL + 'atendimento/' + idAtendimentoFinalizar + '/finalizar';
-
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = CSRF_PARAM;
-                csrfInput.value = CSRF_TOKEN;
-                form.appendChild(csrfInput);
-
-                document.body.appendChild(form);
-                console.log('Enviando formulário:', form.method, form.action);
-                form.submit();
-            }
-        });
-
-        // Botão de confirmar exclusão
-        document.getElementById('btnConfirmarExclusaoAtendimento').addEventListener('click', function() {
-            if (idAtendimentoExcluir) {
-                const url = BASE_URL + 'atendimento/' + idAtendimentoExcluir + '/deletar';
-                console.log('Redirecionando para exclusão:', url);
-                window.location.href = url;
-            }
-        });
-    });
-
     function formatarDataHora(dataHora) {
         const data = new Date(dataHora);
         return data.toLocaleString('pt-BR', {
@@ -652,6 +645,146 @@
         const modal=new bootstrap.Modal(document.getElementById('modalPrescricao'));
         modal.show();
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Botão de confirmar finalização
+        document.getElementById('btnConfirmarFinalizacao').addEventListener('click', function() {
+            if (idAtendimentoFinalizar) {
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = BASE_URL + 'atendimento/' + idAtendimentoFinalizar + '/finalizar';
+
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = CSRF_PARAM;
+                csrfInput.value = CSRF_TOKEN;
+                form.appendChild(csrfInput);
+
+                document.body.appendChild(form);
+                console.log('Enviando formulário:', form.method, form.action);
+                form.submit();
+            }
+        });
+
+        // Botão de confirmar exclusão
+        document.getElementById('btnConfirmarExclusaoAtendimento').addEventListener('click', function() {
+            if (idAtendimentoExcluir) {
+                const url = BASE_URL + 'atendimento/' + idAtendimentoExcluir + '/deletar';
+                console.log('Redirecionando para exclusão:', url);
+                window.location.href = url;
+            }
+        });
+
+        // =========================
+        // LÓGICA DO MODAL RELATÓRIO
+        // =========================
+        const relatorioForm = document.getElementById('relatorioForm');
+        const tipoFiltro = document.getElementById('tipoFiltro');
+        const filtroData = document.getElementById('filtroData');
+        const filtroPaciente = document.getElementById('filtroPaciente');
+        const ajudaFiltroTexto = document.getElementById('ajudaFiltroTexto');
+        const selectPaciente = document.getElementById('idPacienteRelatorio');
+        const inputDataInicio = document.getElementById('relatorioDataInicio');
+        const inputDataFim = document.getElementById('relatorioDataFim');
+
+        if (relatorioForm && tipoFiltro && filtroData && filtroPaciente && ajudaFiltroTexto) {
+
+            function atualizarFiltro() {
+                const valor = tipoFiltro.value;
+                if (valor === 'data') {
+                    filtroData.classList.remove('d-none');
+                    filtroPaciente.classList.add('d-none');
+                    ajudaFiltroTexto.innerHTML =
+                        '<i class="bi bi-info-circle"></i> Selecione o período dos atendimentos a serem incluídos no relatório.';
+                } else {
+                    filtroData.classList.add('d-none');
+                    filtroPaciente.classList.remove('d-none');
+                    ajudaFiltroTexto.innerHTML =
+                        '<i class="bi bi-info-circle"></i> Selecione o paciente para gerar o relatório completo (atendimentos, evoluções e prescrições).';
+                }
+            }
+
+            tipoFiltro.addEventListener('change', atualizarFiltro);
+            atualizarFiltro(); // estado inicial
+
+            relatorioForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                // formato escolhido: pdf ou csv
+                const formato = relatorioForm.querySelector('input[name="formato"]:checked')?.value || 'pdf';
+
+                // BASE_URL já vem do Thymeleaf
+                const base = BASE_URL.endsWith('/') ? BASE_URL.slice(0, -1) : BASE_URL;
+
+                if (tipoFiltro.value === 'paciente') {
+                    // ---------- RELATÓRIO INDIVIDUAL DO PACIENTE ----------
+                    const idPaciente = selectPaciente.value;
+                    if (!idPaciente) {
+                        alert('Selecione um paciente para gerar o relatório.');
+                        return;
+                    }
+
+                    // GET /atendimento/relatorio/paciente/{idPaciente}?formato=pdf|csv
+                    const url = `${base}/atendimento/relatorio/paciente/${idPaciente}?formato=${encodeURIComponent(formato)}`;
+                    window.location.href = url;
+
+                } else {
+                        // ---------- RELATÓRIO POR PERÍODO ----------
+                        const dataInicio = inputDataInicio.value;
+                        const dataFim = inputDataFim.value;
+
+                        if (!dataInicio || !dataFim) {
+                            alert('Informe a data de início e a data de fim.');
+                            return;
+                        }
+
+                        // Montar formulário POST para /atendimento/relatorio/gerar
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = `${base}/atendimento/relatorio/gerar`;
+
+                        // CSRF (se estiver usando Spring Security com CSRF habilitado)
+                        const csrfInput = document.createElement('input');
+                        csrfInput.type = 'hidden';
+                        csrfInput.name = CSRF_PARAM;   // já definido no topo do script
+                        csrfInput.value = CSRF_TOKEN;  // já definido no topo do script
+                        form.appendChild(csrfInput);
+
+                        // formato
+                        const inputFormato = document.createElement('input');
+                        inputFormato.type = 'hidden';
+                        inputFormato.name = 'formato';
+                        inputFormato.value = formato;
+                        form.appendChild(inputFormato);
+
+                        // tipo fixo: "atendimentos"
+                        const inputTipo = document.createElement('input');
+                        inputTipo.type = 'hidden';
+                        inputTipo.name = 'tipo';
+                        inputTipo.value = 'atendimentos';
+                        form.appendChild(inputTipo);
+
+                        // dataInicio
+                        const inputInicio = document.createElement('input');
+                        inputInicio.type = 'hidden';
+                        inputInicio.name = 'dataInicio';
+                        inputInicio.value = dataInicio;
+                        form.appendChild(inputInicio);
+
+                        // dataFim
+                        const inputFim = document.createElement('input');
+                        inputFim.type = 'hidden';
+                        inputFim.name = 'dataFim';
+                        inputFim.value = dataFim;
+                        form.appendChild(inputFim);
+
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+            });
+        }
+    });
+
     /*]]>*/
 </script>
 

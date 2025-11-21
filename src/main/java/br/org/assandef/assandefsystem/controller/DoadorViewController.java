@@ -103,7 +103,7 @@ public class DoadorViewController {
             }
 
             doadorService.save(doador);
-            ra.addFlashAttribute("msg", "Doador cadastrado com sucesso!");
+            ra.addFlashAttribute("msg", "Cadastro realizado com sucesso! Entraremos em contato para mais informações");
             return "redirect:/doadores/newdonation";
 
         } catch (Exception e) {
