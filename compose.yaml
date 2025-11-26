@@ -1,10 +1,37 @@
+version: '3.9'
+
 services:
   mysql:
     image: 'mysql:latest'
     environment:
-      - 'MYSQL_DATABASE=assandef_db'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      - MYSQL_DATABASE=assandef_db
+      - MYSQL_PASSWORD=secret
+      - MYSQL_ROOT_PASSWORD=verysecret
+      - MYSQL_USER=myuser
     ports:
       - '3306:3306'
+    networks:
+      - assandef-net
+
+  app:
+    build: .
+    depends_on:
+      - mysql
+    environment:
+      # JDBC para conectar no container mysql (host = nome do serviço)
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/assandef_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=myuser
+      - SPRING_DATASOURCE_PASSWORD=secret
+
+      # Opcional: perfis, porta, etc
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_JPA_SHOW_SQL=false
+
+    ports:
+      - '8081:8080'
+    networks:
+      - assandef-net
+
+networks:
+  assandef-net:
+    driver: bridge

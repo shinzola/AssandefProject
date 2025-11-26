@@ -130,3 +130,15 @@ document.getElementById('formGerarRelatorio').addEventListener('submit', functio
     alert('Por favor, selecione o tipo de relatório.');
   }
 });
+
+document.addEventListener('DOMContentLoaded', function () {
+    const inputData = document.getElementById('dataRelatorioDia');
+    const inputDataFim = document.getElementById('dataRelatorioDiaFim');
+
+    if (inputData && inputDataFim) {
+        inputData.addEventListener('change', function () {
+            // quando usuário escolher a data, usamos a MESMA como dataFim
+            inputDataFim.value = this.value;
+        });
+    }
+});

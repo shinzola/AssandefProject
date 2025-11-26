@@ -911,6 +911,177 @@ public class RelatorioController {
         response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Formato inválido (use pdf ou csv)");
     }
 
+    @GetMapping("/ficha-atendimento")
+    public void gerarFichaAtendimento(
+            @RequestParam(required = false) String medico,
+            @RequestParam(required = false) String posto,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            HttpServletResponse response) throws IOException {
+
+        LocalDate dataRef = (data != null) ? data : LocalDate.now();
+        String postoFinal = (posto != null && !posto.isBlank()) ? posto : "ASSANDEF";
+
+        // Busca atendimentos do dia (00:00 até 23:59 do mesmo dia)
+        List<Atendimento> atendimentosDoDia = atendimentoService
+                .findByDataHoraInicioBetween(
+                        dataRef.atStartOfDay(),
+                        dataRef.plusDays(1).atStartOfDay()
+                );
+
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String dataStr = dataRef.format(dtf);
+
+        response.setContentType("application/pdf");
+        String filename = "ficha_atendimento_" + dataRef + ".pdf";
+        response.setHeader("Content-Disposition", "inline; filename=\"" + filename + "\"");
+
+        Document document = new Document(PageSize.A4, 40, 40, 60, 50);
+        try {
+            PdfWriter.getInstance(document, response.getOutputStream());
+            document.open();
+
+            // ===== LOGO ASSANDEF NO TOPO =====
+            String logoPath = "static/img/brasao.png";
+            java.net.URL logoUrl = getClass().getClassLoader().getResource(logoPath);
+            if (logoUrl != null) {
+                Image logo = Image.getInstance(logoUrl);
+                logo.scaleToFit(90, 45);
+                logo.setAlignment(Image.ALIGN_CENTER);
+                document.add(logo);
+            }
+
+            // ===== TÍTULOS =====
+            Font fontCabecalho = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, Color.BLACK);
+            Font fontTitulo = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 14, Color.BLACK);
+
+            Paragraph prefeitura = new Paragraph("PREFEITURA MUNICIPAL DE SANT'ANA DO LIVRAMENTO", fontCabecalho);
+            prefeitura.setAlignment(Element.ALIGN_CENTER);
+            document.add(prefeitura);
+
+            Paragraph folha = new Paragraph("FOLHA DE PRODUÇÃO", fontTitulo);
+            folha.setSpacingBefore(5f);
+            folha.setSpacingAfter(15f);
+            folha.setAlignment(Element.ALIGN_CENTER);
+            document.add(folha);
+
+            // ===== LINHA MÉDICO / DATA / POSTO =====
+            Font fontLabel = FontFactory.getFont(FontFactory.HELVETICA, 11, Color.BLACK);
+
+            PdfPTable infoTable = new PdfPTable(new float[]{3f, 2f, 3f});
+            infoTable.setWidthPercentage(100);
+            infoTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+
+            PdfPCell medicoCell = new PdfPCell(new Phrase("Médico: " +
+                    (medico != null && !medico.isBlank() ? medico : "____________________"), fontLabel));
+            medicoCell.setBorder(Rectangle.NO_BORDER);
+            infoTable.addCell(medicoCell);
+
+            PdfPCell dataCell = new PdfPCell(new Phrase("Data: " + dataStr, fontLabel));
+            dataCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            dataCell.setBorder(Rectangle.NO_BORDER);
+            infoTable.addCell(dataCell);
+
+            PdfPCell postoCell = new PdfPCell(new Phrase("Posto: " + postoFinal, fontLabel));
+            postoCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+            postoCell.setBorder(Rectangle.NO_BORDER);
+            infoTable.addCell(postoCell);
+
+            document.add(infoTable);
+
+            document.add(Chunk.NEWLINE);
+
+            // ===== TABELA PRINCIPAL (Nº, Nome do Paciente, Endereço, Assinatura) =====
+            Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, Color.BLACK);
+            Font cellFont = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
+
+            PdfPTable tabela = new PdfPTable(new float[]{0.7f, 3f, 3f, 3f});
+            tabela.setWidthPercentage(100);
+
+            String[] headers = {"Nº", "Nome do Paciente", "Endereço", "Assinatura"};
+            for (String h : headers) {
+                PdfPCell hCell = new PdfPCell(new Phrase(h, headerFont));
+                hCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                hCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                hCell.setPadding(5f);
+                tabela.addCell(hCell);
+            }
+
+            // Vamos preencher até 16 linhas: uma por atendimento (se existir), o resto vazio
+            int maxLinhas = 16;
+            for (int i = 1; i <= maxLinhas; i++) {
+                // Atendimento correspondente à linha (índice i-1 na lista)
+                Atendimento atendimento = (i <= atendimentosDoDia.size()) ? atendimentosDoDia.get(i - 1) : null;
+
+                String nomePaciente = "";
+                String enderecoPaciente = "";
+
+                if (atendimento != null && atendimento.getPaciente() != null) {
+                    nomePaciente = orEmpty(atendimento.getPaciente().getNomeCompleto());
+                    enderecoPaciente = orEmpty(atendimento.getPaciente().getEndereco());
+                }
+
+                // Coluna Nº
+                PdfPCell numCell = new PdfPCell(new Phrase(String.valueOf(i), cellFont));
+                numCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                numCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                numCell.setMinimumHeight(20f);
+                tabela.addCell(numCell);
+
+                // Coluna Nome do Paciente
+                PdfPCell nomeCell = new PdfPCell(new Phrase(nomePaciente, cellFont));
+                nomeCell.setMinimumHeight(20f);
+                tabela.addCell(nomeCell);
+
+                // Coluna Endereço
+                PdfPCell endCell = new PdfPCell(new Phrase(enderecoPaciente, cellFont));
+                endCell.setMinimumHeight(20f);
+                tabela.addCell(endCell);
+
+                // Coluna Assinatura (sempre vazia)
+                PdfPCell assCell = new PdfPCell(new Phrase("", cellFont));
+                assCell.setMinimumHeight(20f);
+                tabela.addCell(assCell);
+            }
+
+            document.add(tabela);
+
+            document.add(Chunk.NEWLINE);
+            document.add(Chunk.NEWLINE);
+
+            // ===== RODAPÉ COM ASSINATURAS =====
+            PdfPTable assinaturaTable = new PdfPTable(2);
+            assinaturaTable.setWidthPercentage(100);
+            assinaturaTable.getDefaultCell().setBorder(Rectangle.NO_BORDER);
+
+            Font footerFont = FontFactory.getFont(FontFactory.HELVETICA, 10, Color.BLACK);
+
+            PdfPCell funcCell = new PdfPCell();
+            funcCell.setBorder(Rectangle.NO_BORDER);
+            funcCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            Paragraph funcPar = new Paragraph("_______________________________\nFuncionário Responsável", footerFont);
+            funcPar.setAlignment(Element.ALIGN_CENTER);
+            funcCell.addElement(funcPar);
+            assinaturaTable.addCell(funcCell);
+
+            PdfPCell medAssCell = new PdfPCell();
+            medAssCell.setBorder(Rectangle.NO_BORDER);
+            medAssCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            Paragraph medPar = new Paragraph("_______________________________\nAssinatura do Médico", footerFont);
+            medPar.setAlignment(Element.ALIGN_CENTER);
+            medAssCell.addElement(medPar);
+            assinaturaTable.addCell(medAssCell);
+
+            document.add(assinaturaTable);
+
+            document.close();
+        } catch (Exception e) {
+            document.close();
+            response.reset();
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "Erro ao gerar ficha de atendimento: " + e.getMessage());
+        }
+    }
+
     private String escapeCsv(String s) {
         if (s == null) return "";
         return "\"" + s.replace("\"", "\"\"") + "\"";

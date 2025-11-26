@@ -27,6 +27,9 @@
         <div class="page-header">
             <h1 class="page-title">Gestão de Atendimentos</h1>
             <div class="page-actions">
+                <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarRelatorioDia">
+                    <i class="bi bi-file-earmark-arrow-down me-2"></i>Gerar ficha de atendimento
+                </button>
                 <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalGerarRelatorio">
                     <i class="bi bi-file-earmark-arrow-down me-2"></i>Gerar Relatório
                 </button>
@@ -177,7 +180,56 @@
     </div>
 </main>
 
+<div class="modal fade" id="modalGerarRelatorioDia" tabindex="-1"
+     aria-labelledby="modalGerarRelatorioDiaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
 
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalGerarRelatorioDiaLabel">
+                    <i class="bi bi-calendar3 me-2"></i>Gerar ficha de atendimento do dia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+
+            <!-- chama o endpoint /atendimento/relatorio/ficha-atendimento -->
+            <form method="get" action="/atendimento/relatorio/ficha-atendimento">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="dataRelatorioDia" class="form-label">Data do atendimento</label>
+                        <input type="date"
+                               class="form-control"
+                               id="dataRelatorioDia"
+                               name="data"
+                               required>
+                        <div class="form-text">
+                            A ficha será gerada apenas para a data selecionada.
+                        </div>
+                    </div>
+
+                    <!-- opcional: nome do médico -->
+                    <div class="mb-3">
+                        <label for="medicoFicha" class="form-label">Médico</label>
+                        <input type="text"
+                               class="form-control"
+                               id="medicoFicha"
+                               name="medico"
+                               placeholder="Nome do médico (opcional)">
+                    </div>
+
+                    <!-- opcional: posto (já deixei ASSANDEF como padrão) -->
+                    <input type="hidden" name="posto" value="ASSANDEF">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Gerar ficha</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
 <!-- Modal de Novo Atendimento -->
 <div class="modal fade" id="modalNovoAtendimento" tabindex="-1" aria-labelledby="modalNovoAtendimentoLabel" aria-hidden="true">
     <div class="modal-dialog">
