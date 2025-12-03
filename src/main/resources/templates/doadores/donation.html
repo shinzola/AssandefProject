@@ -287,6 +287,11 @@
                         </div>
 
                         <div class="col-md-6">
+                            <label for="editDoadorCep" class="form-label">CEP</label>
+                            <input type="text" class="form-control" id="editDoadorCep" name="cep" maxlength="9" placeholder="00000-000"/>
+                        </div>
+
+                        <div class="col-md-6">
                             <label for="editDoadorEmail" class="form-label">Email</label>
                             <input type="email" class="form-control" id="editDoadorEmail" name="email"/>
                         </div>
@@ -530,6 +535,10 @@
                                 <p class="form-control-plaintext" id="viewDoadorTelefone">-</p>
                             </div>
                             <div class="col-md-4">
+                                <label class="form-label fw-bold">CEP:</label>
+                                <p class="form-control-plaintext" id="viewDoadorCep">-</p>
+                            </div>
+                            <div class="col-md-4">
                                 <label class="form-label fw-bold">Email:</label>
                                 <p class="form-control-plaintext" id="viewDoadorEmail">-</p>
                             </div>
@@ -668,6 +677,20 @@
         cpfCnpjInputs.forEach(input => {
             if (input) IMask(input, cpfCnpjMask);
         });
+
+        // Máscara de Cep
+        const cepMask = {
+            mask: '00000-000'
+        };
+
+        const cepInputs = [
+            document.getElementById('editDoadorCep')
+
+        ];
+
+        cepInputs.forEach(input => {
+            if (input) IMask(input, cepMask);
+        });
     });
 
     // ======================
@@ -710,6 +733,7 @@ function visualizarDoador(id) {
             document.getElementById('viewDoadorNomeCompleto').textContent = doador.nome || '-';
             document.getElementById('viewDoadorCpfCnpj').textContent = doador.cpfCnpj || '-';
             document.getElementById('viewDoadorTelefone').textContent = doador.telefone || '-';
+            document.getElementById('viewDoadorCep').textContent = doador.cep || '-';
             document.getElementById('viewDoadorEmail').textContent = doador.email || '-';
             document.getElementById('viewDoadorSexo').textContent = doador.sexo || '-';
             document.getElementById('viewDoadorNascimento').textContent =
@@ -897,6 +921,7 @@ function editarDoador(id) {
             document.getElementById('editDoadorNome').value = doador.nome || '';
             document.getElementById('editDoadorCpfCnpj').value = doador.cpfCnpj || '';
             document.getElementById('editDoadorTelefone').value = doador.telefone || '';
+            document.getElementById('editDoadorCep').value = doador.cep || '';
             document.getElementById('editDoadorEmail').value = doador.email || '';
 
             // Normalizar data para formato yyyy-MM-dd

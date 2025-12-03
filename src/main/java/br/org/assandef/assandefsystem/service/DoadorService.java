@@ -27,6 +27,7 @@ public class DoadorService {
         if (d == null) return;
         if (d.getCpfCnpj() != null) d.setCpfCnpj(onlyDigits(d.getCpfCnpj()));
         if (d.getTelefone() != null) d.setTelefone(onlyDigits(d.getTelefone()));
+        if (d.getCep() != null) d.setCep(onlyDigits(d.getCep()));
         if (d.getEmail() != null) d.setEmail(normalizeEmail(d.getEmail()));
     }
 
@@ -100,6 +101,7 @@ public class DoadorService {
         existing.setMensalidade(dto.getMensalidade());
         existing.setDiaVencimento(dto.getDiaVencimento());
         existing.setEndereco(dto.getEndereco());
+        existing.setCep(dto.getCep());
         // Copie outros campos mutáveis conforme sua model
 
         return doadorRepository.save(existing);

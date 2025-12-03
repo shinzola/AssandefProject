@@ -79,6 +79,17 @@
                                    placeholder="seu@email.com">
                         </div>
 
+                        <div class="col-md-6 mb-3">
+                            <label for="cep" class="form-label">CEP</label>
+                            <input type="text"
+                                   class="form-control"
+                                   id="cep"
+                                   th:field="*{cep}"
+                                   placeholder="00000-000"
+                                   maxlength="9">
+                            <div class="form-text">Digite apenas números</div>
+                        </div>
+
                         <!-- Endereço -->
                         <div class="col-md-12 mb-3">
                             <label for="endereco" class="form-label">Endereço</label>
@@ -221,6 +232,19 @@
                 }
                 if (value.length > 10) {
                     value = value.substring(0, 10) + '-' + value.substring(10);
+                }
+                e.target.value = value;
+            });
+        }
+        // Máscara para CEP
+        const cepInput = document.getElementById('cep');
+        if (cepInput) {
+            cepInput.addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 8) value = value.substring(0, 8);
+
+                if (value.length > 5) {
+                    value = value.substring(0, 5) + '-' + value.substring(5,8);
                 }
                 e.target.value = value;
             });
