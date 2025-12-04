@@ -208,7 +208,7 @@ public class RelatorioController {
                     }
                     document.add(table);
 
-                } else if ("Solicitações".equalsIgnoreCase(tipo)) {
+                } else if ("solicitacoes".equalsIgnoreCase(tipo)) {
                     List<SolicitacoesMaterial> solicitacoes = solicitacoesMaterialService.findByPeriodo(dataInicio, dataFim);
                     PdfPTable table = new PdfPTable(new float[]{2, 1, 2, 2, 1, 2, 2});
                     table.setWidthPercentage(100);
