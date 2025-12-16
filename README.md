@@ -11,6 +11,8 @@ Sistema web para gestão da ASSANDEF, incluindo:
 
 A aplicação foi desenvolvida com **Spring Boot**, **Spring Data JPA**, **Thymeleaf**, **MySQL** e empacotada em **Docker** para facilitar o deploy.
 
+## Aplicação desenvolvida por: Rodrigo Noelli Duarte, William Ucha Giordano, Pedro Rodrigues Coelho e Bruno Andres Pereira Silveira
+
 ---
 
 ## Tecnologias Utilizadas
