@@ -208,7 +208,7 @@ public class RelatorioController {
                     }
                     document.add(table);
 
-                } else if ("Solicitações".equalsIgnoreCase(tipo)) {
+                } else if ("solicitacoes".equalsIgnoreCase(tipo)) {
                     List<SolicitacoesMaterial> solicitacoes = solicitacoesMaterialService.findByPeriodo(dataInicio, dataFim);
                     PdfPTable table = new PdfPTable(new float[]{2, 1, 2, 2, 1, 2, 2});
                     table.setWidthPercentage(100);
@@ -381,6 +381,7 @@ public class RelatorioController {
             addRowLocal.accept("E-mail:", orEmpty(d.getEmail()));
             addRowLocal.accept("Telefone:", orEmpty(d.getTelefone()));
             addRowLocal.accept("Sexo:", orEmpty(d.getSexo()));
+            addRowLocal.accept("CEP:", orEmpty(d.getCep()));
             addRowLocal.accept("Endereço:", orEmpty(d.getEndereco()));
             addRowLocal.accept("Data de Nascimento:", d.getDataNascimento() != null ? d.getDataNascimento().format(dtf) : "");
             addRowLocal.accept("Data de Cadastro:", d.getDataCadastro() != null ? d.getDataCadastro().format(dtf) : "");
@@ -434,7 +435,7 @@ public class RelatorioController {
             response.reset();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Erro ao gerar documento: " + e.getMessage());
         }
-    }   
+    }
 
     // ----------------------------
     // Helpers CSV / PDF tables
