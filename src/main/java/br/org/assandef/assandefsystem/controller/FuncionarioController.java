@@ -4,6 +4,7 @@ import br.org.assandef.assandefsystem.model.Funcionario;
 import br.org.assandef.assandefsystem.service.FuncionarioService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -93,11 +94,19 @@ public class FuncionarioController {
         return "redirect:/funcionarios";
     }
 
-    // Exclusão de funcionários desabilitada para manter histórico e integridade do sistema
-    /*
     @PostMapping("/excluir/{id}")
-    public String excluirFuncionario(@PathVariable Integer id, RedirectAttributes redirectAttributes) {
+    public String excluirFuncionario(@PathVariable Integer id,
+                                     Authentication authentication,
+                                     RedirectAttributes redirectAttributes) {
         try {
+            Funcionario funcionario = funcionarioService.findById(id);
+
+            if (authentication != null && authentication.getName() != null
+                    && authentication.getName().equals(funcionario.getLogin())) {
+                redirectAttributes.addFlashAttribute("erro", "Você não pode excluir o seu próprio usuário.");
+                return "redirect:/funcionarios";
+            }
+
             funcionarioService.deleteById(id);
             redirectAttributes.addFlashAttribute("mensagem", "Funcionário excluído com sucesso!");
         } catch (Exception e) {
@@ -105,5 +114,4 @@ public class FuncionarioController {
         }
         return "redirect:/funcionarios";
     }
-    */
 }
