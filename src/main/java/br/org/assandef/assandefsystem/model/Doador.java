@@ -34,6 +34,9 @@ public class Doador {
     @Column(columnDefinition = "TEXT")
     private String endereco;
 
+    @Column(length = 10)
+    private String cep;
+
     private LocalDate dataNascimento;
 
     @Column(name = "data_cadastro")
