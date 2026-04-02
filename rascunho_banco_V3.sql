@@ -121,6 +121,7 @@ CREATE TABLE `doadores` (
   `email` VARCHAR(255) NULL,
   `telefone` VARCHAR(20) NULL,
   `sexo` VARCHAR(15) NULL,
+  `cep` VARCHAR(10) NULL,
   `endereco` TEXT NULL,
   `data_nascimento` DATE NULL,
   `mensalidade` DECIMAL(10, 2) NULL DEFAULT 0.00,
