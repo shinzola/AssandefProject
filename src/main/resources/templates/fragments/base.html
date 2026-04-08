@@ -41,11 +41,15 @@
                 <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
                     <li class="nav-item">
                         <a class="nav-link" th:classappend="${ativa == 'doar'} ? ' active' : ''"
-                           th:href="@{/doadores/newdonation}">Tornar-se Doador</a>
+                           th:href="@{/doadores/newdonation}">SOS</a>
                     </li>
                 </ul>
-
-                <!-- Menu completo para usuários autenticados -->
+                <ul class="navbar-nav" sec:authorize="!isAuthenticated()">
+                    <li class="nav-item">
+                        <a class="nav-link" th:classappend="${ativa == 'sobre'} ? ' active' : ''"
+                           th:href="@{/sobre}">Sobre a Assandef</a>
+                    </li>
+                </ul>
                 <!-- Menu completo para usuários autenticados -->
                 <ul class="navbar-nav" sec:authorize="isAuthenticated()">
                     <!-- Início: disponível para todos os autenticados (1,2,3) -->
@@ -144,10 +148,11 @@
                     <li class="mb-3"><i class="bi bi-telephone-fill me-3"></i>(55) 3242-1712</li>
                 </ul>
             </div>
-            <div class="col-lg-4 col-md-6 mb-4 mb-md-0">
+            <div class="col-lg-4 col-md-2 mb-4 mb-md-0">
                 <h5 class="text-uppercase fw-bold mb-4">Localização</h5>
                 <div class="map-responsive">
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m27!1m12!1m3!1d6847.5055712447265!2d-55.51027212109333!3d-30.893576011072764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m12!3e6!4m4!1s0x95a9feff6b3b208b%3A0xdee06d994776aad9!3m2!1d-30.8966776!2d-55.500272499999994!4m5!1s0x95a9feff6b3b208b%3A0xdee06d994776aad9!2sR.%20Doroteo%20Aguirre%2C%20n%C2%BA%20405%20-%20Umbu%2C%20Sant&#39;Ana%20do%20Livramento%20-%20RS%2C%2097575-250!3m2!1d-30.8966776!2d-55.500272499999994!5e0!3m2!1spt-BR!2sbr!4v1760964594583!5m2!1spt-BR!2sbr" width="600" height="300" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m27!1m12!1m3!1d6847.5055712447265!2d-55.51027212109333!3d-30.893576011072764!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m12!3e6!4m4!1s0x95a9feff6b3b208b%3A0xdee06d994776aad9!3m2!1d-30.8966776!2d-55.500272499999994!4m5!1s0x95a9feff6b3b208b%3A0xdee06d994776aad9!2sR.%20Doroteo%20Aguirre%2C%20n%C2%BA%20405%20-%20Umbu%2C%20Sant&#39;Ana%20do%20Livramento%20-%20RS%2C%2097575-250!3m2!1d-30.8966776!2d-55.500272499999994!5e0!3m2!1spt-BR!2sbr!4v1760964594583!5m2!1spt-BR!2sbr"
+                            class="w-100" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>

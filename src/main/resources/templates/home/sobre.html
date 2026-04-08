@@ -1,10 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+<html lang="pt-br" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/base :: headPadrao('Sobre a ASSANDEF')}">
 </head>
+
 <body>
-$END$
+
+<header th:replace="~{fragments/base :: cabecalho}"></header>
+
+<main class="container">
+
+    <!-- Hero / Introdução -->
+    <div class="row justify-content-center mt-4 mb-4">
+        <div class="col-lg-10 text-center">
+            <div class="form-container">
+                <h2 class="form-title text-center">
+                    <i class="bi bi-building-heart-fill me-2"></i>Sobre a ASSANDEF
+                </h2>
+                <p class="lead text-muted">
+                    Associação Santanense do Deficiente Físico — promovendo inclusão, dignidade e cidadania desde a sua fundação.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nossa História -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">
+                        <i class="bi bi-clock-history me-2 text-primary"></i>Nossa História
+                    </h4>
+                    <p class="card-text">
+                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. A ASSANDEF nasceu da necessidade de unir forças e vozes de pessoas com deficiência física em Sant'Ana do Livramento, criando um espaço de acolhimento, luta por direitos e promoção da inclusão social.
+                    </p>
+                    <p class="card-text">
+                        Fundada por um grupo de pessoas comprometidas com a causa da acessibilidade, a associação cresceu ao longo dos anos e hoje é referência regional no atendimento e suporte a pessoas com deficiência física, oferecendo serviços especializados e programas de reabilitação.
+                    </p>
+                    <p class="card-text mb-0">
+                        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Missão, Visão e Valores -->
+    <div class="row justify-content-center mb-4 g-3">
+        <div class="col-lg-10">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="card h-100 border-primary shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-bullseye fs-1 text-primary mb-3 d-block"></i>
+                            <h5 class="card-title">Missão</h5>
+                            <p class="card-text text-muted">
+                                Promover ações e serviços que mobilizem a sociedade, visando a inclusão das Pessoas Com Deficiência na conquista de sua plena cidadania.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-success shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-eye-fill fs-1 text-success mb-3 d-block"></i>
+                            <h5 class="card-title">Visão</h5>
+                            <p class="card-text text-muted">
+                                Ser reconhecida como instituição de excelência no atendimento e defesa dos direitos das pessoas com deficiência física na região da fronteira oeste.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-warning shadow-sm">
+                        <div class="card-body text-center p-4">
+                            <i class="bi bi-stars fs-1 text-warning mb-3 d-block"></i>
+                            <h5 class="card-title">Valores</h5>
+                            <p class="card-text text-muted">
+                                Respeito, inclusão, transparência, solidariedade e comprometimento com a dignidade humana e os direitos das pessoas com deficiência.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- O que fazemos -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-3">
+                        <i class="bi bi-heart-pulse-fill me-2 text-danger"></i>O que fazemos
+                    </h4>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1">Atendimento Especializado</h6>
+                                    <p class="text-muted small mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Serviços de saúde e reabilitação para pessoas com deficiência física.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1">Inclusão Social</h6>
+                                    <p class="text-muted small mb-0">Programas e atividades que promovem a integração e participação ativa na sociedade.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1">Fornecimento de Equipamentos</h6>
+                                    <p class="text-muted small mb-0">Cadeiras de rodas, muletas e outros equipamentos de mobilidade para quem necessita.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1">Defesa de Direitos</h6>
+                                    <p class="text-muted small mb-0">Atuação junto a órgãos públicos e privados para garantir os direitos das pessoas com deficiência.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1">Eventos e Atividades</h6>
+                                    <p class="text-muted small mb-0">Realização de eventos recreativos, culturais e esportivos para promover bem-estar e socialização.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
+                                <div>
+                                    <h6 class="mb-1">Apoio às Famílias</h6>
+                                    <p class="text-muted small mb-0">Orientação e suporte às famílias de pessoas com deficiência, fortalecendo a rede de cuidado.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Números / Impacto -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-lg-10">
+            <div class="card bg-primary text-white shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4 text-center">
+                        <i class="bi bi-bar-chart-fill me-2"></i>Nosso Impacto
+                    </h4>
+                    <div class="row text-center g-3">
+                        <div class="col-md-3 col-6">
+                            <div class="fs-1 fw-bold">+500</div>
+                            <div class="small opacity-75">Pacientes Atendidos</div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="fs-1 fw-bold">+200</div>
+                            <div class="small opacity-75">Parceiros Doadores</div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="fs-1 fw-bold">+15</div>
+                            <div class="small opacity-75">Anos de Atuação</div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <div class="fs-1 fw-bold">+30</div>
+                            <div class="small opacity-75">Profissionais</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-10">
+            <div class="card shadow-sm">
+                <div class="card-body p-4 text-center">
+                    <h5 class="card-title">
+                        <i class="bi bi-hand-heart-fill me-2 text-danger"></i>Faça parte desta história!
+                    </h5>
+                    <p class="card-text text-muted">
+                        A ASSANDEF depende do apoio de parceiros e doadores para continuar transformando vidas. Junte-se a nós e ajude a construir uma sociedade mais inclusiva e acessível para todos.
+                    </p>
+                    <a th:href="@{/doadores/novo}" class="btn btn-primary me-2">
+                        <i class="bi bi-heart-fill me-1"></i>Quero ser Doador
+                    </a>
+                    <a th:href="@{/}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-1"></i>Voltar ao Início
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<footer th:replace="~{fragments/base :: rodape}"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

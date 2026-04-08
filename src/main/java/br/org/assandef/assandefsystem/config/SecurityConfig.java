@@ -28,7 +28,7 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/webjars/**").permitAll()
-                        .requestMatchers("/", "/login", "/doadores/newdonation").permitAll()
+                        .requestMatchers("/", "/login", "/doadores/newdonation", "/sobre").permitAll()
                         .requestMatchers(HttpMethod.POST, "/doadores/salvar").permitAll()
 
                         // /funcionarios/** -> somente hierarquia 1

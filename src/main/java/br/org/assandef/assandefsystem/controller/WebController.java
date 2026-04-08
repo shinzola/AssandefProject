@@ -16,14 +16,14 @@ public class WebController {
         return "acesso/login";
     }
 
-    @GetMapping("/atendimento-old")
-    public String atendimentoOld() {
-        return "atendimento/atendimento";
-    }
-
     @GetMapping("/profissional")
     public String pacientes() {
         return "profissional/profissional";
+    }
+
+    @GetMapping("/sobre")
+    public String sobre() {
+        return "home/sobre"; // era "sobre", agora aponta para a subpasta
     }
 
     /*@GetMapping("/doadores")
