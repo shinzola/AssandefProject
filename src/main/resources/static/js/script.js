@@ -142,3 +142,39 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 });
+
+    document.addEventListener('DOMContentLoaded', function () {
+
+        // Máscara CPF/CNPJ
+        const cpfCnpjInput = document.getElementById('cpfCnpj');
+        if (cpfCnpjInput) {
+            cpfCnpjInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length <= 11) {
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                } else {
+                    value = value.replace(/(\d{2})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1/$2');
+                    value = value.replace(/(\d{4})(\d{1,2})$/, '$1-$2');
+                }
+                e.target.value = value;
+            });
+        }
+
+        // Máscara Telefone
+        const telefoneInput = document.getElementById('telefone');
+        if (telefoneInput) {
+            telefoneInput.addEventListener('input', function (e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 11) value = value.substring(0, 11);
+                if (value.length > 0) value = '(' + value;
+                if (value.length > 3) value = value.substring(0, 3) + ') ' + value.substring(3);
+                if (value.length > 10) value = value.substring(0, 10) + '-' + value.substring(10);
+                e.target.value = value;
+            });
+        }
+
+    });

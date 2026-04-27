@@ -106,7 +106,15 @@ public class SecurityConfig {
                             boolean allowed = authService.hasAnyHierarquia(authentication, 1);
                             return new AuthorizationDecision(allowed);
                         })
-
+                        // /financeiro/** -> hierarquia 1 (Diretoria) ou 3 (Administrativo)
+                        .requestMatchers("/financeiro/**")
+                        .access((authSupplier, ctx) -> {
+                            var authentication = authSupplier.get();
+                            AuthService authService = applicationContext.getBean(AuthService.class);
+                            // Permitindo Diretoria (1) e Administrativo (3)
+                            boolean allowed = authService.hasAnyHierarquia(authentication, 1, 3);
+                            return new AuthorizationDecision(allowed);
+                        })
 
 
                         .anyRequest().authenticated()

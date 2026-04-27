@@ -2,7 +2,6 @@ HELP.md
 application.properties
 compose.yaml
 Dockerfile
-pom.xml
 target/
 .mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/

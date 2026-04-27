@@ -78,6 +78,7 @@
                             <tr>
                                 <th scope="col">Nome Completo</th>
                                 <th scope="col">Login</th>
+                                <th scope="col">Email</th>
                                 <th scope="col">Hierarquia</th>
                                 <th scope="col" class="text-end">Ações</th>
                             </tr>
@@ -86,6 +87,7 @@
                             <tr th:each="func : ${funcionarios}">
                                 <td th:text="${func.nomeCompleto}"></td>
                                 <td th:text="${func.login}"></td>
+                                <td th:text="${func.email}"></td>
                                 <td>
                                     <span th:switch="${func.hierarquia}">
                                         <span class="badge bg-danger" th:case="1">Diretoria</span>
@@ -154,6 +156,10 @@
                         <div class="col-md-6">
                             <label for="login" class="form-label">Login</label>
                             <input type="text" class="form-control" id="login" th:field="*{login}" required />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email" class="form-label">email</label>
+                            <input type="email" class="form-control" id="email" th:field="*{email}" required />
                         </div>
 
                         <div class="col-md-6">
@@ -247,6 +253,7 @@
             if (cells.length < 2) continue;
             const nome = (cells[0].textContent || '').toLowerCase();
             const login = (cells[1].textContent || '').toLowerCase();
+            const email = (cells[1].textContent || '').toLowerCase();
             rows[i].style.display = (nome.indexOf(filter) > -1 || login.indexOf(filter) > -1) ? '' : 'none';
         }
     }

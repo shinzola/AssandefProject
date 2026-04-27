@@ -25,9 +25,4 @@ public class WebController {
     public String sobre() {
         return "home/sobre"; // era "sobre", agora aponta para a subpasta
     }
-
-    /*@GetMapping("/doadores")
-    public String doacoes() {
-        return "doadores/donation";
-    }*/
 }

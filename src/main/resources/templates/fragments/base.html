@@ -15,6 +15,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" th:href="@{/css/style.css}" />
+
 </head>
 
 <body>
@@ -75,6 +76,12 @@
                         <a class="nav-link" th:classappend="${ativa == 'pacientes'} ? ' active' : ''"
                            th:href="@{/pacientes}">Pacientes</a>
                     </li>
+
+                    <li class="nav-item" th:if="${hierarquia == 1}">
+                        <a class="nav-link" th:classappend="${ativa == 'financeiro'} ? ' active' : ''"
+                           th:href="@{/financeiro}">Financeiro</a>
+                    </li>
+
 
                     <!-- Afiliações / Doadores: disponível para Administrador (1) e Auxiliar Administrativo (3) -->
                     <li class="nav-item" th:if="${hierarquia == 1 or hierarquia == 3}">
@@ -160,6 +167,12 @@
     <div class="footer-bottom text-center p-3 mt-4">
         Desenvolvido por: <a class="text-white" href="#">assandef.com</a>
     </div>
+
 </footer>
+<th:block th:fragment="scriptsPadrao">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/script.js}"></script>
+</th:block>
 </body>
+
 </html>

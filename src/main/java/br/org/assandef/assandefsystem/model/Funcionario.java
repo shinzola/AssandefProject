@@ -35,4 +35,8 @@ public class Funcionario {
     @Column(name = "hierarquia", nullable = false)
     private Integer hierarquia;
 
+    @NotNull(message = "Email é obrigatório")
+    @Column(name = "email", nullable = false)
+    private Integer email;
+
 }
