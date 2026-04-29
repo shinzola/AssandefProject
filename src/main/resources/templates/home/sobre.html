@@ -7,210 +7,521 @@
 
 <header th:replace="~{fragments/base :: cabecalho}"></header>
 
-<main class="container">
+<main class="sobre-page">
 
-    <!-- Hero / Introdução -->
-    <div class="row justify-content-center mt-4 mb-4">
-        <div class="col-lg-10 text-center">
-            <div class="form-container">
-                <h2 class="form-title text-center">
-                    <i class="bi bi-building-heart-fill me-2"></i>Sobre a ASSANDEF
-                </h2>
-                <p class="lead text-muted">
-                    Associação Santanense do Deficiente Físico — promovendo inclusão, dignidade e cidadania desde a sua fundação.
+    <!-- Hero -->
+    <section class="sobre-hero">
+        <div class="container">
+            <div class="row align-items-center gy-5">
+                <div class="col-lg-7 text-center text-lg-start">
+                    <span class="sobre-hero-kicker">Associação Santanense do Deficiente Físico</span>
+
+                    <h1 class="sobre-hero-title">ASSANDEF</h1>
+
+                    <p class="sobre-hero-frase">
+                        “Acesso é um Direito. Acessibilidade é uma Conquista.”
+                    </p>
+
+                    <p class="sobre-hero-text">
+                        Desde 1989, a ASSANDEF atua em Santana do Livramento promovendo inclusão,
+                        cidadania e qualidade de vida para pessoas com deficiência, por meio de ações
+                        sociais, culturais, esportivas, educacionais e de saúde.
+                    </p>
+
+                    <div class="sobre-hero-actions">
+                        <a href="#historia" class="btn btn-primary btn-lg">
+                            <i class="bi bi-clock-history me-2"></i>Conheça nossa história
+                        </a>
+                        <a href="#atividades" class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-grid-3x3-gap-fill me-2"></i>Ver atividades
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 text-center">
+                    <div class="sobre-hero-logo-card">
+                        <img th:src="@{/img/assandef-logo.png}" alt="Logo da ASSANDEF" class="sobre-hero-logo">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Atalhos -->
+    <section class="sobre-atalhos">
+        <div class="container">
+            <nav class="sobre-atalhos-nav" aria-label="Navegação da página Sobre">
+                <a href="#historia">História</a>
+                <a href="#missao">Missão</a>
+                <a href="#atividades">Atividades</a>
+                <a href="#diretoria">Diretoria</a>
+                <a href="#registros">Registros</a>
+            </nav>
+        </div>
+    </section>
+
+    <!-- História -->
+    <section id="historia" class="sobre-section">
+        <div class="container">
+            <div class="section-heading text-center">
+                <span class="section-kicker">Nossa trajetória</span>
+                <h2>Nascida da necessidade de inclusão e representatividade</h2>
+                <p>
+                    A ASSANDEF foi idealizada por pessoas com deficiência de Santana do Livramento,
+                    que perceberam a importância de criar uma entidade voltada à integração social
+                    e à defesa de direitos.
                 </p>
             </div>
-        </div>
-    </div>
 
-    <!-- Nossa História -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h4 class="card-title mb-3">
-                        <i class="bi bi-clock-history me-2 text-primary"></i>Nossa História
-                    </h4>
-                    <p class="card-text">
-                        A Associação Santanense do Deficiente Físico (ASSANDEF), foi idealizada por um grupo de Pessoas Com Deficiência (PCD) de Santana do Livramento, que sentiram a necessidade de criar uma associação com personalidade jurídica, que lhes proporcionasse uma maior integração social, uma vez que inexistia qualquer entidade desta natureza, direcionada a PCD.                    </p>
-                    <p class="card-text">
-                        Fundada por um grupo de pessoas comprometidas com a causa da acessibilidade, a associação cresceu ao longo dos anos e hoje é referência regional no atendimento e suporte a pessoas com deficiência física, oferecendo serviços especializados e programas de reabilitação.
-                    </p>
-                    <p class="card-text mb-0">
-                        Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Missão, Visão e Valores -->
-    <div class="row justify-content-center mb-4 g-3">
-        <div class="col-lg-10">
-            <div class="row g-3">
-                <div class="col-md-4">
-                    <div class="card h-100 border-primary shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <i class="bi bi-bullseye fs-1 text-primary mb-3 d-block"></i>
-                            <h5 class="card-title">Missão</h5>
-                            <p class="card-text text-muted">
-                                Promover ações e serviços que mobilizem a sociedade, visando a inclusão das Pessoas Com Deficiência na conquista de sua plena cidadania.
-                            </p>
-                        </div>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-marker">1989</div>
+                    <div class="timeline-card">
+                        <h3>Fundação da ASSANDEF</h3>
+                        <p>
+                            A Associação Santanense do Deficiente Físico foi fundada em 10 de abril de
+                            1989, com vinte sócios fundadores, dando início a uma trajetória de atuação
+                            em favor das pessoas com deficiência.
+                        </p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-success shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <i class="bi bi-eye-fill fs-1 text-success mb-3 d-block"></i>
-                            <h5 class="card-title">Visão</h5>
-                            <p class="card-text text-muted">
-                                Ser reconhecida como instituição de excelência no atendimento e defesa dos direitos das pessoas com deficiência física na região da fronteira oeste.
-                            </p>
-                        </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                    <div class="timeline-card">
+                        <h3>Primeiro trabalho realizado</h3>
+                        <p>
+                            A primeira ação da associação foi o cadastramento das pessoas com deficiência
+                            existentes na cidade, identificando causas, condições sociais, culturais e
+                            econômicas, com apoio de associações de bairro e igrejas locais.
+                        </p>
                     </div>
                 </div>
-                <div class="col-md-4">
-                    <div class="card h-100 border-warning shadow-sm">
-                        <div class="card-body text-center p-4">
-                            <i class="bi bi-stars fs-1 text-warning mb-3 d-block"></i>
-                            <h5 class="card-title">Valores</h5>
-                            <p class="card-text text-muted">
-                                Respeito, inclusão, transparência, solidariedade e comprometimento com a dignidade humana e os direitos das pessoas com deficiência.
-                            </p>
-                        </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">1991</div>
+                    <div class="timeline-card">
+                        <h3>Primeira sede adaptada</h3>
+                        <p>
+                            Após funcionar em uma sala cedida pela Academia Lampert, a ASSANDEF passou
+                            a atuar em uma sede na Rua General Câmara, nº 1324, reformada e adaptada às
+                            necessidades das pessoas com deficiência.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-marker">2013</div>
+                    <div class="timeline-card">
+                        <h3>Nova sede</h3>
+                        <p>
+                            Em 21 de novembro de 2013, a ASSANDEF estabeleceu-se na Rua Doroteo Aguirre,
+                            nº 405, em um espaço mais amplo cedido pelo Governo do Estado, onde segue
+                            realizando suas atividades.
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- O que fazemos -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h4 class="card-title mb-3">
-                        <i class="bi bi-heart-pulse-fill me-2 text-danger"></i>O que fazemos
-                    </h4>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
-                                <div>
-                                    <h6 class="mb-1">Atendimento Especializado</h6>
-                                    <p class="text-muted small mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Serviços de saúde e reabilitação para pessoas com deficiência física.</p>
-                                </div>
-                            </div>
+    <!-- Missão -->
+    <section id="missao" class="sobre-section sobre-section-soft">
+        <div class="container">
+            <div class="row align-items-center gy-4">
+                <div class="col-lg-6">
+                    <div class="missao-card">
+                        <div class="missao-icon">
+                            <i class="bi bi-bullseye"></i>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
-                                <div>
-                                    <h6 class="mb-1">Inclusão Social</h6>
-                                    <p class="text-muted small mb-0">Programas e atividades que promovem a integração e participação ativa na sociedade.</p>
-                                </div>
-                            </div>
+                        <span class="section-kicker">Nossa missão</span>
+                        <h2>Promover inclusão e cidadania</h2>
+                        <p>
+                            Promover ações e serviços que mobilizem a sociedade, visando a inclusão das
+                            Pessoas Com Deficiência na conquista de sua plena cidadania.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="valores-grid">
+                        <div class="valor-card">
+                            <i class="bi bi-universal-access-circle"></i>
+                            <span>Inclusão</span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
-                                <div>
-                                    <h6 class="mb-1">Fornecimento de Equipamentos</h6>
-                                    <p class="text-muted small mb-0">Cadeiras de rodas, muletas e outros equipamentos de mobilidade para quem necessita.</p>
-                                </div>
-                            </div>
+                        <div class="valor-card">
+                            <i class="bi bi-person-hearts"></i>
+                            <span>Respeito</span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
-                                <div>
-                                    <h6 class="mb-1">Defesa de Direitos</h6>
-                                    <p class="text-muted small mb-0">Atuação junto a órgãos públicos e privados para garantir os direitos das pessoas com deficiência.</p>
-                                </div>
-                            </div>
+                        <div class="valor-card">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Cidadania</span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
-                                <div>
-                                    <h6 class="mb-1">Eventos e Atividades</h6>
-                                    <p class="text-muted small mb-0">Realização de eventos recreativos, culturais e esportivos para promover bem-estar e socialização.</p>
-                                </div>
-                            </div>
+                        <div class="valor-card">
+                            <i class="bi bi-people"></i>
+                            <span>Convivência</span>
                         </div>
-                        <div class="col-md-6">
-                            <div class="d-flex align-items-start">
-                                <i class="bi bi-check-circle-fill text-success me-3 mt-1 fs-5"></i>
-                                <div>
-                                    <h6 class="mb-1">Apoio às Famílias</h6>
-                                    <p class="text-muted small mb-0">Orientação e suporte às famílias de pessoas com deficiência, fortalecendo a rede de cuidado.</p>
-                                </div>
-                            </div>
+                        <div class="valor-card">
+                            <i class="bi bi-megaphone"></i>
+                            <span>Representatividade</span>
+                        </div>
+                        <div class="valor-card">
+                            <i class="bi bi-heart-pulse"></i>
+                            <span>Qualidade de vida</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Números / Impacto -->
-    <div class="row justify-content-center mb-4">
-        <div class="col-lg-10">
-            <div class="card bg-primary text-white shadow-sm">
-                <div class="card-body p-4">
-                    <h4 class="card-title mb-4 text-center">
-                        <i class="bi bi-bar-chart-fill me-2"></i>Nosso Impacto
-                    </h4>
-                    <div class="row text-center g-3">
-                        <div class="col-md-3 col-6">
-                            <div class="fs-1 fw-bold">+500</div>
-                            <div class="small opacity-75">Pacientes Atendidos</div>
+    <!-- Atividades -->
+    <section id="atividades" class="sobre-section">
+        <div class="container">
+            <div class="section-heading text-center">
+                <span class="section-kicker">Projetos e atividades</span>
+                <h2>Atuação social, cultural, esportiva e de saúde</h2>
+                <p>
+                    A ASSANDEF desenvolve atividades que fortalecem vínculos, promovem autonomia,
+                    estimulam a convivência e ampliam a participação das pessoas com deficiência na comunidade.
+                </p>
+            </div>
+
+            <div id="atividadesCarousel" class="carousel slide atividades-carousel" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Ações na comunidade"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="1" aria-label="Fisioterapia e Tai Chi Chuan"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="2" aria-label="Basquete em cadeiras de rodas"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="3" aria-label="Grupo de dança inclusiva"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="4" aria-label="Grupo de convivência"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="5" aria-label="Programa Hiperdia"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="6" aria-label="Transporte"></button>
+                    <button type="button" data-bs-target="#atividadesCarousel" data-bs-slide-to="7" aria-label="Artesanato"></button>
+                </div>
+
+                <div class="carousel-inner">
+
+                    <div class="carousel-item active">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/acoes-comunidade.jpg}" alt="Ações na comunidade realizadas pela ASSANDEF">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Comunidade</span>
+                                <h3>Ações na Comunidade</h3>
+                                <p>
+                                    Representantes da ASSANDEF participam de ações nas áreas da educação,
+                                    social e política, promovendo conscientização sobre os direitos das pessoas
+                                    com deficiência.
+                                </p>
+                                <p>
+                                    A associação realiza palestras em escolas, participa de conferências municipais,
+                                    estaduais e federais, além de eventos públicos como caminhadas e carnaval.
+                                </p>
+                            </div>
                         </div>
-                        <div class="col-md-3 col-6">
-                            <div class="fs-1 fw-bold">+200</div>
-                            <div class="small opacity-75">Parceiros Doadores</div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/fisioterapia-tai-chi.jpg}" alt="Atividades de fisioterapia e Tai Chi Chuan">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Saúde e bem-estar</span>
+                                <h3>Fisioterapia e Tai Chi Chuan</h3>
+                                <p>
+                                    O serviço de fisioterapia oferece atendimentos diários voltados à recuperação,
+                                    manutenção e prevenção das capacidades funcionais, contribuindo para a melhora
+                                    da qualidade de vida.
+                                </p>
+                                <p>
+                                    O Tai Chi Chuan complementa esse cuidado por meio de uma atividade em grupo,
+                                    envolvendo usuários, colaboradores e familiares.
+                                </p>
+                            </div>
                         </div>
-                        <div class="col-md-3 col-6">
-                            <div class="fs-1 fw-bold">+15</div>
-                            <div class="small opacity-75">Anos de Atuação</div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/basquete.jpg}" alt="Equipe de basquete em cadeiras de rodas Gladiadores Sobre Rodas">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Esporte inclusivo</span>
+                                <h3>Basquete em Cadeiras de Rodas</h3>
+                                <p>
+                                    A equipe Os Gladiadores Sobre Rodas realiza treinos periódicos, promove e
+                                    participa de torneios e competições.
+                                </p>
+                                <p>
+                                    A prática esportiva contribui para quebrar mitos, paradigmas e preconceitos,
+                                    fortalecendo a inclusão por meio do esporte.
+                                </p>
+                            </div>
                         </div>
-                        <div class="col-md-3 col-6">
-                            <div class="fs-1 fw-bold">+30</div>
-                            <div class="small opacity-75">Profissionais</div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/danca-inclusiva.jpg}" alt="Grupo de Dança Inclusiva Giro Livre">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Cultura e inclusão</span>
+                                <h3>Grupo de Dança Inclusiva</h3>
+                                <p>
+                                    O Grupo Giro Livre é desenvolvido em parceria entre a Lampert Centro de Dança
+                                    e a ASSANDEF, reunindo bailarinos cadeirantes e andantes.
+                                </p>
+                                <p>
+                                    Com ensaios semanais, o grupo realiza apresentações em diversos espaços da
+                                    fronteira e em outros municípios.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/convivencia.jpg}" alt="Grupo de convivência da ASSANDEF">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Fortalecimento de vínculos</span>
+                                <h3>Grupo de Convivência</h3>
+                                <p>
+                                    A ASSANDEF realiza reuniões mensais com diretoria, funcionários, usuários,
+                                    colaboradores, amigos e familiares.
+                                </p>
+                                <p>
+                                    Esses encontros fortalecem laços de amizade, fraternidade, acolhida e convivência
+                                    entre todos os participantes.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/hiperdia.jpg}" alt="Programa Hiperdia na ASSANDEF">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Prevenção</span>
+                                <h3>Programa Hiperdia</h3>
+                                <p>
+                                    O Programa Hiperdia realiza ações de prevenção da hipertensão e diabetes,
+                                    atendendo usuários na sede da ASSANDEF.
+                                </p>
+                                <p>
+                                    As atividades incluem medição de glicose, verificação de pressão, medição da
+                                    circunferência abdominal e palestras informativas.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/transporte.jpg}" alt="Transporte utilizado nas atividades da ASSANDEF">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Apoio às atividades</span>
+                                <h3>Transporte</h3>
+                                <p>
+                                    A ASSANDEF realiza transporte para a equipe de basquete em cadeiras de rodas,
+                                    o Grupo de Dança Inclusiva Giro Livre, visitas da assistente social e demandas
+                                    externas da sede.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="carousel-item">
+                        <div class="atividade-slide">
+                            <div class="atividade-img-wrap">
+                                <img th:src="@{/img/sobre/artesanato.jpg}" alt="Oficinas de artesanato da ASSANDEF">
+                            </div>
+                            <div class="atividade-content">
+                                <span class="atividade-tag">Criatividade e acolhida</span>
+                                <h3>Artesanato</h3>
+                                <p>
+                                    As oficinas de artesanato promovem encontros, novas amizades, escuta e acolhida,
+                                    ampliando o convívio social entre pessoas com deficiência, familiares e amigos.
+                                </p>
+                                <p>
+                                    A atividade também incentiva a criatividade e o trabalho em grupo.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <button class="carousel-control-prev" type="button" data-bs-target="#atividadesCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                </button>
+
+                <button class="carousel-control-next" type="button" data-bs-target="#atividadesCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Próximo</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diretoria -->
+    <section id="diretoria" class="sobre-section sobre-section-soft">
+        <div class="container">
+            <div class="section-heading text-center">
+                <span class="section-kicker">Gestão atual</span>
+                <h2>Diretoria e Conselho Fiscal</h2>
+                <p>Gestão biênio 11/04/2025 a 11/04/2027.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="gestao-card h-100">
+                        <h3><i class="bi bi-person-badge me-2"></i>Diretoria</h3>
+
+                        <div class="gestao-list">
+                            <div class="gestao-item">
+                                <span>Presidente</span>
+                                <strong>Silvia Michele Dias Alvez</strong>
+                            </div>
+                            <div class="gestao-item">
+                                <span>1º Secretário</span>
+                                <strong>Cesar Martin Pechetto</strong>
+                            </div>
+                            <div class="gestao-item">
+                                <span>2ª Secretária</span>
+                                <strong>Carmen Cilene da Silva Gutierres Rodrigues</strong>
+                            </div>
+                            <div class="gestao-item">
+                                <span>1º Tesoureiro</span>
+                                <strong>Sérgio Augusto Pereira de Moraes</strong>
+                            </div>
+                            <div class="gestao-item">
+                                <span>2º Tesoureiro</span>
+                                <strong>José Enrique Lopes Costa</strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="gestao-card h-100">
+                        <h3><i class="bi bi-clipboard-check me-2"></i>Conselho Fiscal</h3>
+
+                        <div class="conselho-list">
+                            <span>Claiton Meneses</span>
+                            <span>Jadete Barbosa Lampert</span>
+                            <span>Marcelo de Quadros Rodrigues</span>
+                            <span>Nara Pereira Dargelio</span>
+                            <span>Renato Barbosa Lampert</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- Registros -->
+    <section id="registros" class="sobre-section">
+        <div class="container">
+            <div class="registros-card">
+                <div class="row gy-4 align-items-start">
+                    <div class="col-lg-4">
+                        <span class="section-kicker">Transparência</span>
+                        <h2>Registros institucionais</h2>
+                        <p>
+                            A ASSANDEF possui personalidade jurídica e reconhecimentos de utilidade pública,
+                            reforçando sua atuação institucional e seu compromisso com a comunidade.
+                        </p>
+                    </div>
+
+                    <div class="col-lg-8">
+                        <div class="registros-grid">
+                            <div class="registro-item">
+                                <i class="bi bi-file-earmark-check"></i>
+                                <span>Personalidade jurídica registrada — Livro A-2, folha 97, nº 207</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-building-check"></i>
+                                <span>Utilidade Pública Municipal — Lei nº 2803, de 25 de junho de 1991</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-award"></i>
+                                <span>Utilidade Pública Estadual — Processo nº 055961280195-5</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-award-fill"></i>
+                                <span>Utilidade Pública Federal — Processo nº MJ 22.636/96-58</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-heart-pulse"></i>
+                                <span>Certificado de Entidade Beneficente de Assistência Social — Processo nº 44006001481/2001-85</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-journal-check"></i>
+                                <span>Registro no Conselho Municipal de Assistência Social — nº 002</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-patch-check"></i>
+                                <span>CNAS — nº 44006.005818/98-01</span>
+                            </div>
+
+                            <div class="registro-item">
+                                <i class="bi bi-archive"></i>
+                                <span>Registro no STCAS — folha 002, ordem 18219, livro B-3</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- CTA -->
-    <div class="row justify-content-center mb-5">
-        <div class="col-lg-10">
-            <div class="card shadow-sm">
-                <div class="card-body p-4 text-center">
-                    <h5 class="card-title">
-                        <i class="bi bi-hand-heart-fill me-2 text-danger"></i>Faça parte desta história!
-                    </h5>
-                    <p class="card-text text-muted">
-                        A ASSANDEF depende do apoio de parceiros e doadores para continuar transformando vidas. Junte-se a nós e ajude a construir uma sociedade mais inclusiva e acessível para todos.
-                    </p>
-                    <a th:href="@{/doadores/novo}" class="btn btn-primary me-2">
-                        <i class="bi bi-heart-fill me-1"></i>Quero ser Doador
+    <section class="sobre-cta">
+        <div class="container">
+            <div class="sobre-cta-card text-center">
+                <span class="section-kicker">Faça parte desta história</span>
+                <h2>Ajude a fortalecer uma sociedade mais inclusiva e acessível</h2>
+                <p>
+                    A ASSANDEF segue construindo sua trajetória com o apoio de usuários, familiares,
+                    colaboradores, parceiros e da comunidade.
+                </p>
+
+                <div class="sobre-cta-actions">
+                    <a th:href="@{/doadores/newdonation}" class="btn btn-light btn-lg">
+                        <i class="bi bi-heart-fill me-2"></i>Quero apoiar
                     </a>
-                    <a th:href="@{/}" class="btn btn-outline-secondary">
-                        <i class="bi bi-house me-1"></i>Voltar ao Início
+                    <a th:href="@{/}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-house me-2"></i>Voltar ao início
                     </a>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
 </main>
 
 <footer th:replace="~{fragments/base :: rodape}"></footer>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<th:block th:replace="~{fragments/base :: scriptsPadrao}"></th:block>
+
 </body>
 </html>
