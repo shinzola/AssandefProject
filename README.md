@@ -155,7 +155,7 @@ Principais entidades do sistema:
 ---
 
 ## 👨‍💻 Desenvolvedores
-Projeto desenvolvido para a disciplina de **Práticas em ADS II** - Instituto Federal Sul-rio-grandense (IFSul).
+Projeto desenvolvido para a disciplina de **Práticas em ADS I e II** - Instituto Federal Sul-rio-grandense (IFSul).
 
 - *Instituição:* ASSANDEF (Associação Santanense do Deficiente Físico)
-- *Local:* Santana do Livramento - RS
+- *Contribuidores:* Rodrigo Noelli Duarte, Pedro Rodrigues Coelho, William Ucha Giordano (ADS I), Bruno Andres (ADS I).
