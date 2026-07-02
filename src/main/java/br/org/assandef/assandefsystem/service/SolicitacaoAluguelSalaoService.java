@@ -11,7 +11,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -36,11 +38,24 @@ public class SolicitacaoAluguelSalaoService {
         );
     }
 
+    public Map<String, List<String>> findHorariosOcupadosPorDataIso() {
+        List<SolicitacaoAluguelSalao> alugadas = solicitacaoAluguelSalaoRepository
+                .findByStatusOrderByDataDesejadaAscHoraInicioDesejadaAsc(StatusSolicitacaoAluguelSalao.ALUGADO);
+
+        Map<String, List<String>> horariosPorData = new LinkedHashMap<>();
+        for (SolicitacaoAluguelSalao solicitacao : alugadas) {
+            if (solicitacao.getDataDesejada() == null || solicitacao.getHoraInicioDesejada() == null || solicitacao.getHoraFimDesejada() == null) {
+                continue;
+            }
+            String dataIso = solicitacao.getDataDesejada().toString();
+            String faixaHorario = solicitacao.getHoraInicioDesejada() + " às " + solicitacao.getHoraFimDesejada();
+            horariosPorData.computeIfAbsent(dataIso, chave -> new java.util.ArrayList<>()).add(faixaHorario);
+        }
+        return horariosPorData;
+    }
+
     public List<String> findDatasOcupadasIso() {
-        return solicitacaoAluguelSalaoRepository.findDatasByStatus(StatusSolicitacaoAluguelSalao.ALUGADO)
-                .stream()
-                .map(LocalDate::toString)
-                .toList();
+        return findHorariosOcupadosPorDataIso().keySet().stream().toList();
     }
 
     public SolicitacaoAluguelSalao findById(Integer id) {

@@ -41,6 +41,7 @@ public class AluguelSalaoController {
         model.addAttribute("planosAluguel", planoAluguelSalaoService.findAtivos());
         model.addAttribute("fotosSalao", fotoSalaoService.findAtivas());
         model.addAttribute("datasOcupadas", solicitacaoAluguelSalaoService.findDatasOcupadasIso());
+        model.addAttribute("horariosOcupadosPorData", solicitacaoAluguelSalaoService.findHorariosOcupadosPorDataIso());
         return "aluguel-salao/aluguel-salao";
     }
 
@@ -225,5 +226,6 @@ public class AluguelSalaoController {
         model.addAttribute("planosAluguel", planoAluguelSalaoService.findAll());
         model.addAttribute("fotosSalao", fotoSalaoService.findAll());
         model.addAttribute("datasOcupadas", solicitacaoAluguelSalaoService.findDatasOcupadasIso());
+        model.addAttribute("horariosOcupadosPorData", solicitacaoAluguelSalaoService.findHorariosOcupadosPorDataIso());
     }
 }

@@ -2015,3 +2015,62 @@ Módulo de Aluguel do Salão - Página pública
     padding: 1.4rem;
   }
 }
+
+@media (max-width: 991.98px) {
+  .main-page {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: calc(var(--header-altura) + 1.25rem);
+  }
+
+  .page-header {
+    align-items: stretch;
+  }
+
+  .page-actions {
+    width: 100%;
+  }
+
+  .page-actions .btn {
+    width: 100%;
+  }
+
+  .tab-content.card {
+    overflow-x: auto;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .main-page {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .page-title {
+    font-size: 1.25rem;
+  }
+
+  .table-responsive {
+    border: 0;
+  }
+
+  .table {
+    min-width: 680px;
+  }
+
+  .offcanvas {
+    width: min(88vw, 320px) !important;
+  }
+
+  .offcanvas .btn,
+  .offcanvas .nav-link,
+  .offcanvas a {
+    min-height: 44px;
+  }
+
+  .form-control,
+  .form-select,
+  .btn {
+    min-height: 44px;
+  }
+}

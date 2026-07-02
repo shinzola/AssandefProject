@@ -1,3 +1,16 @@
+function limparEstadoOffcanvasMobile() {
+  const mobileMenu = document.getElementById("mobileMenu");
+  if (mobileMenu) {
+    mobileMenu.classList.remove("show");
+    mobileMenu.style.visibility = "";
+  }
+
+  document.querySelectorAll(".offcanvas-backdrop").forEach((backdrop) => backdrop.remove());
+  document.body.classList.remove("modal-open");
+  document.body.style.overflow = "";
+  document.body.style.paddingRight = "";
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   const navbar = document.getElementById("navbar");
   if (navbar) {
@@ -8,22 +21,40 @@ document.addEventListener("DOMContentLoaded", function () {
         navbar.classList.remove("scrolled");
       }
     }
+    handleScroll();
     window.addEventListener("scroll", handleScroll);
   }
-});
-window.addEventListener('pageshow', function (event) {
-    if (event.persisted) {
-        // Página veio do cache — força reinicialização
-        window.location.reload();
+
+  if (window.bootstrap && window.bootstrap.Tab) {
+    const hash = window.location.hash;
+    if (hash) {
+      const trigger = document.querySelector('[data-bs-toggle="tab"][data-bs-target="' + hash + '"], [data-bs-toggle="tab"][href="' + hash + '"]');
+      if (trigger) {
+        window.bootstrap.Tab.getOrCreateInstance(trigger).show();
+      }
     }
+
+    document.querySelectorAll('[data-bs-toggle="tab"]').forEach((tabTrigger) => {
+      tabTrigger.addEventListener("shown.bs.tab", function (event) {
+        const target = event.target.getAttribute("data-bs-target") || event.target.getAttribute("href");
+        if (target && target.startsWith("#")) {
+          window.history.replaceState(null, "", target);
+        }
+      });
+    });
+  }
 });
-document.addEventListener("DOMContentLoaded", function () {
+
+window.addEventListener("pageshow", function () {
+  limparEstadoOffcanvasMobile();
+
   const navbar = document.getElementById("navbar");
   if (navbar) {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 50) navbar.classList.add("scrolled");
-      else navbar.classList.remove("scrolled");
-    });
+    if (window.scrollY > 50) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
   }
 });
 

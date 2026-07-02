@@ -354,6 +354,7 @@
 <script th:inline="javascript">
     document.addEventListener('DOMContentLoaded', function () {
         const datasOcupadas = new Set(/*[[${datasOcupadas}]]*/ []);
+        const horariosOcupadosPorData = /*[[${horariosOcupadosPorData}]]*/ {};
         const tipoDocumento = document.getElementById('tipoDocumento');
         const documento = document.getElementById('documento');
         const celular = document.getElementById('celular');
@@ -543,7 +544,13 @@
                         let classe = ocupado ? 'table-danger fw-bold' : (hoje ? 'table-success fw-bold' : '');
                         html += '<td class="' + classe + '" style="height: 72px;">';
                         html += '<div>' + dia + '</div>';
-                        if (ocupado) html += '<small class="badge bg-danger">Ocupado</small>';
+                        if (ocupado) {
+                            const horarios = horariosOcupadosPorData[dataISO] || [];
+                            html += '<small class="badge bg-danger d-block mt-1">Ocupado</small>';
+                            if (horarios.length > 0) {
+                                html += '<small class="d-block text-danger mt-1">' + horarios.join('<br>') + '</small>';
+                            }
+                        }
                         html += '</td>';
                         dia++;
                     }

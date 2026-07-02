@@ -248,7 +248,7 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_PROFILES_ACTIVE=prod
     ports:
-      - "8081:8080"   # acessa via http://localhost:8081
+      - "8080:8080"   # acessa via http://localhost:8080
     networks:
       - assandef-net
 
@@ -271,7 +271,7 @@ docker-compose up
 
 Acesse:
 
-- Aplicação: http://localhost:8081
+- Aplicação: http://localhost:8080
 
 ---
 
@@ -363,9 +363,9 @@ Verifique os containers:
 docker ps
 ```
 
-Se tudo estiver certo, a aplicação estará rodando na porta 8081 da VPS:
+Se tudo estiver certo, a aplicação estará rodando na porta 8080 da VPS:
 
-- `http://SEU_IP_DA_VPS:8081`
+- `http://SEU_IP_DA_VPS:8080`
 
 ### 6. Configurar domínio e HTTPS (opcional, mas recomendado)
 
@@ -390,7 +390,7 @@ server {
     server_name sistema.assandef.org.br;
 
     location / {
-        proxy_pass http://localhost:8081;
+        proxy_pass http://localhost:8080;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
     }
