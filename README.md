@@ -1,161 +1,316 @@
 # Sistema de Gestão ASSANDEF
 
-Este sistema web foi desenvolvido para a **ASSANDEF (Associação Santanense do Deficiente Físico)** como parte do projeto integrador da disciplina de Práticas em ADS do IFSul. O objetivo principal é a informatização de processos administrativos, financeiros e de comunicação da instituição.
+> Documentação consolidada baseada em dois documentos do projeto:
+>
+> 1. Documentação Técnica – Sistema de Gestão ASSANDEF (2025)
+> 2. Documento de Requisitos – Sistema de Gestão ASSANDEF – Práticas II (2026)
+
+## Sumário
+
+1. Introdução
+2. Propósito do Documento
+3. Visão Geral do Sistema
+4. Definições e Siglas
+5. Arquitetura de Software
+6. Stack Tecnológica
+7. Módulos do Sistema (Práticas I)
+   - Gestão de Pacientes
+   - Atendimento
+   - Doadores
+   - Almoxarifado
+   - Funcionários
+8. Estrutura do Banco de Dados
+9. Requisitos (Resumo Práticas I)
+10. Manual do Usuário (Resumo)
+11. Evolução do Projeto – Práticas II
+12. Descrição Geral do Sistema
+13. Usuários e Hierarquia
+14. Novos Requisitos Funcionais
+    - Página Institucional
+    - Financeiro
+    - Cadastro de Doadores
+    - Publicações
+    - Aluguel de Salão
+15. Requisitos Não Funcionais
+16. Endpoints
+17. Interfaces
+18. Banco de Dados Atualizado
+19. Considerações Finais
 
 ---
 
-## 📑 Índice
-1. [Visão Geral](#-visão-geral)
-2. [Tecnologias Utilizadas](#-tecnologias-utilizadas)
-3. [Arquitetura e Módulos](#-arquitetura-e-módulos)
-4. [Requisitos Funcionais](#-requisitos-funcionais)
-5. [Requisitos Não Funcionais](#-requisitos-não-funcionais)
-6. [Segurança e Perfis](#-segurança-e-perfis)
-7. [Estrutura do Banco de Dados](#-estrutura-do-banco-de-dados)
-8. [Documentação da API](#-documentação-da-api)
-9. [Instalação e Execução](#-instalação-e-execução)
+# 1. Introdução
 
----
+O Sistema de Gestão ASSANDEF é uma aplicação web desenvolvida para apoiar a gestão administrativa da Associação Santanense do Deficiente Físico (ASSANDEF). O projeto surgiu na disciplina Práticas em Análise e Desenvolvimento de Sistemas em Sociedade e foi expandido em uma segunda etapa, agregando novos módulos administrativos e públicos.
 
-## 🏛️ Visão Geral
-O projeto visa substituir controles manuais por uma plataforma centralizada que atenda tanto às necessidades internas (gestão de pacientes e financeiro) quanto externas (divulgação de eventos e aluguel de salão).
+# 2. Propósito do Documento
 
-### Objetivos Principais:
-- Informatização do controle financeiro (receitas e despesas).
-- Gestão de publicações (notícias e eventos).
-- Automação de solicitações de aluguel de salão.
-- Facilitação do cadastro de novos doadores.
+Esta documentação reúne em um único material a documentação técnica inicial (Práticas I) e a documentação de requisitos da continuação do projeto (Práticas II), servindo como referência para desenvolvimento, manutenção, testes e evolução.
 
----
+# 3. Visão Geral do Sistema
 
-## 💻 Tecnologias Utilizadas
+O sistema centraliza processos administrativos da instituição, incluindo:
 
-### Backend
-- **Linguagem:** Java 21
-- **Framework:** Spring Boot 3+
-- **Segurança:** Spring Security (Session & JWT)
-- **Persistência:** Spring Data JPA / Hibernate
+- Cadastro de pacientes
+- Atendimento
+- Doadores
+- Almoxarifado
+- Funcionários
+- Financeiro
+- Publicações
+- Página institucional
+- Aluguel de salão
+- API JWT
+- Recuperação de senha
 
-### Frontend
-- **Template Engine:** Thymeleaf
-- **Estilização:** Bootstrap 5, HTML5 e CSS3
-- **Scripting:** JavaScript (Vanilla/jQuery)
+Seu objetivo é digitalizar processos internos, melhorar a organização da instituição e disponibilizar serviços públicos para a comunidade.
 
-### Banco de Dados
-- **SGBD:** MySQL
+# 4. Definições e Siglas
 
-### Ferramentas e Relatórios
-- **Gerador de PDF:** iText / JasperReports
-- **Exportação:** CSV
+- API — Interface de Programação de Aplicações
+- BCrypt — Algoritmo de hash de senhas
+- Bootstrap — Framework CSS
+- CRUD — Create, Read, Update e Delete
+- CSV — Arquivo separado por vírgulas
+- DER — Diagrama Entidade-Relacionamento
+- Hibernate — ORM Java
+- JWT — JSON Web Token
+- MySQL — Banco de dados relacional
+- PDF — Portable Document Format
+- RBAC — Controle de acesso baseado em papéis
+- Spring Boot — Framework Java
+- Spring Security — Framework de autenticação
+- Thymeleaf — Template Engine
+- WCAG — Diretrizes de acessibilidade
 
----
+# 5. Arquitetura de Software
 
-## 🏗️ Arquitetura e Módulos
+Arquitetura monolítica com renderização Server Side (SSR).
 
-O sistema é dividido em duas grandes áreas:
+Backend:
+- Java
+- Spring Boot
+- Spring MVC
+- Spring Security
+- Spring Data JPA
 
-### 1. Área Pública
-- **Página Inicial/Sobre:** Informações institucionais.
-- **Página de Doadores:** Cadastro de interessados em contribuir.
-- **Portal de Publicações:** Galeria de fotos, vídeos e notícias.
-- **Aluguel de Salão:** Consulta de disponibilidade e envio de solicitações.
+Frontend:
+- Thymeleaf
+- Bootstrap
+- JavaScript
 
-### 2. Área Administrativa
-- **Gestão de Pacientes e Atendimentos:** Controle de prontuários.
-- **Almoxarifado:** Controle de estoque de insumos.
-- **Módulo Financeiro:** Gestão de contas bancárias e fluxo de caixa.
-- **Gestão de Funcionários:** Controle de usuários do sistema.
+Banco:
+- MySQL
 
----
+# 6. Stack Tecnológica
 
-## 🛠️ Requisitos Funcionais
+- Java 21
+- Spring Boot
+- Spring Security
+- Hibernate
+- Spring Data JPA
+- Thymeleaf
+- Bootstrap 5
+- Bootstrap Icons
+- MySQL 8+
+- Tomcat Embedded
 
-### Financeiro
-- **RF-01:** Cadastro de contas bancárias.
-- **RF-02:** Cadastro de categorias financeiras (saúde, manutenção, doação).
-- **RF-03:** Registro de entradas (receitas) e saídas (despesas).
-- **RF-04:** Geração de relatórios financeiros em PDF e CSV.
+# 7. Módulos do Sistema (Práticas I)
 
-### Publicações
-- **RF-05:** Gerenciamento de postagens (Título, Descrição, Data).
-- **RF-06:** Upload de múltiplas fotos e links de vídeos para cada postagem.
-- **RF-07:** Controle de status (Rascunho/Publicado).
+## Gestão de Pacientes
+- CRUD de pacientes
+- Telefones
+- Responsáveis
+- Busca
+- Relatórios
 
-### Aluguel de Salão
-- **RF-08:** Cadastro de planos de aluguel (valores e descrições).
-- **RF-09:** Calendário de datas ocupadas.
-- **RF-10:** Formulário de solicitação de reserva para usuários externos.
+## Atendimento
+- Triagem
+- Encaminhamento
+- Evoluções
+- Prescrições
+- Histórico
+- Relatórios PDF/CSV
 
----
+## Doadores
+- Cadastro
+- Gestão de boletos
+- Upload de PDF
+- Controle de status
+- Relatórios
 
-## ⚙️ Requisitos Não Funcionais
-- **RNF-01 (Responsividade):** A interface deve se adaptar a dispositivos móveis e desktops.
-- **RNF-02 (Segurança):** Senhas devem ser criptografadas (BCrypt).
-- **RNF-03 (Acessibilidade):** Seguir as diretrizes do WCAG para facilitar o acesso de pessoas com deficiência.
-- **RNF-04 (Autenticação):** Uso de JWT para endpoints de API e Session para o Portal Web.
+## Almoxarifado
+- Categorias
+- Materiais
+- Solicitações
+- Aprovação
+- Controle de estoque
+- Relatórios
 
----
+## Funcionários
+- Login
+- Controle de acesso
+- CRUD
+- Hierarquia
 
-## 🔐 Segurança e Perfis
+# 8. Estrutura do Banco de Dados
 
-O acesso é controlado por roles (RBAC):
-- **ROLE_DIRETORIA:** Acesso total ao sistema, incluindo relatórios e funcionários.
-- **ROLE_SECRETARIA:** Foco em atendimentos, pacientes e gestão do salão.
-- **ROLE_ADMINISTRATIVO:** Foco em financeiro, almoxarifado e doadores.
-- **ANONYMOUS:** Visualização da página institucional e envio de solicitações.
+Entidades originais:
+- pacientes
+- telefones
+- atendimentos
+- evolucoes
+- prescricoes
+- doadores
+- boletos
+- categorias
+- materiais
+- solicitacoes_material
+- funcionarios
 
----
+# 9. Requisitos (Resumo Práticas I)
 
-## 🗄️ Estrutura do Banco de Dados
+Incluem gestão de pacientes, almoxarifado, atendimento, doadores, boletos, RBAC, autenticação segura, relatórios, HTTPS e acessibilidade.
 
-Principais entidades do sistema:
-- `contas_bancarias`: Dados das contas da instituição.
-- `categoria_financeira`: Classificação de entradas e saídas.
-- `movimentacoes_financeiras`: Registros de fluxo de caixa.
-- `publicacoes`: Tabela mestre para notícias e eventos.
-- `publicacoes_imagens`: Armazenamento de caminhos de arquivos de imagem.
-- `solicitacoes_aluguel_salao`: Registros de pedidos de reserva feitos pelo público.
+# 10. Manual do Usuário (Resumo)
 
----
+O sistema possui cinco módulos principais na primeira versão: Almoxarifado, Atendimento, Pacientes, Doadores e Funcionários, cada um com telas de consulta, cadastro, edição, exclusão e geração de relatórios conforme o perfil de acesso.
 
-## 🔌 Documentação da API
+# 11. Evolução do Projeto – Práticas II
 
-### Autenticação
-- `POST /api/auth/login`: Autentica o usuário e retorna um Token JWT.
+A segunda etapa amplia significativamente o sistema com módulos públicos e administrativos.
 
-### Recuperação de Senha
-- `POST /api/auth/password/forgot`: Solicita link de recuperação por e-mail.
-- `POST /api/auth/password/reset`: Define nova senha via token.
+# 12. Descrição Geral do Sistema
 
----
+Foram adicionados:
+- Página institucional
+- Financeiro
+- Publicações
+- Aluguel de salão
+- Recuperação de senha
+- API JWT
+- Melhorias na página de doadores
 
-## 🚀 Instalação e Execução
+# 13. Usuários e Hierarquia
 
-### Pré-requisitos
-- JDK 21
-- Maven 3.8+
-- MySQL 8.0
+Perfis:
+- Diretoria
+- Secretaria
+- Administrativo
+- Usuário Externo
 
-### Configuração
-1. Clone o repositório:
-   ```bash
-   git clone https://github.com/usuario/assandef-sistema.git
-   ```
-2. Configure as credenciais do banco de dados no arquivo `src/main/resources/application.properties`:
-   ```properties
-   spring.datasource.url=jdbc:mysql://localhost:3306/db_assandef
-   spring.datasource.username=seu_usuario
-   spring.datasource.password=sua_senha
-   ```
-3. Compile e rode a aplicação:
-   ```bash
-   mvn spring-boot:run
-   ```
+Permissões conforme o documento de requisitos, restringindo acesso aos módulos conforme o papel.
 
----
+# 14. Novos Requisitos Funcionais
 
-## 👨‍💻 Desenvolvedores
-Projeto desenvolvido para a disciplina de **Práticas em ADS I e II** - Instituto Federal Sul-rio-grandense (IFSul).
+## Página Institucional
+- Página pública
+- Informações institucionais
+- Navegação integrada
 
-- *Instituição:* ASSANDEF (Associação Santanense do Deficiente Físico)
-- *Contribuidores:* Rodrigo Noelli Duarte, Pedro Rodrigues Coelho, William Ucha Giordano (ADS I), Bruno Andres (ADS I).
+## Financeiro
+- Contas bancárias
+- Categorias
+- Receitas
+- Despesas
+- Consulta de contas
+- Exportação PDF e CSV
+
+## Cadastro de Doadores
+- Página pública aprimorada
+- Informações institucionais
+- Imagens
+
+## Publicações
+- CRUD
+- Imagens
+- Vídeos YouTube
+- Tipos (notícia, evento, artigo)
+- Publicar
+- Ocultar
+- Visualização pública
+
+## Aluguel de Salão
+- Planos
+- Fotos
+- Calendário
+- Solicitação pública
+- Gestão administrativa
+- Controle de status
+
+# 15. Requisitos Não Funcionais
+
+- Interface intuitiva
+- Padronização visual
+- Responsividade
+- WCAG 2.1
+- RBAC
+- JWT
+- Sessão Web
+- Recuperação de senha
+- Desempenho
+- Exportação PDF/CSV
+
+# 16. Endpoints
+
+## Públicos
+/
+/login
+/sobre
+/publicacoes
+/doadores/newdonation
+/aluguel-salao
+/api/auth/login
+
+## Financeiro
+/financeiro
+/financeiro/contas
+/financeiro/movimentacoes
+/financeiro/categorias
+
+## Publicações
+/gestao/publicacoes
+
+## Aluguel
+/aluguel-salao/gestao
+
+## Recuperação
+/esqueci-senha
+/password/forgot
+/password/reset
+/api/auth/password/forgot
+/api/auth/password/reset
+
+# 17. Interfaces
+
+São descritas as telas de:
+- Página Institucional
+- Financeiro
+- Publicações
+- Aluguel de Salão (pública e administrativa)
+- Cadastro de Doadores
+
+# 18. Banco de Dados Atualizado
+
+Novas entidades:
+- contas_bancarias
+- categoria_financeira
+- movimentacoes_financeiras
+- publicacoes
+- publicacoes_imagens
+- publicacoes_videos
+- planos_aluguel_salao
+- fotos_salao
+- solicitacoes_aluguel_salao
+
+Mantém compatibilidade com as tabelas da primeira etapa.
+
+# 19. Considerações Finais
+
+A evolução do Sistema de Gestão ASSANDEF amplia a solução originalmente criada para gestão administrativa, incorporando funcionalidades financeiras, comunicação institucional, aluguel de salão, autenticação moderna e recursos públicos. O sistema mantém uma arquitetura baseada em Spring Boot, MySQL e Thymeleaf, preservando compatibilidade com os módulos desenvolvidos anteriormente e consolidando uma plataforma única para apoiar as atividades da ASSANDEF.
+
+# 20. Desenvolvido por
+- *Rodrigo Noelli Duarte*
+- *Pedro Rodrigues Coelho*
+- *Bruno Andres (ADS I)*
+- *William Ucha Giordano (ADS I)*
